@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r15）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r16）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -27,12 +27,14 @@ html,body{margin:0;padding:0;background:var(--bg,#f7f8fb);color:var(--b,#111);
 .ktl-muted{color:var(--m)}
 .ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
+#ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
+
 /* ラベル＆入力の標準 */
 #ktl-app label{display:block;margin:6px 0 4px;font-weight:600}
 .ktl-inlineLabel{display:inline-flex !important; align-items:center; gap:6px; margin:0 !important; font-weight:600;}
 .ktl-inlineLabel input{margin:0;} .ktl-inlineLabel span{line-height:1.2;}
 
-/* 入力要素を指で押しやすく（発生日などと同じ高さ感で統一） */
+/* 入力要素を押しやすく（高さ統一） */
 #ktl-app input[type="text"],
 #ktl-app input[type="date"],
 #ktl-app input[type="time"],
@@ -57,7 +59,7 @@ html,body{margin:0;padding:0;background:var(--bg,#f7f8fb);color:var(--b,#111);
 
 /* ====== 一覧テーブル（画面） ====== */
 .ktl-tableWrap{position:relative;padding:0;margin:0;overflow-x:hidden}
-.ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0;color:var(--grid-color)} /* ←テーブルの下に */
+.ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0;color:var(--grid-color)}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0}
 table.ktl-list thead th{background:var(--th);text-align:left;padding:6px 6px;font-weight:700}
@@ -70,7 +72,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 
 /* 操作ボタン：縦積み＋100%幅＋折返し可（潰れ防止） */
 .ktl-actions{display:flex;flex-direction:column;gap:6px;justify-content:flex-start;align-items:stretch}
-.ktl-actions .ktl-btn{width:100%;white-space:normal;padding:8px 6px;font-size:12.5px;line-height:1.1}
+.ktl-actions .ktl-btn{width:100%;white-space:normal;padding:9px 6px;font-size:12.5px;line-height:1.14}
 
 /* 見出しとPDFボタン */
 .ktl-cardHead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -81,7 +83,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 .ktl-grid .ktl-col2{grid-column: span 2}
 
 /* ====== PDF生成メッセージ ====== */
-#pdfStatus{margin-top:6px;font-size:13px;color:#333}
+#pdfStatus{margin-top:6px;font-size:13px;color:#333;line-height:1.4}
 #pdfStatus a{color:#0a58cc;text-decoration:underline}
 
 /* ====== 印刷レイヤ（PDF作成に再利用） ====== */
@@ -96,7 +98,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
-    <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）</h1>
+    <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
+      <span class="ver">V10 r16</span>
+    </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
       入力は<strong>端末のブラウザにのみ保存</strong>され、<strong>外部には送信されません</strong>。
@@ -131,22 +135,22 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       <h2 style="margin:0;font-size:16px">時系列一覧</h2>
       <div>
         <button id="pdfBtn" class="ktl-btn ktl-btn-primary">PDF</button>
-        <div id="pdfStatus"></div><!-- ここに保存案内と手動保存リンクを出す -->
+        <div id="pdfStatus"></div>
       </div>
     </div>
     <div class="ktl-tableWrap" id="tableWrap">
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
-        <!-- 合計 96%：はみ出し防止しつつ 証拠/操作 を広げ、内容も広め -->
+        <!-- 合計 98%：内容最大化＋証拠/操作も確保 -->
         <colgroup>
           <col style="width:3.5%">
-          <col style="width:14%">
+          <col style="width:13.5%">
+          <col style="width:7%">
           <col style="width:7.5%">
+          <col style="width:9%">
+          <col style="width:9%">
+          <col style="width:31.5%">
           <col style="width:8%">
-          <col style="width:9%">
-          <col style="width:9%">
-          <col style="width:26%">
-          <col style="width:9%">
           <col style="width:9%">
         </colgroup>
         <thead><tr>
@@ -422,7 +426,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   function buildPrintSheet(fontPx, list){
     const sheet=document.createElement("div"); sheet.className="sheet"; sheet.style.position="relative"; sheet.style.overflow="visible";
     const headers=["#","日付","時刻","種別","関与者","場所","内容（事実）","証拠"];
-    const widths=[3.5,14,7.5,8,9,9,26,9]; /* 画面と同じ配分に合わせる */
+    const widths=[3.5,13.5,7,7.5,9,9,31.5,8]; /* 画面と同じ配分に合わせる */
     const table=document.createElement("table");
     table.style.width="99.5%"; table.style.borderCollapse="collapse"; table.style.tableLayout="fixed"; table.style.border="1px solid #000"; table.style.boxSizing="border-box";
     const thead=document.createElement("thead"); const trh=document.createElement("tr");
@@ -518,7 +522,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       const s=$("pdfStatus");
       if(s){
         s.innerHTML = `PDFを作成し、ダウンロードを開始しました。<br>保存先の例：<strong>iPhone → ファイル ＞ Downloads</strong>／<strong>Android → ダウンロード</strong><br>
-        保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。`;
+        保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r16</span>`;
       }
 
       // URLは少し待ってから解放（手動リンクが使えるように）
