@@ -33,13 +33,15 @@ html,body{margin:0;padding:0;background:var(--bg,#f7f8fb);color:var(--b,#111);
 #ktl-app label{display:block;margin:6px 0 4px;font-weight:600}
 #ktl-app input,#ktl-app select,#ktl-app textarea{width:100%;padding:9px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;font-size:14px}
 
-/* ★ 自動保存ラベルを常に横並びに（縦書き化しない） */
-.ktl-autosave{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  white-space:nowrap;
-  writing-mode:horizontal-tb;
+/* ★ 自動保存ラベルを常に横並び（#ktl-app label を強制上書き） */
+#ktl-app label.ktl-autosave{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  white-space:nowrap !important;      /* 文字の折返し禁止 */
+  writing-mode:horizontal-tb !important;
+  word-break:keep-all !important;
+  flex:0 0 auto !important;           /* フレックス縮小で縦崩れしない */
 }
 
 /* ====== 一覧テーブル（画面） ====== */
