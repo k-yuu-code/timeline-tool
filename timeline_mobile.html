@@ -2,13 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r28c）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r29）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>
-/* ====== 基本トークン ====== */
+/* ====== トークン ====== */
 #ktl-app{ --bg:#f7f8fb; --b:#111; --m:#666; --bd:#dcdfea; --acc:#0a58cc;
           --th:#eef2fb; --td:#fff; --grid-color:#000; --field:#cfd3e2; }
 #ktl-app, #ktl-app *{ box-sizing:border-box; }
@@ -19,72 +19,45 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 #ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
 
-/* ラベルは常に欄の上（※自動保存ラベルは後で個別上書き） */
+/* ラベルは欄の上（ただしcheckboxは除外） */
 #ktl-app label{display:block;margin:6px 0 4px;font-weight:600}
-#ktl-app label > input,
+#ktl-app label > input:not([type="checkbox"]),
 #ktl-app label > select,
 #ktl-app label > textarea{ display:block; margin-top:6px; width:100%; }
 
-/* ====== 自動保存ラベル：チェックの”すぐ横”に文字を配置（確実に上書き） ====== */
-#ktl-app .ktl-inlineLabel{
-  display:inline-flex !important;
+/* Autosaveラベル：チェックの横に文字（全環境安定） */
+.ktl-inlineLabel{
+  display:inline-grid !important;
+  grid-auto-flow:column;
   align-items:center !important;
-  gap:6px !important;           /* 必要なら 2〜8px で調整 */
+  column-gap:6px !important;    /* 0〜8pxで調整可 */
   margin:0 !important;
-  white-space:nowrap;
+  font-weight:700;
 }
-#ktl-app .ktl-inlineLabel > input{
-  width:auto !important;        /* ここで 100% 指定を打ち消すのが肝 */
-  height:auto !important;
-  display:inline-block !important;
-  margin:0 !important;
-  -webkit-appearance:auto;
-  appearance:auto;
+.ktl-inlineLabel > input[type="checkbox"]{
+  display:inline-block !important; width:auto !important; height:auto !important;
+  margin:0 !important; padding:0 !important; vertical-align:middle !important;
 }
-#ktl-app .ktl-inlineLabel > span{
-  margin:0 !important;
-  line-height:1.2;
-}
+.ktl-inlineLabel > span{ margin:0 !important; line-height:1.2; white-space:nowrap; }
 
-/* 入力（枠線色統一） */
+/* 入力共通 */
 #ktl-app input[type="text"],
 #ktl-app input[type="date"],
 #ktl-app input[type="time"],
-#ktl-app input[type="number"],
 #ktl-app select{
-  width:100%; max-width:100%; font-size:16px; line-height:1.3;
+  width:100%; font-size:16px; line-height:1.3;
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
   min-height:44px; height:44px; -webkit-appearance:none; appearance:none;
 }
 #ktl-app textarea{
-  width:100%; max-width:100%; font-size:16px; line-height:1.5;
+  width:100%; font-size:16px; line-height:1.5;
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
-/* 関与者/場所/証拠も高さ44pxに統一（編集ダイアログも） */
-#evActor,#evPlace,#evEvidence,#edActor,#edPlace,#edEvidence{min-height:44px;height:44px}
+/* 関与者/場所/証拠は読みやすく18px（編集ダイアログも） */
+#evActor,#evPlace,#evEvidence,#edActor,#edPlace,#edEvidence{font-size:18px;min-height:44px;height:44px}
 
-/* ▼ 案件コンボ（input + datalist + 矢印） */
-.ktl-comboWrap{ position:relative; }
-.ktl-comboWrap input{ padding-right:56px; }
-.ktl-comboWrap::after{
-  content:""; position:absolute; right:12px; top:60%; transform:translateY(-50%);
-  width:22px; height:22px; pointer-events:none; opacity:.9;
-  background: no-repeat center / 22px 22px
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
-}
-
-/* ▼ セレクト矢印（種別のみ） */
-.ktl-selectWrap{ position:relative; }
-.ktl-selectWrap select{ padding-right:42px; }
-.ktl-selectWrap::after{
-  content:""; position:absolute; right:12px; top:52%; transform:translateY(-50%);
-  width:18px; height:18px; pointer-events:none; opacity:.9;
-  background: no-repeat center / 18px 18px
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
-}
-
-/* ▼ 日付/時刻アイコン（線画・アウトライン） */
+/* ▼ 日付/時刻アイコン（線画） */
 .ktl-dateWrap,.ktl-timeWrap{ position:relative; }
 .ktl-dateWrap input,.ktl-timeWrap input{ padding-right:44px; }
 .ktl-dateWrap::after,.ktl-timeWrap::after{
@@ -98,6 +71,15 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
+/* ▼ 案件：select（矢印つき） */
+.ktl-caseSelect{ position:relative; }
+.ktl-caseSelect select{ padding-right:42px; }
+.ktl-caseSelect::after{
+  content:""; position:absolute; right:12px; top:52%; transform:translateY(-50%);
+  width:18px; height:18px; pointer-events:none; opacity:.9;
+  background:no-repeat center/18px 18px url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
+}
+
 /* ボタン */
 .ktl-btn{padding:10px 14px;border:1px solid #333;border-radius:10px;background:#fff;cursor:pointer;font-size:15px;white-space:nowrap}
 .ktl-btn-plain{border:1px solid #999}
@@ -107,17 +89,18 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 
 /* ====== 一覧（画面） ====== */
 .ktl-tableWrap{position:relative;padding:0;margin:0;overflow-x:hidden}
-table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0;border:0}
+table.ktl-list{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0;border:0}
 table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
 table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
 table.ktl-list th, table.ktl-list td{
-  white-space:normal;word-break:break-word;overflow-wrap:anywhere;line-height:1.4;
-  font-size:13px;min-width:0;max-width:100%;
+  white-space:normal;word-break:break-word;overflow-wrap:anywhere;line-height:1.45;
+  font-size:13.5px;min-width:0;max-width:100%;
 }
-.ktl-nowrap{ white-space:nowrap !important; word-break:keep-all !important; }
-table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word !important;}
+/* 1列目(#)中央寄せ・上下中央 */
 .ktl-list th:nth-child(1), .ktl-list td:nth-child(1){ text-align:center }
 .ktl-list tbody td:nth-child(1){ vertical-align:middle }
+/* 内容は改行保持 */
+table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 /* 罫線オーバーレイ (SVG) */
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
@@ -130,22 +113,21 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 
 /* 見出しとPDFボタン */
 .ktl-cardHead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
-.ktl-nowrapbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:nowrap}
 
 /* 2列グリッド */
-.ktl-grid{display:grid;grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:10px}
-.ktl-grid .ktl-col2{grid-column: 1 / -1}
-@media (max-width: 480px){ .ktl-grid{ grid-template-columns: 1fr; } }
+.ktl-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.ktl-grid .ktl-col2{grid-column:1 / -1}
+@media (max-width:480px){ .ktl-grid{grid-template-columns:1fr;} }
 
-/* 案件コントロール */
+/* 案件操作 */
 .ktl-caseRow1{ margin-bottom:6px; }
 .ktl-caseRow2{ gap:8px; }
 .ktl-caseRow2 .ktl-btn{ flex:1; }
 
-/* カウンタ（内容の直下に固定） */
-.ktl-counter{display:block; margin:6px 0 0 2px; font-size:13px; color:#666}
+/* カウンタ（内容の直下） */
+.ktl-counter{display:block;margin:6px 0 0 2px;font-size:13px;color:#666}
 
-/* PDFメッセージ */
+/* PDFステータス */
 #pdfStatus{margin-top:6px;font-size:13px;color:#333;line-height:1.4}
 #pdfStatus a{color:#0a58cc;text-decoration:underline}
 
@@ -153,12 +135,11 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 #PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
 </style>
 </head>
-
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r28c</span>
+      <span class="ver">V10 r29</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -174,17 +155,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   </div>
 
   <div class="ktl-card">
-    <!-- 案件：入力できるコンボボックス -->
+    <!-- 案件：selectで確実に切り替え -->
     <div class="ktl-toolbar ktl-caseRow1">
-      <label class="ktl-comboWrap">案件：
-        <input id="caseInput" type="text" list="caseOptions" placeholder="案件名を入力または選択" autocomplete="off">
+      <label class="ktl-caseSelect">案件：
+        <select id="caseSelect"></select>
       </label>
-      <datalist id="caseOptions"></datalist>
     </div>
     <div class="ktl-toolbar ktl-caseRow2">
       <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
       <button id="renameCase" class="ktl-btn ktl-btn-plain">名前変更</button>
-      <button id="dupCase" class="ktl-btn ktl-btn-plain">複製</button>
+      <button id="dupCase"   class="ktl-btn ktl-btn-plain">複製</button>
       <button id="deleteCase" class="ktl-btn ktl-btn-warn">案件削除</button>
     </div>
   </div>
@@ -201,16 +181,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅：#・日付・操作を広めに（はみ出し防止） -->
+          <!-- モバイル向けの列幅（はみ出し防止：合計100%） -->
           <col style="width:5%">
-          <col style="width:20%">
+          <col style="width:19%">
           <col style="width:9%">
           <col style="width:10%">
+          <col style="width:10%">
+          <col style="width:10%">
+          <col style="width:22%">
+          <col style="width:6%">
           <col style="width:9%">
-          <col style="width:9%">
-          <col style="width:21%">
-          <col style="width:5%">
-          <col style="width:12%">
         </colgroup>
         <thead><tr>
           <th>#</th><th>日付</th><th>時刻</th><th>種別</th><th>関与者</th><th>場所</th>
@@ -227,7 +207,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       <div><label class="ktl-dateWrap">発生日（開始）<input id="evDate" type="date" placeholder="yyyy/mm/dd"></label></div>
       <div><label class="ktl-timeWrap">発生時刻（任意）<input id="evTime" type="time"></label></div>
       <div>
-        <label class="ktl-selectWrap">種別
+        <label>種別
           <select id="evType">
             <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
             <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
@@ -263,7 +243,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       <div><label class="ktl-dateWrap">発生日<input id="edDate" type="date"></label></div>
       <div><label class="ktl-timeWrap">時刻<input id="edTime" type="time"></label></div>
       <div>
-        <label class="ktl-selectWrap">種別
+        <label>種別
           <select id="edType">
             <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
             <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
@@ -304,12 +284,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   const S={cases:{},order:[],current:""};
   let storeOK=false;
 
-  /* JS稼働確認用（起動エラー表示） */
+  /* JS起動エラーを画面下に表示（デバッグ用） */
   window.addEventListener("error", function(e){
-    try{
-      const el=$("inlineError");
-      if(el){ el.textContent = "起動エラー: " + (e.error && e.error.message ? e.error.message : e.message); }
-    }catch(_){}
+    try{ const el=$("inlineError"); if(el){ el.textContent="起動エラー: "+(e.error?.message||e.message); } }catch(_){}
   });
 
   /* localStorage 可否 */
@@ -328,35 +305,74 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   function ensureDefault(){ if(!S.order.length){ const n="案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; persist(); } }
   const events = ()=> S.cases[S.current]||(S.cases[S.current]=[]);
 
-  /* 案件UI（datalist） */
-  function uiCases(){
-    const dl=$("caseOptions"); if(!dl) return;
-    dl.innerHTML="";
-    S.order.forEach(n=>{ const op=document.createElement("option"); op.value=n; dl.appendChild(op); });
-    const inp=$("caseInput"); if(inp) inp.value=S.current||"";
-    render();
+  /* ===== 案件UI：selectで確実に切替 ===== */
+  function refreshCaseSelect(){
+    const sel=$("caseSelect"); if(!sel) return;
+    sel.innerHTML="";
+    if(!S.order.length){ ensureDefault(); }
+    S.order.forEach(n=>{
+      const op=document.createElement("option");
+      op.value=n; op.textContent=n;
+      if(n===S.current) op.selected=true;
+      sel.appendChild(op);
+    });
   }
-  function pickOrCreateCase(v){
-    const name=(v||"").trim();
-    const inp=$("caseInput");
-    if(!name){ if(inp) inp.value=S.current||""; return; }
-    if(S.cases[name]){ S.current=name; persist(); uiCases(); return; }
-    if(confirm(`案件「${name}」を新規作成しますか？`)){
-      if(S.order.length>=MAX_CASES){ alert("案件数が上限に達しました。"); if(inp) inp.value=S.current||""; return; }
-      S.cases[name]=[]; S.order.push(name); S.current=name; persist(); uiCases();
-    }else{
-      if(inp) inp.value=S.current||"";
-    }
+  function setCurrentCase(name){
+    if(!S.cases[name]) return;
+    S.current=name; persist(); refreshCaseSelect(); render();
+  }
+  if($("caseSelect")){
+    $("caseSelect").addEventListener("change", e=> setCurrentCase(e.target.value));
   }
 
-  /* 一覧描画（画面） */
+  /* 新規/名前変更/複製/削除（ダイアログ使用） */
+  const caseDlg=$("caseDlg"), caseName=$("caseName"), caseError=$("caseError"); let caseMode="new";
+  function openCaseDialog(mode){ caseMode=mode; if(!caseDlg) return;
+    $("caseDlgTitle").textContent=(mode==="new")?"新規案件":"案件名の変更";
+    caseName.value=(mode==="rename")?(S.current||""):"";
+    caseError.textContent=""; caseDlg.showModal();
+  }
+  $("newCase").onclick = ()=>openCaseDialog("new");
+  $("renameCase").onclick=()=>openCaseDialog("rename");
+  $("dupCase").onclick=()=>{
+    const c=S.current; if(!c) return;
+    let cand=c+"_複製", i=2; while(S.cases[cand]) cand=c+"_複製_"+(i++);
+    S.cases[cand]=JSON.parse(JSON.stringify(S.cases[c]||[]));
+    S.order.push(cand); S.current=cand; persist(); refreshCaseSelect(); render();
+  };
+  $("deleteCase").onclick=()=>{
+    const c=S.current; if(!c) return;
+    if(!confirm(`案件「${c}」を削除します。よろしいですか？`)) return;
+    delete S.cases[c]; S.order=S.order.filter(x=>x!==c); S.current=S.order[0]||"";
+    if(!S.current){ ensureDefault(); }
+    persist(); refreshCaseSelect(); render();
+  };
+  $("caseCancel").onclick=()=>caseDlg.close();
+  $("caseOk").onclick=()=>{
+    const name=(caseName.value||"").trim();
+    if(!name){ caseError.textContent="案件名を入力してください"; return; }
+    if(caseMode==="new"){
+      if(S.order.length>=MAX_CASES){ caseError.textContent="案件数が上限に達しました"; return; }
+      if(S.cases[name]){ caseError.textContent="同名の案件が既にあります"; return; }
+      S.cases[name]=[]; S.order.push(name); S.current=name; persist(); refreshCaseSelect(); render(); caseDlg.close();
+    }else{
+      const cur=S.current; if(!cur){ caseDlg.close(); return; }
+      if(name===cur){ caseDlg.close(); return; }
+      if(S.cases[name]){ caseError.textContent="その名前は使用されています"; return; }
+      S.cases[name]=S.cases[cur]; delete S.cases[cur];
+      S.order=S.order.map(x=>x===cur?name:x); S.current=name; persist(); refreshCaseSelect(); render(); caseDlg.close();
+    }
+  };
+
+  /* ===== 一覧描画（画面） ===== */
   function render(){
     const tbody=$("listBody"); if(!tbody) return;
     tbody.innerHTML="";
     const arr=events().slice().map((ev,idx)=>({ev,idx}))
       .sort((a,b)=>((a.ev.date||"")+(a.ev.time||"")).localeCompare((b.ev.date||"")+(b.ev.time||"")));
     if(!arr.length){
-      const tr=document.createElement("tr"); const td=document.createElement("td"); td.colSpan=9; td.className="ktl-muted"; td.textContent="まだ追加がありません";
+      const tr=document.createElement("tr"); const td=document.createElement("td");
+      td.colSpan=9; td.className="ktl-muted"; td.textContent="まだ追加がありません";
       tr.appendChild(td); tbody.appendChild(tr); drawGrid(); return;
     }
     arr.forEach((item,i)=>{
@@ -367,7 +383,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
         td(e.date,"ktl-nowrap"),
         td(e.time,"ktl-nowrap"),
         td(e.type), td(e.actor), td(e.place),
-        td(e.fact,"ktl-pre ktl-fact"),
+        td(e.fact,"ktl-pre"),
         td(e.evidence)
       );
       const tdAct=document.createElement("td"); tdAct.className="ktl-actions";
@@ -378,8 +394,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       tdAct.append(bE,bD); tr.appendChild(tdAct);
       tbody.appendChild(tr);
     });
-    drawGrid();
-    setTimeout(drawGrid, 50); setTimeout(drawGrid, 300);
+    drawGrid(); setTimeout(drawGrid,50); setTimeout(drawGrid,300);
   }
 
   /* 罫線（SVG：1pxクリスプ） */
@@ -405,8 +420,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     const xs = getColumnXs(table); const ys = getRowYs(table);
     // 外枠
     const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
-    rect.setAttribute("x",0.5); rect.setAttribute("y",0.5); rect.setAttribute("width",Math.max(0,W-1)); rect.setAttribute("height",Math.max(0,H-1));
-    rect.setAttribute("fill","none"); rect.setAttribute("stroke",stroke.trim()||"#000"); rect.setAttribute("stroke-width",sw); rect.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(rect);
+    rect.setAttribute("x",0.5); rect.setAttribute("y",0.5);
+    rect.setAttribute("width",Math.max(0,W-1)); rect.setAttribute("height",Math.max(0,H-1));
+    rect.setAttribute("fill","none"); rect.setAttribute("stroke",stroke.trim()||"#000");
+    rect.setAttribute("stroke-width",sw); rect.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(rect);
     // 縦線
     xs.forEach((x,i)=>{ if(i===0||i===xs.length-1) return; const cx=Math.round(x)+0.5;
       const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
@@ -423,280 +440,172 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   try{ if('ResizeObserver' in window){ new ResizeObserver(drawGrid).observe(document.getElementById("tableWrap")); } }catch(e){}
   window.addEventListener("load", ()=>{ drawGrid(); setTimeout(drawGrid,500); });
 
-  /* 保存関連 */
+  /* ===== 保存関連 ===== */
   let DIRTY=false; function showUnsaved(on){ const u=$("unsaved"); if(u) u.style.display = on ? "inline" : "none"; }
   function persistAndMark(){ persist(); DIRTY=false; showUnsaved(false); }
   function saveMaybe(){ if($("autoSave").checked){ persistAndMark(); } else { DIRTY=true; showUnsaved(true); } }
   $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
   window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* 編集（ダイアログ） */
+  /* ===== 編集ダイアログ ===== */
   let editingIndex=-1; const dlg=$("editDlg");
   function openEdit(i){ editingIndex=i; const ev=events()[i]; if(!ev) return;
     $("edDate").value=ev.date||""; $("edTime").value=ev.time||""; $("edType").value=ev.type||"その他";
     $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
-    if(dlg && dlg.showModal){ dlg.showModal(); } else { alert("編集はこの端末ではダイアログに未対応です。"); }
+    if(dlg && dlg.showModal){ dlg.showModal(); } else { alert("編集ダイアログに未対応の端末です。"); }
   }
-  $("editCancel").onclick=()=>dlg && dlg.close && dlg.close();
-  $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg && dlg.close && dlg.close(); return; }
-    const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"", actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(), fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
+  $("editCancel").onclick=()=>dlg.close();
+  $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg.close(); return; }
+    const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
+              actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(),
+              fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
     if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-    events()[i]=nv; saveMaybe(); render(); dlg && dlg.close && dlg.close();
+    events()[i]=nv; saveMaybe(); render(); dlg.close();
   };
 
-  /* 案件操作（ダイアログ） */
-  const caseDlg=$("caseDlg"), caseName=$("caseName"), caseError=$("caseError"); let caseMode="new";
-  function openCaseDialog(mode){ caseMode=mode; if(!caseDlg) return; $("caseDlgTitle").textContent=(mode==="new")?"新規案件":"案件名の変更"; caseName.value=(mode==="rename")?(S.current||""):""; caseError.textContent=""; caseDlg.showModal(); }
-  if($("newCase")) $("newCase").onclick=()=>openCaseDialog("new");
-  if($("renameCase")) $("renameCase").onclick=()=>openCaseDialog("rename");
-  if($("dupCase")) $("dupCase").onclick=()=>{ const c=S.current; if(!c) return;
-    let cand=c+"_複製", i=2; while(S.cases[cand]) cand=c+"_複製_"+(i++); S.cases[cand]=JSON.parse(JSON.stringify(S.cases[c]||[]));
-    S.order.push(cand); S.current=cand; persist(); uiCases();
+  /* ===== 追加 ===== */
+  if($("evFact")) $("evFact").addEventListener("input",()=>{$("counter").textContent=(($("evFact").value)||"").length+"/140";});
+  $("addBtn").onclick=()=>{ const e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"",
+                                     actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(),
+                                     fact:($("evFact").value||"").trim(), evidence:($("evEvidence").value||"").trim()};
+    if(!e.date||!e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; } $("inlineError").textContent="";
+    events().push(e); saveMaybe(); render();
   };
-  if($("deleteCase")) $("deleteCase").onclick=()=>{ const c=S.current; if(!c) return;
-    if(!confirm(`案件「${c}」を削除します。よろしいですか？`)) return;
-    delete S.cases[c]; S.order=S.order.filter(x=>x!==c); S.current=S.order[0]||""; if(!S.current){ ensureDefault(); }
-    persist(); uiCases();
-  };
-  if($("caseCancel")) $("caseCancel").onclick=()=>caseDlg && caseDlg.close();
-  if($("caseOk")) $("caseOk").onclick=()=>{ const name=(caseName.value||"").trim();
-    if(!name){ caseError.textContent="案件名を入力してください"; return; }
-    if(caseMode==="new"){
-      if(S.order.length>=MAX_CASES){ caseError.textContent="案件数が上限に達しました（MAX "+MAX_CASES+"）。"; return; }
-      if(S.cases[name]){ caseError.textContent="同名の案件が既にあります"; return; }
-      S.cases[name]=[]; S.order.push(name); S.current=name; persist(); uiCases(); caseDlg && caseDlg.close();
-    }else{
-      const cur=S.current; if(!cur){ caseDlg && caseDlg.close(); return; }
-      if(name===cur){ caseDlg && caseDlg.close(); return; }
-      if(S.cases[name]){ caseError.textContent="その名前は使用されています"; return; }
-      S.cases[name]=S.cases[cur]; delete S.cases[cur];
-      S.order=S.order.map(x=>x===cur?name:x); S.current=name; persist(); uiCases(); caseDlg && caseDlg.close();
-    }
-  };
-
-  /* 案件欄（入力/Enter/確定） */
-  if($("caseInput")){
-    $("caseInput").addEventListener("change", e=> pickOrCreateCase(e.target.value));
-    $("caseInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); pickOrCreateCase(e.target.value); }});
-  }
 
   /* ===== PDF（Canvas→JPEG→PDF） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
-  function collectFromState(){
+  function collectForPdf(){
     const arr=(events().slice()||[]);
-    arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
+    arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));  // ← バグ修正（b.ev.time→b.time）
     return arr.map(e=>({date:e.date||"", time:e.time||"", type:e.type||"", actor:e.actor||"", place:e.place||"", fact:e.fact||"", evidence:e.evidence||""}));
   }
-  function wrapLines(ctx, text, maxW, font){
-    ctx.save(); ctx.font=font;
-    const lines=[]; let line="";
-    for(const ch of (text||"")){
-      const test=line+ch;
-      if(ctx.measureText(test).width <= maxW || line==="" ){ line=test; }
-      else { lines.push(line); line=ch; }
-    }
-    if(line!=="") lines.push(line);
-    ctx.restore(); return lines.length?lines:[""];
-  }
   const measureCtx = (function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
-
-  function buildCanvasFromList(list){
+  function wrapLines(ctx, text, maxW, font){
+    ctx.save(); ctx.font=font; const lines=[]; let line="";
+    for(const ch of (text||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { lines.push(line); line=ch; } }
+    if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""];
+  }
+  function buildCanvas(list){
     const innerWpx = Math.floor((PDF_W_PT - 2*PDF_MARGIN_PT)/PX2PT);
     const marginPx = Math.floor(PDF_MARGIN_PT/PX2PT);
-    const W = innerWpx + marginPx*2;
-    const innerW = innerWpx;
+    const W = innerWpx + marginPx*2; const innerW = innerWpx;
 
-    const cols=[
-      {t:"#",     k:"idx",  w:0.06,  align:"center", vcenter:true},
-      {t:"日付",  k:"date", w:0.20},
-      {t:"時刻",  k:"time", w:0.12, nowrap:true},
-      {t:"種別",  k:"type", w:0.11},
-      {t:"関与者",k:"actor",w:0.11},
-      {t:"場所",  k:"place",w:0.11},
-      {t:"内容（事実）",k:"fact", w:0.21},
-      {t:"証拠",  k:"evidence", w:0.08},
+    const cols=[ // 合計1.00
+      {t:"#",w:.06,align:"center",vcenter:true},
+      {t:"日付",w:.20},{t:"時刻",w:.12,nowrap:true},{t:"種別",w:.11},{t:"関与者",w:.11},{t:"場所",w:.11},
+      {t:"内容（事実）",w:.21},{t:"証拠",w:.08}
     ];
-    const colW = cols.map(c=>Math.round(c.w*innerW));
-    const sumW = colW.reduce((a,b)=>a+b,0);
-    if(sumW!==innerW) colW[colW.length-1]+= (innerW-sumW);
+    const colW = cols.map(c=>Math.round(c.w*innerW)); const sumW=colW.reduce((a,b)=>a+b,0); if(sumW!==innerW) colW[colW.length-1]+=innerW-sumW;
 
     const headFont="bold 17px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    const lineH=21; const padY=12; const padX=12; const headH=36;
+    const lineH=21, padY=12, padX=12, headH=36;
 
-    const rows = list.map((e,i)=>{
-      const vals=[String(i+1), e.date, e.time, e.type, e.actor, e.place, e.fact, e.evidence];
-      const lines=vals.map((v,ci)=>{
-        const w = colW[ci]-padX*2;
-        if(cols[ci].nowrap) return [v||""];
-        return wrapLines(measureCtx, v, Math.max(12,w), cellFont);
-      });
-      const h = padY*2 + Math.max(...lines.map(ls=>ls.length))*lineH;
-      return {vals,lines,h};
+    const rows=list.map((e,i)=>{
+      const vals=[String(i+1),e.date,e.time,e.type,e.actor,e.place,e.fact,e.evidence];
+      const lines=vals.map((v,ci)=>{ const w=colW[ci]-padX*2; return cols[ci].nowrap?[v||""]:wrapLines(measureCtx,v,Math.max(12,w),cellFont); });
+      const h=padY*2 + Math.max(...lines.map(ls=>ls.length))*lineH; return {vals,lines,h};
     });
     const totalH = marginPx + headH + rows.reduce((s,r)=>s+r.h,0) + marginPx;
     const H = Math.max(Math.ceil((PDF_H_PT - 2*PDF_MARGIN_PT)/PX2PT)+marginPx*2, Math.ceil(totalH));
-    const c=document.createElement("canvas"); c.width=W; c.height=H;
-    const ctx=c.getContext("2d");
+    const c=document.createElement("canvas"); c.width=W; c.height=H; const ctx=c.getContext("2d");
 
     // 背景
     ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
 
-    // 1px クリスプ描画ヘルパ
-    const line = { 
-      rect:(x,y,w,h)=>{ctx.strokeRect(Math.round(x)+0.5, Math.round(y)+0.5, Math.round(w), Math.round(h));},
-      v:(x,y1,y2)=>{x=Math.round(x)+0.5; y1=Math.round(y1)+0.5; y2=Math.round(y2)+0.5;
-                    ctx.beginPath(); ctx.moveTo(x,y1); ctx.lineTo(x,y2); ctx.stroke();},
-      h:(y,x1,x2)=>{y=Math.round(y)+0.5; x1=Math.round(x1)+0.5; x2=Math.round(x2)+0.5;
-                    ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();}
-    };
+    // クリスプ線
+    const line={rect:(x,y,w,h)=>{ctx.strokeRect(Math.round(x)+0.5,Math.round(y)+0.5,Math.round(w),Math.round(h));},
+                v:(x,y1,y2)=>{x=Math.round(x)+0.5;y1=Math.round(y1)+0.5;y2=Math.round(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
+                h:(y,x1,x2)=>{y=Math.round(y)+0.5;x1=Math.round(x1)+0.5;x2=Math.round(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();}};
     ctx.strokeStyle="#000"; ctx.lineWidth=1;
 
     let x0=marginPx, y0=marginPx;
 
-    // ヘッダ背景
-    ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0, y0, innerW, headH);
-    // ヘッダ文字（上下中央）
+    // ヘッダ
+    ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
     ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
-    let cx=x0;
-    cols.forEach((c,i)=>{
-      const tx=c.t;
-      let txX = cx+padX;
-      if(c.align==="center"){
-        const w = colW[i]-padX*2;
-        const wtx = measureCtx.measureText(tx).width;
-        txX = cx + (colW[i]-wtx)/2;
-      }
-      ctx.fillText(tx, Math.max(cx+padX, txX), y0+headH/2);
-      cx += colW[i];
+    let cx=x0; cols.forEach((c,i)=>{ const tx=c.t; let txX=cx+padX;
+      if(c.align==="center"){ const w=colW[i]-padX*2; const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; }
+      ctx.fillText(tx, Math.max(cx+padX,txX), y0+headH/2); cx+=colW[i];
     });
-    // ヘッダ枠 & 縦線
-    line.rect(x0, y0, innerW, headH);
-    cx=x0;
-    cols.forEach((c,i)=>{ if(i>0){ line.v(cx, y0, y0+headH); } cx += colW[i]; });
+    line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
 
-    // データ行
-    let y = y0 + headH;
-    ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="alphabetic";
+    // 明細
+    let y=y0+headH; ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="alphabetic";
     rows.forEach(r=>{
-      const h=r.h;
-      line.rect(x0, y, innerW, h);
-      let cx=x0;
-      cols.forEach((c,i)=>{ if(i>0){ line.v(cx, y, y+h); } cx += colW[i]; });
+      const h=r.h; line.rect(x0,y,innerW,h); let cx=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx,y,y+h); cx+=colW[i]; });
       let xx=x0;
       r.lines.forEach((ls,i)=>{
-        const colWidth = colW[i];
-        const left = xx+padX, top = y+padY;
-        if(cols[i].vcenter){ // #列：上下左右中央
-          const tx = r.vals[i]||""; const tw = measureCtx.measureText(tx).width;
+        const colWidth=colW[i], left=xx+padX, top=y+padY;
+        if(cols[i].vcenter){ const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width;
           const txX = left + (colWidth-padX*2 - tw)/2; const txY = y + h/2 + 0.5;
-          ctx.textBaseline="middle"; ctx.fillText(tx, Math.max(left, txX), txY); ctx.textBaseline="alphabetic";
+          ctx.textBaseline="middle"; ctx.fillText(tx, Math.max(left,txX), txY); ctx.textBaseline="alphabetic";
         }else{
-          ls.forEach((ln,li)=>{
-            let txX = left;
-            if(cols[i].align==="center"){
-              const tw = measureCtx.measureText(ln).width;
-              txX = left + (colWidth-padX*2 - tw)/2;
-            }
-            ctx.fillText(ln, Math.max(left, txX), top + li*lineH);
-          });
+          ls.forEach((ln,li)=>{ let txX=left; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX = left + (colWidth-padX*2 - tw)/2; }
+            ctx.fillText(ln, Math.max(left,txX), top+li*lineH); });
         }
-        xx += colWidth;
+        xx+=colWidth;
       });
-      y += h;
+      y+=h;
     });
-
     return c;
   }
-
-  function jpegToPdfBytes(jpegBytes, imgWpx, imgHpx){
-    const enc=new TextEncoder(); const parts=[]; let offset=0; const xref=[0];
-    function add(buf){ parts.push(buf); offset+=buf.length; }
-    function addStr(s){ add(enc.encode(s)); }
-    function addObj(n, bufs){ xref[n]=offset; addStr(`${n} 0 obj\n`); if(Array.isArray(bufs)) bufs.forEach(add); else addStr(bufs); addStr("\nendobj\n"); }
-    const W=PDF_W_PT, H=PDF_H_PT, margin=PDF_MARGIN_PT, px2pt=72/96;
-    const imgWpt=imgWpx*px2pt, imgHpt=imgHpx*px2pt, maxW=W-margin*2, maxH=H-margin*2;
-    const sc=Math.min(maxW/imgWpt, maxH/imgHpt, 1), drawW=imgWpt*sc, drawH=imgHpt*sc, x=(W-drawW)/2, y=(H-drawH)/2;
-    const header=enc.encode("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-    const content=`q
-${drawW.toFixed(2)} 0 0 ${drawH.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm
-/Im0 Do
-Q`;
-    add(header);
-    addObj(1, `<< /Type /Catalog /Pages 2 0 R >>`);
-    addObj(2, `<< /Type /Pages /Count 1 /Kids [3 0 R] /MediaBox [0 0 ${W.toFixed(2)} ${H.toFixed(2)}] >>`);
-    addObj(4, [enc.encode(`<< /Type /XObject /Subtype /Image /Width ${imgWpx} /Height ${imgHpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>
-stream
-`), jpegBytes, enc.encode("\nendstream\n")]);
-    addObj(5, `<< /Length ${enc.encode(content).length} >>
-stream
-${content}
-endstream`);
-    addObj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W.toFixed(2)} ${H.toFixed(2)}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
-    const startXref=offset; let xrefStr=`xref
-0 6
-0000000000 65535 f 
-`; for(let i=1;i<=5;i++){ xrefStr+=`${String(xref[i]||0).padStart(10,"0")} 00000 n 
-`; }
-    xrefStr+=`trailer << /Size 6 /Root 1 0 R >>
-startxref
-${startXref}
-%%EOF`; addStr(xrefStr);
+  function jpegToPdf(jpegBytes, imgWpx, imgHpx){
+    const enc=new TextEncoder(), parts=[]; let offset=0; const xref=[0];
+    const add=b=>{parts.push(b); offset+=b.length;};
+    const addS=s=>add(enc.encode(s));
+    const obj=(n,bufs)=>{ xref[n]=offset; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
+    const W=595.28, H=841.89, M=24, px2pt=72/96;
+    const imgWpt=imgWpx*px2pt, imgHpt=imgHpx*px2pt, maxW=W-M*2, maxH=H-M*2;
+    const sc=Math.min(maxW/imgWpt,maxH/imgHpt,1), w=imgWpt*sc, h=imgHpt*sc, x=(W-w)/2, y=(H-h)/2;
+    add(enc.encode("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"));
+    const content=`q\n${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm\n/Im0 Do\nQ`;
+    obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
+    obj(2,`<< /Type /Pages /Count 1 /Kids [3 0 R] /MediaBox [0 0 ${W} ${H}] >>`);
+    obj(4,[enc.encode(`<< /Type /XObject /Subtype /Image /Width ${imgWpx} /Height ${imgHpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>\nstream\n`),
+            jpegBytes, enc.encode("\nendstream\n")]);
+    obj(5,`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
+    obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+    const start=offset;
+    let xrefS=`xref\n0 6\n0000000000 65535 f \n`; for(let i=1;i<=5;i++) xrefS+=`${String(xref[i]||0).padStart(10,"0")} 00000 n \n`;
+    xrefS+=`trailer << /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`; addS(xrefS);
     return new Blob(parts,{type:"application/pdf"});
   }
-
-  function makePDFAndDownload(){
-    let list = collectFromState();
-    const draftFact=($("evFact").value||"").trim();
-    if(draftFact){
-      list = list.concat([{
-        date: ($("evDate").value||"").trim(),
-        time: ($("evTime").value||"").trim(),
-        type: ($("evType").value||"").trim(),
-        actor: ($("evActor").value||"").trim(),
-        place: ($("evPlace").value||"").trim(),
-        fact: draftFact,
-        evidence: ($("evEvidence").value||"").trim()
-      }]);
+  function makePDF(){
+    let list = collectForPdf();
+    const draft=($("evFact").value||"").trim();
+    if(draft){
+      list=list.concat([{ date: ($("evDate").value||""), time: ($("evTime").value||""), type: ($("evType").value||""),
+                          actor: ($("evActor").value||"").trim(), place: ($("evPlace").value||"").trim(),
+                          fact: draft, evidence: ($("evEvidence").value||"").trim() }]);
     }
     if(!list.length){ alert("時系列一覧にまだ行がありません。「＋ この内容を追加」で行を追加してください。"); return; }
-
-    const canvas = buildCanvasFromList(list);
-    const b64=canvas.toDataURL("image/jpeg",0.92);
-    const bin=atob(b64.split(",").pop());
-    const u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
-    const pdfBlob=jpegToPdfBytes(u8, canvas.width, canvas.height);
-    const url=URL.createObjectURL(pdfBlob);
-    const name="timeline_"+nowStr()+".pdf";
+    const canvas = buildCanvas(list);
+    const b64 = canvas.toDataURL("image/jpeg",0.92);
+    const bin = atob(b64.split(",").pop()); const u8 = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+    const pdfBlob = jpegToPdf(u8, canvas.width, canvas.height);
+    const url=URL.createObjectURL(pdfBlob); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r28c</span>`; }
-    setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} if(s) s.textContent=""; try{ a.remove(); }catch(e){} }, 60000);
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r29</span>`; }
+    setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
-  if($("pdfBtn")) $("pdfBtn").onclick = makePDFAndDownload;
+  $("pdfBtn").onclick=makePDF;
 
-  /* 初期化 */
+  /* ===== 初期化 ===== */
   (function init(){
     if(!loadMain()) ensureDefault();
-    uiCases();
-    if($("evDate")) $("evDate").value=today();
-    if($("counter")) $("counter").textContent="0/140";
-    const savedAuto=localStorage.getItem("__autosave__")==="1";
-    if($("autoSave")){ $("autoSave").checked=!!savedAuto; $("autoSave").addEventListener("change", ()=>{ localStorage.setItem("__autosave__", $("autoSave").checked ? "1" : "0"); }); }
-    requestAnimationFrame(drawGrid);
-    setTimeout(drawGrid, 50); setTimeout(drawGrid, 300); setTimeout(drawGrid, 600);
+    refreshCaseSelect(); render();
+    $("evDate").value=today(); $("counter").textContent="0/140";
+    const savedAuto = localStorage.getItem("__autosave__")==="1";
+    $("autoSave").checked=!!savedAuto;
+    $("autoSave").addEventListener("change", ()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
+    requestAnimationFrame(drawGrid); setTimeout(drawGrid,50); setTimeout(drawGrid,300); setTimeout(drawGrid,600);
   })();
 
-  /* 入力追加 */
-  if($("evFact")) $("evFact").addEventListener("input",()=>{$("counter").textContent=(($("evFact").value)||"").length+"/140";});
-  if($("addBtn")) $("addBtn").onclick=()=>{ const e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"", actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(), fact:($("evFact").value||"").trim(), evidence:($("evEvidence").value||"").trim()};
-    if(!e.date||!e.fact){ if($("inlineError")) $("inlineError").textContent="日付 と 内容 は必須です"; return; } if($("inlineError")) $("inlineError").textContent="";
-    events().push(e); saveMaybe(); render();
-  };
-
   /* 全消去 */
-  if($("wipeAll")) $("wipeAll").onclick=()=>{ if(confirm("この端末に保存された全案件・全入力を削除します。よろしいですか？")){
+  $("wipeAll").onclick=()=>{ if(confirm("この端末に保存された全案件・全入力を削除します。よろしいですか？")){
     try{ if(storeOK) localStorage.removeItem(KEY_MAIN); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; ensureDefault(); uiCases();
+    S.cases={}; S.order=[]; S.current=""; ensureDefault(); refreshCaseSelect(); render();
   }};
 
 })();
