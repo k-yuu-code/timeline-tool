@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r30）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r31）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -51,8 +51,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-caseWrap select{
   -webkit-appearance: menulist !important;
   appearance: menulist !important;
-  background: none !important;           /* テーマの背景矢印を無効化 */
-  padding-right:12px !important;         /* 余白を詰める */
+  background: none !important;
+  padding-right:12px !important;
 }
 
 /* ▼ 種別セレクト：カスタム矢印（1個のみ表示） */
@@ -92,13 +92,13 @@ table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:f
 table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
 table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
 table.ktl-list th, table.ktl-list td{
-  white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
-  line-height:1.45; font-size:15px; min-width:0;max-width:100%;
+  white-space:normal;overflow-wrap:anywhere;word-break:break-word;hyphens:auto;
+  line-height:1.45; font-size:15px; min-width:0; max-width:100%;
 }
-/* 関与者・場所・証拠は少し大きめ */
+/* 関与者・場所・証拠は少し大きめ（見やすさ） */
 .ktl-list td:nth-child(5),
 .ktl-list td:nth-child(6),
-.ktl-list td:nth-child(8){ font-size:16px; }
+.ktl-list td:nth-child(8){ font-size:17px; }
 
 /* #列：中央寄せ */
 .ktl-list th:nth-child(1), .ktl-list td:nth-child(1){ text-align:center }
@@ -111,10 +111,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（枠内に収める） */
-.ktl-list td:last-child{ padding:6px; overflow:hidden; }
-.ktl-actions{display:flex;flex-direction:column;gap:8px;align-items:stretch}
-.ktl-actions .ktl-btn{display:block;width:100%;box-sizing:border-box;padding:6px 8px;font-size:12.5px;line-height:1.1;border-radius:10px;white-space:nowrap;text-align:center;overflow:hidden;text-overflow:ellipsis}
+/* 操作ボタン（枠内に収める：r31） */
+.ktl-list td:last-child{ padding:4px; overflow:hidden; }
+.ktl-actions{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.ktl-actions .ktl-btn{
+  display:block; width:100%; box-sizing:border-box;
+  padding:4px 6px; font-size:11px; line-height:1.05;
+  border-radius:10px; white-space:nowrap; text-align:center; overflow:hidden; text-overflow:ellipsis
+}
 
 /* 見出しとPDFボタン */
 .ktl-cardHead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -145,7 +149,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r30</span>
+      <span class="ver">V10 r31</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -188,16 +192,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅合計100%：はみ出し抑制 -->
+          <!-- 列幅合計100%：操作列を7%に拡張（r31） -->
           <col style="width:6%">
-          <col style="width:20%">
-          <col style="width:10%">
+          <col style="width:19%">
+          <col style="width:9%">
           <col style="width:11%">
           <col style="width:11%">
           <col style="width:11%">
-          <col style="width:20%">
+          <col style="width:21%">
           <col style="width:5%">
-          <col style="width:6%">
+          <col style="width:7%">
         </colgroup>
         <thead><tr>
           <th>#</th><th>日付</th><th>時刻</th><th>種別</th><th>関与者</th><th>場所</th>
@@ -300,7 +304,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){ try{ if(storeOK) localStorage.setItem(KEY_MAIN, JSON.stringify(S)); }catch(e){} }
 
   function normalizeOrder(){
-    // order を cases に合わせて補完・整列（重複排除）
     const names=Object.keys(S.cases);
     const seen=new Set(); const out=[];
     (S.order||[]).forEach(n=>{ if(names.includes(n) && !seen.has(n)){ seen.add(n); out.push(n);} });
@@ -313,7 +316,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       const o=JSON.parse(localStorage.getItem(KEY_MAIN)||"null");
       if(o && o.cases){
         S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-        normalizeOrder(); persist();   // ← ここで補完して保存
+        normalizeOrder(); persist();
         return true;
       }
     }catch(e){}
@@ -459,7 +462,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
     dlg.showModal();
   }
-  window.openEdit=openEdit;  // ボタンから参照
+  window.openEdit=openEdit;
   $("editCancel").onclick=()=>dlg.close();
   $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg.close(); return; }
     const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
@@ -478,47 +481,103 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     events().push(e); saveMaybe(); render();
   };
 
-  /* ===== PDF生成（Canvas→JPEG→PDF） ===== */
+  /* ===== PDF（Canvas→JPEG→PDF） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
+
+  // 改行も尊重して確実に折返す（r31）
+  function wrapRich(ctx, text, maxW, font){
+    const lines=[];
+    ctx.save(); ctx.font=font;
+    const paras = (String(text||"")).replace(/\r\n?/g,"\n").split("\n");
+    for(const para of paras){
+      let line="";
+      for(const ch of para){
+        const test=line+ch;
+        if(ctx.measureText(test).width <= maxW || line===""){ line=test; }
+        else{ lines.push(line); line=ch; }
+      }
+      lines.push(line);
+    }
+    ctx.restore();
+    return lines.length?lines:[""];
+  }
+
   function collectForPdf(){
     const arr=(events().slice()||[]);
     arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
     return arr.map(e=>({date:e.date||"", time:e.time||"", type:e.type||"", actor:e.actor||"", place:e.place||"", fact:e.fact||"", evidence:e.evidence||""}));
   }
+
   const measureCtx = (function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
-  const wrap=(ctx,txt,maxW,font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of (txt||"")){ const t=line+ch; if(ctx.measureText(t).width<=maxW||line===""){ line=t; }else{ out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
+
   function buildCanvas(list){
-    const innerWpx=Math.floor((PDF_W_PT-2*PDF_MARGIN_PT)/PX2PT), marginPx=Math.floor(PDF_MARGIN_PT/PX2PT);
-    const W=innerWpx+marginPx*2, innerW=innerWpx;
-    const cols=[{t:"#",w:.06,align:"center",vcenter:true},{t:"日付",w:.20},{t:"時刻",w:.12,nowrap:true},{t:"種別",w:.11},{t:"関与者",w:.11},{t:"場所",w:.11},{t:"内容（事実）",w:.21},{t:"証拠",w:.08}];
-    const colW=cols.map(c=>Math.round(c.w*innerW)); const sum=colW.reduce((a,b)=>a+b,0); if(sum!==innerW) colW[colW.length-1]+=innerW-sum;
-    const headFont="bold 17px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    const cellFont="15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    const lineH=21, padY=12, padX=12, headH=36;
-    const rows=list.map((e,i)=>{ const vals=[String(i+1),e.date,e.time,e.type,e.actor,e.place,e.fact,e.evidence];
-      const lines=vals.map((v,ci)=> cols[ci].nowrap?[v||""]:wrap(measureCtx,v,colW[ci]-padX*2,cellFont));
-      const h=padY*2+Math.max(...lines.map(ls=>ls.length))*lineH; return {vals,lines,h}; });
-    const H=Math.max(Math.ceil((PDF_H_PT-2*PDF_MARGIN_PT)/PX2PT)+marginPx*2, Math.ceil(marginPx+headH+rows.reduce((s,r)=>s+r.h,0)+marginPx));
+    const innerWpx = Math.floor((PDF_W_PT - 2*PDF_MARGIN_PT)/PX2PT);
+    const marginPx = Math.floor(PDF_MARGIN_PT/PX2PT);
+    const W = innerWpx + marginPx*2, innerW = innerWpx;
+
+    const cols=[ // 合計1.00
+      {t:"#",w:.06,align:"center",vcenter:true},
+      {t:"日付",w:.20},{t:"時刻",w:.12,nowrap:true},{t:"種別",w:.11},
+      {t:"関与者",w:.11},{t:"場所",w:.11},{t:"内容（事実）",w:.21},{t:"証拠",w:.08}
+    ];
+    const colW=cols.map(c=>Math.round(c.w*innerW));
+    const sumW=colW.reduce((a,b)=>a+b,0); if(sumW!==innerW) colW[colW.length-1]+=innerW-sumW;
+
+    const headFont="bold 16px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
+    const cellFont="14px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
+    const lineH=20, padY=14, padX=14, headH=36;
+
+    const rows=list.map((e,i)=>{
+      const vals=[String(i+1),e.date,e.time,e.type,e.actor,e.place,e.fact,e.evidence];
+      const lines=vals.map((v,ci)=>{
+        const w=Math.max(12,colW[ci]-padX*2);
+        return cols[ci].nowrap ? [v||""] : wrapRich(measureCtx, v, w, cellFont);
+      });
+      const h=padY*2 + Math.max(...lines.map(ls=>ls.length))*lineH;
+      return {vals,lines,h};
+    });
+
+    const totalH = marginPx + headH + rows.reduce((s,r)=>s+r.h,0) + marginPx;
+    const H = Math.max(Math.ceil((PDF_H_PT - 2*PDF_MARGIN_PT)/PX2PT)+marginPx*2, Math.ceil(totalH));
     const c=document.createElement("canvas"); c.width=W; c.height=H; const ctx=c.getContext("2d");
-    ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H); const line={rect:(x,y,w,h)=>{ctx.strokeRect(Math.round(x)+0.5,Math.round(y)+0.5,Math.round(w),Math.round(h));},
-      v:(x,y1,y2)=>{x=Math.round(x)+0.5;y1=Math.round(y1)+0.5;y2=Math.round(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
-      h:(y,x1,x2)=>{y=Math.round(y)+0.5;x1=Math.round(x1)+0.5;x2=Math.round(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();}};
+
+    // 背景
+    ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+
+    // 1px クリスプ描画
+    const line={rect:(x,y,w,h)=>{ctx.strokeRect(Math.round(x)+0.5,Math.round(y)+0.5,Math.round(w),Math.round(h));},
+                v:(x,y1,y2)=>{x=Math.round(x)+0.5;y1=Math.round(y1)+0.5;y2=Math.round(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
+                h:(y,x1,x2)=>{y=Math.round(y)+0.5;x1=Math.round(x1)+0.5;x2=Math.round(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();}};
     ctx.strokeStyle="#000"; ctx.lineWidth=1;
-    let x0=marginPx,y0=marginPx;
+
+    let x0=marginPx, y0=marginPx;
+
+    // ヘッダ
     ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
     ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
-    let cx=x0; cols.forEach((c,i)=>{ const tx=c.t; let txX=cx+padX; if(c.align==="center"){ const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; } ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
+    let cx=x0; cols.forEach((c,i)=>{ const tx=c.t; let txX=cx+padX;
+      if(c.align==="center"){ const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; }
+      ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
     line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
+
+    // 明細
     let y=y0+headH; ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="alphabetic";
-    rows.forEach(r=>{ const h=r.h; line.rect(x0,y,innerW,h); let cx2=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx2,y,y+h); cx2+=colW[i]; });
-      let xx=x0; r.lines.forEach((ls,i)=>{ const colWidth=colW[i], left=xx+padX, top=y+padY;
-        if(cols[i].vcenter){ const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width; const txX=left+(colWidth-padX*2-tw)/2; const txY=y+h/2+0.5; ctx.textBaseline="middle"; ctx.fillText(tx,Math.max(left,txX),txY); ctx.textBaseline="alphabetic"; }
-        else{ ls.forEach((ln,li)=>{ let txX=left; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX=left+(colWidth-padX*2-tw)/2; } ctx.fillText(ln,Math.max(left,txX),top+li*lineH); }); }
-        xx+=colWidth; }); y+=h; });
+    rows.forEach(r=>{
+      const h=r.h; line.rect(x0,y,innerW,h); let cx2=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx2,y,y+h); cx2+=colW[i]; });
+      let xx=x0; r.lines.forEach((ls,i)=>{
+        const colWidth=colW[i], left=xx+padX, top=y+padY;
+        if(cols[i].vcenter){ const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width; const txX=left+(colWidth-padX*2 - tw)/2; const txY=y+h/2+0.5; ctx.textBaseline="middle"; ctx.fillText(tx,Math.max(left,txX),txY); ctx.textBaseline="alphabetic"; }
+        else{ ls.forEach((ln,li)=>{ let txX=left; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX=left+(colWidth-padX*2 - tw)/2; } ctx.fillText(ln,Math.max(left,txX),top + li*lineH); }); }
+        xx+=colWidth;
+      });
+      y+=h;
+    });
     return c;
   }
+
   function jpegToPdf(bytes, wpx, hpx){
-    const enc=new TextEncoder(), parts=[]; let off=0; const xref=[0]; const add=b=>{parts.push(b); off+=b.length;}; const addS=s=>add(enc.encode(s));
+    const enc=new TextEncoder(), parts=[]; let off=0; const xref=[0];
+    const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
     const obj=(n,bufs)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
     const W=595.28,H=841.89,M=24,px2pt=72/96, wpt=wpx*px2pt,hpt=hpx*px2pt, maxW=W-M*2, maxH=H-M*2, sc=Math.min(maxW/wpt,maxH/hpt,1), dw=wpt*sc, dh=hpt*sc, x=(W-dw)/2, y=(H-dh)/2;
     add(enc.encode("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"));
@@ -532,15 +591,22 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     xS+=`trailer << /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`; addS(xS);
     return new Blob(parts,{type:"application/pdf"});
   }
+
   function makePDF(){
     let list=collectForPdf();
     const draft=($("evFact").value||"").trim();
-    if(draft){ list=list.concat([{date:($("evDate").value||""),time:($("evTime").value||""),type:($("evType").value||""),actor:($("evActor").value||"").trim(),place:($("evPlace").value||"").trim(),fact:draft,evidence:($("evEvidence").value||"").trim()}]); }
+    if(draft){
+      list=list.concat([{date:($("evDate").value||""),time:($("evTime").value||""),type:($("evType").value||""),
+                         actor:($("evActor").value||"").trim(),place:($("evPlace").value||"").trim(),
+                         fact:draft,evidence:($("evEvidence").value||"").trim()}]);
+    }
     if(!list.length){ alert("時系列一覧にまだ行がありません。「＋ この内容を追加」で行を追加してください。"); return; }
-    const c=buildCanvas(list), b64=c.toDataURL("image/jpeg",0.92), bin=atob(b64.split(",").pop()), u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+
+    const c=buildCanvas(list);
+    const b64=c.toDataURL("image/jpeg",0.92), bin=atob(b64.split(",").pop()), u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
     const pdf=jpegToPdf(u8,c.width,c.height); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r30</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r31</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -555,11 +621,13 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     setTimeout(drawGrid,60);
   })();
 
-  /* 全消去 */
-  $("wipeAll").onclick=()=>{ if(confirm("この端末に保存された全案件・全入力を削除します。よろしいですか？")){
-    try{ if(storeOK) localStorage.removeItem(KEY_MAIN); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; ensureDefault(); normalizeOrder(); persist(); fillCaseSelect(); render();
-  }};
+  /* 保存まわり */
+  let DIRTY=false; const showUnsaved=on=>{const u=$("unsaved"); if(u) u.style.display=on?"inline":"none";};
+  const persistAndMark=()=>{ persist(); DIRTY=false; showUnsaved(false); };
+  const saveMaybe=()=>{ if($("autoSave").checked){ persistAndMark(); }else{ DIRTY=true; showUnsaved(true); } };
+  $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
+  window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
+
 })();
 </script>
 </body>
