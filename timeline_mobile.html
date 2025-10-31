@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r28b）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r28c）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
+<meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>
@@ -19,11 +19,32 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 #ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
 
-/* ラベルは常に欄の上 */
+/* ラベルは常に欄の上（※自動保存ラベルは後で個別上書き） */
 #ktl-app label{display:block;margin:6px 0 4px;font-weight:600}
 #ktl-app label > input,
 #ktl-app label > select,
 #ktl-app label > textarea{ display:block; margin-top:6px; width:100%; }
+
+/* ====== 自動保存ラベル：チェックの”すぐ横”に文字を配置（確実に上書き） ====== */
+#ktl-app .ktl-inlineLabel{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;           /* 必要なら 2〜8px で調整 */
+  margin:0 !important;
+  white-space:nowrap;
+}
+#ktl-app .ktl-inlineLabel > input{
+  width:auto !important;        /* ここで 100% 指定を打ち消すのが肝 */
+  height:auto !important;
+  display:inline-block !important;
+  margin:0 !important;
+  -webkit-appearance:auto;
+  appearance:auto;
+}
+#ktl-app .ktl-inlineLabel > span{
+  margin:0 !important;
+  line-height:1.2;
+}
 
 /* 入力（枠線色統一） */
 #ktl-app input[type="text"],
@@ -40,7 +61,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
-/* 関与者/場所/証拠も高さ44pxに強制（編集ダイアログも） */
+/* 関与者/場所/証拠も高さ44pxに統一（編集ダイアログも） */
 #evActor,#evPlace,#evEvidence,#edActor,#edPlace,#edEvidence{min-height:44px;height:44px}
 
 /* ▼ 案件コンボ（input + datalist + 矢印） */
@@ -121,7 +142,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 .ktl-caseRow2{ gap:8px; }
 .ktl-caseRow2 .ktl-btn{ flex:1; }
 
-/* カウンタ（内容の直下） */
+/* カウンタ（内容の直下に固定） */
 .ktl-counter{display:block; margin:6px 0 0 2px; font-size:13px; color:#666}
 
 /* PDFメッセージ */
@@ -130,24 +151,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 
 /* 印刷レイヤ（iOS対策） */
 #PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
-
-/* === Autosaveラベル：flex-gap非対応環境でも確実に詰める（ホットフィックス） === */
-#ktl-app .ktl-inlineLabel{
-  display:inline-grid !important;
-  grid-auto-flow:column;
-  column-gap:0 !important;
-  align-items:center !important;
-  margin:0 !important;
-  font-weight:600;
-}
-#ktl-app .ktl-inlineLabel input{
-  margin:0 !important;
-  transform:translateY(0.5px);
-}
-#ktl-app .ktl-inlineLabel span{
-  margin:0 !important;
-  line-height:1.2; white-space:nowrap;
-}
 </style>
 </head>
 
@@ -155,7 +158,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r28b</span>
+      <span class="ver">V10 r28c</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -301,7 +304,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   const S={cases:{},order:[],current:""};
   let storeOK=false;
 
-  /* 画面下にエラー表示（JS稼働確認用） */
+  /* JS稼働確認用（起動エラー表示） */
   window.addEventListener("error", function(e){
     try{
       const el=$("inlineError");
@@ -481,7 +484,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   function collectFromState(){
     const arr=(events().slice()||[]);
-    arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.ev.time||"")));
+    arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
     return arr.map(e=>({date:e.date||"", time:e.time||"", type:e.type||"", actor:e.actor||"", place:e.place||"", fact:e.fact||"", evidence:e.evidence||""}));
   }
   function wrapLines(ctx, text, maxW, font){
@@ -611,7 +614,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     function add(buf){ parts.push(buf); offset+=buf.length; }
     function addStr(s){ add(enc.encode(s)); }
     function addObj(n, bufs){ xref[n]=offset; addStr(`${n} 0 obj\n`); if(Array.isArray(bufs)) bufs.forEach(add); else addStr(bufs); addStr("\nendobj\n"); }
-    function pad10(n){ return String(n).padStart(10,"0"); }
     const W=PDF_W_PT, H=PDF_H_PT, margin=PDF_MARGIN_PT, px2pt=72/96;
     const imgWpt=imgWpx*px2pt, imgHpt=imgHpx*px2pt, maxW=W-margin*2, maxH=H-margin*2;
     const sc=Math.min(maxW/imgWpt, maxH/imgHpt, 1), drawW=imgWpt*sc, drawH=imgHpt*sc, x=(W-drawW)/2, y=(H-drawH)/2;
@@ -667,7 +669,7 @@ ${startXref}
     const url=URL.createObjectURL(pdfBlob);
     const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r28b</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r28c</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} if(s) s.textContent=""; try{ a.remove(); }catch(e){} }, 60000);
   }
   if($("pdfBtn")) $("pdfBtn").onclick = makePDFAndDownload;
