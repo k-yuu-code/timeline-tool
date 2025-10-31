@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r28a）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r28b）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
+<meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>
@@ -24,11 +24,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 #ktl-app label > input,
 #ktl-app label > select,
 #ktl-app label > textarea{ display:block; margin-top:6px; width:100%; }
-
-/* 自動保存ラベル（横書き＆超近接） */
-.ktl-inlineLabel{display:inline-flex !important; align-items:center; gap:0; margin:0 !important; font-weight:600;}
-.ktl-inlineLabel input{margin:0; margin-right:0;}
-.ktl-inlineLabel span{line-height:1.2; white-space:nowrap; margin-left:0;}
 
 /* 入力（枠線色統一） */
 #ktl-app input[type="text"],
@@ -135,13 +130,32 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 
 /* 印刷レイヤ（iOS対策） */
 #PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
+
+/* === Autosaveラベル：flex-gap非対応環境でも確実に詰める（ホットフィックス） === */
+#ktl-app .ktl-inlineLabel{
+  display:inline-grid !important;
+  grid-auto-flow:column;
+  column-gap:0 !important;
+  align-items:center !important;
+  margin:0 !important;
+  font-weight:600;
+}
+#ktl-app .ktl-inlineLabel input{
+  margin:0 !important;
+  transform:translateY(0.5px);
+}
+#ktl-app .ktl-inlineLabel span{
+  margin:0 !important;
+  line-height:1.2; white-space:nowrap;
+}
 </style>
 </head>
+
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r28a</span>
+      <span class="ver">V10 r28b</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -467,7 +481,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   function collectFromState(){
     const arr=(events().slice()||[]);
-    arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
+    arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.ev.time||"")));
     return arr.map(e=>({date:e.date||"", time:e.time||"", type:e.type||"", actor:e.actor||"", place:e.place||"", fact:e.fact||"", evidence:e.evidence||""}));
   }
   function wrapLines(ctx, text, maxW, font){
@@ -620,7 +634,7 @@ endstream`);
     const startXref=offset; let xrefStr=`xref
 0 6
 0000000000 65535 f 
-`; for(let i=1;i<=5;i++){ xrefStr+=`${pad10(xref[i]||0)} 00000 n 
+`; for(let i=1;i<=5;i++){ xrefStr+=`${String(xref[i]||0).padStart(10,"0")} 00000 n 
 `; }
     xrefStr+=`trailer << /Size 6 /Root 1 0 R >>
 startxref
@@ -653,7 +667,7 @@ ${startXref}
     const url=URL.createObjectURL(pdfBlob);
     const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r28a</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r28b</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} if(s) s.textContent=""; try{ a.remove(); }catch(e){} }, 60000);
   }
   if($("pdfBtn")) $("pdfBtn").onclick = makePDFAndDownload;
