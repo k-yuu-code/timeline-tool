@@ -2,20 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r27）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r28）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self' blob: data:;
-               img-src 'self' data: blob:;
-               style-src 'self' 'unsafe-inline';
-               script-src 'self' 'unsafe-inline';
-               connect-src 'none';
-               object-src 'none';
-               base-uri 'none';
-               form-action 'none'">
 <style>
 /* ====== 基本トークン ====== */
 #ktl-app{ --bg:#f7f8fb; --b:#111; --m:#666; --bd:#dcdfea; --acc:#0a58cc;
@@ -57,7 +48,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 /* 関与者/場所/証拠も高さ44pxに強制（編集ダイアログも） */
 #evActor,#evPlace,#evEvidence,#edActor,#edPlace,#edEvidence{min-height:44px;height:44px}
 
-/* ▼ コンボボックス（案件：input+datalist+矢印） */
+/* ▼ 案件コンボ（input + datalist + 矢印） */
 .ktl-comboWrap{ position:relative; }
 .ktl-comboWrap input{ padding-right:56px; }
 .ktl-comboWrap::after{
@@ -100,7 +91,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 
 /* ====== 一覧（画面） ====== */
 .ktl-tableWrap{position:relative;padding:0;margin:0;overflow-x:hidden}
-/* 実線は透明化 → 罫線はSVGで描く（ズレ/二重線防止） */
 table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0;border:0}
 table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
 table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
@@ -110,15 +100,14 @@ table.ktl-list th, table.ktl-list td{
 }
 .ktl-nowrap{ white-space:nowrap !important; word-break:keep-all !important; }
 table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word !important;}
-/* #列は上下左右中央 */
 .ktl-list th:nth-child(1), .ktl-list td:nth-child(1){ text-align:center }
 .ktl-list tbody td:nth-child(1){ vertical-align:middle }
 
-/* 罫線オーバーレイ */
+/* 罫線オーバーレイ (SVG) */
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン：列幅を広げ、小さめフォント・nowrapで完全収まり */
+/* 操作ボタン（枠内に収める） */
 .ktl-list td:last-child{ padding:6px; overflow:hidden; }
 .ktl-actions{display:flex;flex-direction:column;gap:8px;align-items:stretch}
 .ktl-actions .ktl-btn{display:block;width:100%;box-sizing:border-box;padding:6px 8px;font-size:12.5px;line-height:1.1;border-radius:10px;white-space:nowrap;text-align:center;overflow:hidden;text-overflow:ellipsis}
@@ -152,7 +141,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r27</span>
+      <span class="ver">V10 r28</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -171,7 +160,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     <!-- 案件：入力できるコンボボックス -->
     <div class="ktl-toolbar ktl-caseRow1">
       <label class="ktl-comboWrap">案件：
-        <input id="caseInput" type="text" list="caseOptions" placeholder="案件名を入力または選択">
+        <input id="caseInput" type="text" list="caseOptions" placeholder="案件名を入力または選択" autocomplete="off">
       </label>
       <datalist id="caseOptions"></datalist>
     </div>
@@ -298,6 +287,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   const S={cases:{},order:[],current:""};
   let storeOK=false;
 
+  /* 画面下にエラー表示（JSが生きているか即判定用） */
+  window.addEventListener("error", function(e){
+    try{
+      const el=$("inlineError");
+      if(el){ el.textContent = "起動エラー: " + (e.error && e.error.message ? e.error.message : e.message); }
+    }catch(_){}
+  });
+
   /* localStorage 可否 */
   try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){ storeOK=false; }
 
@@ -316,31 +313,34 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 
   /* 案件UI（datalist） */
   function uiCases(){
-    const dl=$("caseOptions"); dl.innerHTML="";
+    const dl=$("caseOptions"); if(!dl) return;
+    dl.innerHTML="";
     S.order.forEach(n=>{ const op=document.createElement("option"); op.value=n; dl.appendChild(op); });
-    const inp=$("caseInput"); inp.value=S.current||"";
+    const inp=$("caseInput"); if(inp) inp.value=S.current||"";
     render();
   }
   function pickOrCreateCase(v){
     const name=(v||"").trim();
     const inp=$("caseInput");
-    if(!name){ inp.value=S.current||""; return; }
+    if(!name){ if(inp) inp.value=S.current||""; return; }
     if(S.cases[name]){ S.current=name; persist(); uiCases(); return; }
     if(confirm(`案件「${name}」を新規作成しますか？`)){
-      if(S.order.length>=MAX_CASES){ alert("案件数が上限に達しました。"); inp.value=S.current||""; return; }
+      if(S.order.length>=MAX_CASES){ alert("案件数が上限に達しました。"); if(inp) inp.value=S.current||""; return; }
       S.cases[name]=[]; S.order.push(name); S.current=name; persist(); uiCases();
     }else{
-      inp.value=S.current||"";
+      if(inp) inp.value=S.current||"";
     }
   }
 
   /* 一覧描画（画面） */
   function render(){
-    const tbody=$("listBody"); tbody.innerHTML="";
+    const tbody=$("listBody"); if(!tbody) return;
+    tbody.innerHTML="";
     const arr=events().slice().map((ev,idx)=>({ev,idx}))
       .sort((a,b)=>((a.ev.date||"")+(a.ev.time||"")).localeCompare((b.ev.date||"")+(b.ev.time||"")));
     if(!arr.length){
-      const tr=document.createElement("tr"); const td=document.createElement("td"); td.colSpan=9; td.className="ktl-muted"; td.textContent="まだ追加がありません"; tr.appendChild(td); tbody.appendChild(tr); drawGrid(); return;
+      const tr=document.createElement("tr"); const td=document.createElement("td"); td.colSpan=9; td.className="ktl-muted"; td.textContent="まだ追加がありません";
+      tr.appendChild(td); tbody.appendChild(tr); drawGrid(); return;
     }
     arr.forEach((item,i)=>{
       const e=item.ev; const tr=document.createElement("tr");
@@ -413,55 +413,57 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
   window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* 編集 */
+  /* 編集（ダイアログは非対応環境ならalertへフォールバック） */
   let editingIndex=-1; const dlg=$("editDlg");
   function openEdit(i){ editingIndex=i; const ev=events()[i]; if(!ev) return;
     $("edDate").value=ev.date||""; $("edTime").value=ev.time||""; $("edType").value=ev.type||"その他";
     $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
-    if(dlg.showModal) dlg.showModal(); else alert("このブラウザはダイアログに未対応です。");
+    if(dlg && dlg.showModal){ dlg.showModal(); } else { alert("編集はこの端末ではダイアログに未対応です。"); }
   }
-  $("editCancel").onclick=()=>dlg.close && dlg.close();
-  $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg.close && dlg.close(); return; }
+  $("editCancel").onclick=()=>dlg && dlg.close && dlg.close();
+  $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg && dlg.close && dlg.close(); return; }
     const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"", actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(), fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
     if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-    events()[i]=nv; saveMaybe(); render(); dlg.close && dlg.close();
+    events()[i]=nv; saveMaybe(); render(); dlg && dlg.close && dlg.close();
   };
 
   /* 案件操作（ダイアログ） */
   const caseDlg=$("caseDlg"), caseName=$("caseName"), caseError=$("caseError"); let caseMode="new";
-  function openCaseDialog(mode){ caseMode=mode; $("caseDlgTitle").textContent=(mode==="new")?"新規案件":"案件名の変更"; caseName.value=(mode==="rename")?(S.current||""):""; caseError.textContent=""; caseDlg.showModal(); }
-  $("caseCancel").onclick=()=>caseDlg.close();
-  $("caseOk").onclick=()=>{ const name=(caseName.value||"").trim();
-    if(!name){ caseError.textContent="案件名を入力してください"; return; }
-    if(caseMode==="new"){
-      if(S.order.length>=MAX_CASES){ caseError.textContent="案件数が上限に達しました（MAX "+MAX_CASES+"）。"; return; }
-      if(S.cases[name]){ caseError.textContent="同名の案件が既にあります"; return; }
-      S.cases[name]=[]; S.order.push(name); S.current=name; persist(); uiCases(); caseDlg.close();
-    }else{
-      const cur=S.current; if(!cur){ caseDlg.close(); return; }
-      if(name===cur){ caseDlg.close(); return; }
-      if(S.cases[name]){ caseError.textContent="その名前は使用されています"; return; }
-      S.cases[name]=S.cases[cur]; delete S.cases[cur];
-      S.order=S.order.map(x=>x===cur?name:x); S.current=name; persist(); uiCases(); caseDlg.close();
-    }
-  };
-  $("newCase").onclick=()=>openCaseDialog("new");
-  $("renameCase").onclick=()=>openCaseDialog("rename");
-  $("dupCase").onclick=()=>{ const c=S.current; if(!c) return;
+  function openCaseDialog(mode){ caseMode=mode; if(!caseDlg) return; $("caseDlgTitle").textContent=(mode==="new")?"新規案件":"案件名の変更"; caseName.value=(mode==="rename")?(S.current||""):""; caseError.textContent=""; caseDlg.showModal(); }
+  if($("newCase")) $("newCase").onclick=()=>openCaseDialog("new");
+  if($("renameCase")) $("renameCase").onclick=()=>openCaseDialog("rename");
+  if($("dupCase")) $("dupCase").onclick=()=>{ const c=S.current; if(!c) return;
     let cand=c+"_複製", i=2; while(S.cases[cand]) cand=c+"_複製_"+(i++); S.cases[cand]=JSON.parse(JSON.stringify(S.cases[c]||[]));
     S.order.push(cand); S.current=cand; persist(); uiCases();
   };
-  $("deleteCase").onclick=()=>{ const c=S.current; if(!c) return;
+  if($("deleteCase")) $("deleteCase").onclick=()=>{ const c=S.current; if(!c) return;
     if(!confirm(`案件「${c}」を削除します。よろしいですか？`)) return;
     delete S.cases[c]; S.order=S.order.filter(x=>x!==c); S.current=S.order[0]||""; if(!S.current){ ensureDefault(); }
     persist(); uiCases();
   };
+  if($("caseCancel")) $("caseCancel").onclick=()=>caseDlg && caseDlg.close();
+  if($("caseOk")) $("caseOk").onclick=()=>{ const name=(caseName.value||"").trim();
+    if(!name){ caseError.textContent="案件名を入力してください"; return; }
+    if(caseMode==="new"){
+      if(S.order.length>=MAX_CASES){ caseError.textContent="案件数が上限に達しました（MAX "+MAX_CASES+"）。"; return; }
+      if(S.cases[name]){ caseError.textContent="同名の案件が既にあります"; return; }
+      S.cases[name]=[]; S.order.push(name); S.current=name; persist(); uiCases(); caseDlg && caseDlg.close();
+    }else{
+      const cur=S.current; if(!cur){ caseDlg && caseDlg.close(); return; }
+      if(name===cur){ caseDlg && caseDlg.close(); return; }
+      if(S.cases[name]){ caseError.textContent="その名前は使用されています"; return; }
+      S.cases[name]=S.cases[cur]; delete S.cases[cur];
+      S.order=S.order.map(x=>x===cur?name:x); S.current=name; persist(); uiCases(); caseDlg && caseDlg.close();
+    }
+  };
 
   /* 案件欄（入力/Enter/確定） */
-  $("caseInput").addEventListener("change", e=> pickOrCreateCase(e.target.value));
-  $("caseInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); pickOrCreateCase(e.target.value); }});
+  if($("caseInput")){
+    $("caseInput").addEventListener("change", e=> pickOrCreateCase(e.target.value));
+    $("caseInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); pickOrCreateCase(e.target.value); }});
+  }
 
-  /* ===== PDF（Canvas → JPEG → PDF：列比率と余白を拡大済み） ===== */
+  /* PDF（Canvas→JPEG→PDF） */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   function collectFromState(){
     const arr=(events().slice()||[]);
@@ -596,7 +598,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     function addStr(s){ add(enc.encode(s)); }
     function addObj(n, bufs){ xref[n]=offset; addStr(`${n} 0 obj\n`); if(Array.isArray(bufs)) bufs.forEach(add); else addStr(bufs); addStr("\nendobj\n"); }
     function pad10(n){ return String(n).padStart(10,"0"); }
-    const W=PDF_W_PT, H=PDF_H_PT, margin=PDF_MARGIN_PT, px2pt=PX2PT;
+    const W=PDF_W_PT, H=PDF_H_PT, margin=PDF_MARGIN_PT, px2pt=72/96;
     const imgWpt=imgWpx*px2pt, imgHpt=imgHpx*px2pt, maxW=W-margin*2, maxH=H-margin*2;
     const sc=Math.min(maxW/imgWpt, maxH/imgHpt, 1), drawW=imgWpt*sc, drawH=imgHpt*sc, x=(W-drawW)/2, y=(H-drawH)/2;
     const header=enc.encode("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
@@ -618,7 +620,7 @@ endstream`);
     const startXref=offset; let xrefStr=`xref
 0 6
 0000000000 65535 f 
-`; for(let i=1;i<=5;i++){ xrefStr+=`${pad10(xref[i]||0)} 00000 n 
+`; for(let i=1;i<=5;i++){ xrefStr+=`${String(xref[i]||0).padStart(10,"0")} 00000 n 
 `; }
     xrefStr+=`trailer << /Size 6 /Root 1 0 R >>
 startxref
@@ -651,33 +653,32 @@ ${startXref}
     const url=URL.createObjectURL(pdfBlob);
     const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r27</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r28</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} if(s) s.textContent=""; try{ a.remove(); }catch(e){} }, 60000);
   }
-  $("pdfBtn").onclick = makePDFAndDownload;
+  if($("pdfBtn")) $("pdfBtn").onclick = makePDFAndDownload;
 
   /* 初期化 */
   (function init(){
     if(!loadMain()) ensureDefault();
     uiCases();
-    $("evDate").value=today();
-    $("counter").textContent="0/140";
+    if($("evDate")) $("evDate").value=today();
+    if($("counter")) $("counter").textContent="0/140";
     const savedAuto=localStorage.getItem("__autosave__")==="1";
-    $("autoSave").checked=!!savedAuto;
-    $("autoSave").addEventListener("change", ()=>{ localStorage.setItem("__autosave__", $("autoSave").checked ? "1" : "0"); });
+    if($("autoSave")){ $("autoSave").checked=!!savedAuto; $("autoSave").addEventListener("change", ()=>{ localStorage.setItem("__autosave__", $("autoSave").checked ? "1" : "0"); }); }
     requestAnimationFrame(drawGrid);
     setTimeout(drawGrid, 50); setTimeout(drawGrid, 300); setTimeout(drawGrid, 600);
   })();
 
   /* 入力追加 */
-  $("evFact").addEventListener("input",()=>{$("counter").textContent=(($("evFact").value)||"").length+"/140";});
-  $("addBtn").onclick=()=>{ const e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"", actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(), fact:($("evFact").value||"").trim(), evidence:($("evEvidence").value||"").trim()};
-    if(!e.date||!e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; } $("inlineError").textContent="";
+  if($("evFact")) $("evFact").addEventListener("input",()=>{$("counter").textContent=(($("evFact").value)||"").length+"/140";});
+  if($("addBtn")) $("addBtn").onclick=()=>{ const e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"", actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(), fact:($("evFact").value||"").trim(), evidence:($("evEvidence").value||"").trim()};
+    if(!e.date||!e.fact){ if($("inlineError")) $("inlineError").textContent="日付 と 内容 は必須です"; return; } if($("inlineError")) $("inlineError").textContent="";
     events().push(e); saveMaybe(); render();
   };
 
   /* 全消去 */
-  $("wipeAll").onclick=()=>{ if(confirm("この端末に保存された全案件・全入力を削除します。よろしいですか？")){
+  if($("wipeAll")) $("wipeAll").onclick=()=>{ if(confirm("この端末に保存された全案件・全入力を削除します。よろしいですか？")){
     try{ if(storeOK) localStorage.removeItem(KEY_MAIN); }catch(e){}
     S.cases={}; S.order=[]; S.current=""; ensureDefault(); uiCases();
   }};
