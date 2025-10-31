@@ -2,12 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r20）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r21）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
-<!-- PDF/画像生成用に blob: / data: を許可 -->
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self' blob: data:;
                img-src 'self' data: blob:;
@@ -24,7 +23,7 @@
 #ktl-app, #ktl-app *{ box-sizing:border-box; }
 html,body{margin:0;padding:0;background:var(--bg,#f7f8fb);color:var(--b,#111);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;}
-.ktl-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02);overflow:visible}
+.ktl-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02);overflow:hidden}
 .ktl-muted{color:var(--m)}
 .ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 #ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
@@ -106,15 +105,18 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 #pdfStatus{margin-top:6px;font-size:13px;color:#333;line-height:1.4}
 #pdfStatus a{color:#0a58cc;text-decoration:underline}
 
-/* ====== 印刷レイヤ（PDF作成用） ====== */
-#PRINT_SHEET{ position:fixed; left:-99999px; top:-99999px; }
+/* ====== 印刷レイヤ（PDF作成用：iOS対策） ====== */
+#PRINT_SHEET{
+  position:fixed; left:0; top:0; width:100vw; max-width:960px;
+  visibility:hidden; pointer-events:none; z-index:9990;
+}
 </style>
 </head>
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r20</span>
+      <span class="ver">V10 r21</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -199,7 +201,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   </div>
 </div>
 
-<!-- 印刷用シートの置き場（画面外） -->
 <div id="PRINT_SHEET"></div>
 
 <!-- 編集ダイアログ -->
@@ -433,7 +434,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     S.cases={}; S.order=[]; S.current=""; ensureDefault(); uiCases();
   }};
 
-  /* ===== PDF 生成：状態から直接取得（表示ずれの影響を受けない） ===== */
+  /* ===== PDF 生成：状態から直接取得（iOS レイアウト確実化） ===== */
   function collectFromState(){
     const arr=(events().slice()||[]);
     arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
@@ -441,6 +442,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   }
   function buildPrintSheet(fontPx, list){
     const sheet=document.createElement("div"); sheet.className="sheet"; sheet.style.position="relative"; sheet.style.overflow="visible";
+    sheet.style.width="100%";
     const headers=["#","日付","時刻","種別","関与者","場所","内容（事実）","証拠"];
     const widths=[3.5,13.5,7,7.5,9,9,31.5,8];
     const table=document.createElement("table");
@@ -550,7 +552,7 @@ ${startXref}
       const url=URL.createObjectURL(blob);
       const name="timeline_"+nowStr()+".pdf";
       const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-      const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r20</span>`; }
+      const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r21</span>`; }
       setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} host.innerHTML=""; if(s) s.textContent=""; try{ a.remove(); }catch(e){} }, 60000);
     }).catch(err=>{ console.error(err); alert("PDFの作成に失敗しました。端末の印刷から『PDFに保存』をお試しください。"); host.innerHTML=""; });
   }
