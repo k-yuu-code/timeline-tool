@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r26）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r27）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -34,8 +34,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 #ktl-app label > select,
 #ktl-app label > textarea{ display:block; margin-top:6px; width:100%; }
 
-/* 自動保存ラベル（横書き＆近接） */
-.ktl-inlineLabel{display:inline-flex !important; align-items:center; gap:4px; margin:0 !important; font-weight:600;}
+/* 自動保存ラベル（横書き＆さらに近接） */
+.ktl-inlineLabel{display:inline-flex !important; align-items:center; gap:2px; margin:0 !important; font-weight:600;}
 .ktl-inlineLabel input{margin:0;}
 .ktl-inlineLabel span{line-height:1.2; white-space:nowrap;}
 
@@ -54,8 +54,20 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
+/* 関与者/場所/証拠も高さ44pxに強制（編集ダイアログも） */
+#evActor,#evPlace,#evEvidence,#edActor,#edPlace,#edEvidence{min-height:44px;height:44px}
 
-/* ▼ セレクト矢印（案件＝大きめ下寄せ／種別＝標準） */
+/* ▼ コンボボックス（案件：input+datalist+矢印） */
+.ktl-comboWrap{ position:relative; }
+.ktl-comboWrap input{ padding-right:56px; }
+.ktl-comboWrap::after{
+  content:""; position:absolute; right:12px; top:60%; transform:translateY(-50%);
+  width:22px; height:22px; pointer-events:none; opacity:.9;
+  background: no-repeat center / 22px 22px
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
+}
+
+/* ▼ セレクト矢印（種別のみ） */
 .ktl-selectWrap{ position:relative; }
 .ktl-selectWrap select{ padding-right:42px; }
 .ktl-selectWrap::after{
@@ -64,11 +76,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   background: no-repeat center / 18px 18px
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
 }
-/* 案件用（さらに大きく＆少し下げる） */
-.ktl-select--lg select{ padding-right:56px; }
-.ktl-select--lg::after{ width:22px; height:22px; top:60%; background-size:22px 22px; }
 
-/* ▼ 日付/時刻アイコン（選択できる見た目） */
+/* ▼ 日付/時刻アイコン（線画・アウトライン） */
 .ktl-dateWrap,.ktl-timeWrap{ position:relative; }
 .ktl-dateWrap input,.ktl-timeWrap input{ padding-right:44px; }
 .ktl-dateWrap::after,.ktl-timeWrap::after{
@@ -76,10 +85,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   width:18px; height:18px; pointer-events:none; opacity:.9; background-repeat:no-repeat; background-position:center; background-size:18px 18px;
 }
 .ktl-dateWrap::after{
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 7H5v10h14V9z'/></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>");
 }
 .ktl-timeWrap::after{
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M12 1a11 11 0 1 0 11 11A11.013 11.013 0 0 0 12 1zm1 11.27V6h-2v7l6 3 .9-1.79z'/></svg>");
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
 /* ボタン */
@@ -143,7 +152,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r26</span>
+      <span class="ver">V10 r27</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -159,8 +168,12 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   </div>
 
   <div class="ktl-card">
+    <!-- 案件：入力できるコンボボックス -->
     <div class="ktl-toolbar ktl-caseRow1">
-      <label class="ktl-selectWrap ktl-select--lg">案件：<select id="caseSelect"></select></label>
+      <label class="ktl-comboWrap">案件：
+        <input id="caseInput" type="text" list="caseOptions" placeholder="案件名を入力または選択">
+      </label>
+      <datalist id="caseOptions"></datalist>
     </div>
     <div class="ktl-toolbar ktl-caseRow2">
       <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
@@ -182,7 +195,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅再配分：#・日付・操作を拡大、はみ出しを解消 -->
+          <!-- 列幅：#・日付・操作を広めに（はみ出し防止） -->
           <col style="width:5%">
           <col style="width:20%">
           <col style="width:9%">
@@ -301,11 +314,24 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
   function ensureDefault(){ if(!S.order.length){ const n="案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; persist(); } }
   const events = ()=> S.cases[S.current]||(S.cases[S.current]=[]);
 
-  /* 案件セレクト更新 */
+  /* 案件UI（datalist） */
   function uiCases(){
-    const sel=$("caseSelect"); sel.innerHTML="";
-    S.order.forEach(n=>{ const op=document.createElement("option"); op.value=n; op.textContent=n; if(n===S.current) op.selected=true; sel.appendChild(op); });
+    const dl=$("caseOptions"); dl.innerHTML="";
+    S.order.forEach(n=>{ const op=document.createElement("option"); op.value=n; dl.appendChild(op); });
+    const inp=$("caseInput"); inp.value=S.current||"";
     render();
+  }
+  function pickOrCreateCase(v){
+    const name=(v||"").trim();
+    const inp=$("caseInput");
+    if(!name){ inp.value=S.current||""; return; }
+    if(S.cases[name]){ S.current=name; persist(); uiCases(); return; }
+    if(confirm(`案件「${name}」を新規作成しますか？`)){
+      if(S.order.length>=MAX_CASES){ alert("案件数が上限に達しました。"); inp.value=S.current||""; return; }
+      S.cases[name]=[]; S.order.push(name); S.current=name; persist(); uiCases();
+    }else{
+      inp.value=S.current||"";
+    }
   }
 
   /* 一覧描画（画面） */
@@ -401,7 +427,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     events()[i]=nv; saveMaybe(); render(); dlg.close && dlg.close();
   };
 
-  /* 案件操作 */
+  /* 案件操作（ダイアログ） */
   const caseDlg=$("caseDlg"), caseName=$("caseName"), caseError=$("caseError"); let caseMode="new";
   function openCaseDialog(mode){ caseMode=mode; $("caseDlgTitle").textContent=(mode==="new")?"新規案件":"案件名の変更"; caseName.value=(mode==="rename")?(S.current||""):""; caseError.textContent=""; caseDlg.showModal(); }
   $("caseCancel").onclick=()=>caseDlg.close();
@@ -430,9 +456,12 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important; word-break:break-word
     delete S.cases[c]; S.order=S.order.filter(x=>x!==c); S.current=S.order[0]||""; if(!S.current){ ensureDefault(); }
     persist(); uiCases();
   };
-  $("caseSelect").addEventListener("change", e=>{ S.current=e.target.value||S.current; persist(); render(); });
 
-  /* ===== PDF（Canvas → JPEG → PDF：列比率と余白を拡大、かぶり防止） ===== */
+  /* 案件欄（入力/Enter/確定） */
+  $("caseInput").addEventListener("change", e=> pickOrCreateCase(e.target.value));
+  $("caseInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); pickOrCreateCase(e.target.value); }});
+
+  /* ===== PDF（Canvas → JPEG → PDF：列比率と余白を拡大済み） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   function collectFromState(){
     const arr=(events().slice()||[]);
@@ -622,7 +651,7 @@ ${startXref}
     const url=URL.createObjectURL(pdfBlob);
     const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r26</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r27</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} if(s) s.textContent=""; try{ a.remove(); }catch(e){} }, 60000);
   }
   $("pdfBtn").onclick = makePDFAndDownload;
@@ -652,20 +681,6 @@ ${startXref}
     try{ if(storeOK) localStorage.removeItem(KEY_MAIN); }catch(e){}
     S.cases={}; S.order=[]; S.current=""; ensureDefault(); uiCases();
   }};
-
-  /* 編集関連 */
-  let editingIndex=-1; const dlg=$("editDlg");
-  function openEdit(i){ editingIndex=i; const ev=events()[i]; if(!ev) return;
-    $("edDate").value=ev.date||""; $("edTime").value=ev.time||""; $("edType").value=ev.type||"その他";
-    $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
-    if(dlg.showModal) dlg.showModal(); else alert("このブラウザはダイアログに未対応です。");
-  }
-  $("editCancel").onclick=()=>dlg.close && dlg.close();
-  $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg.close && dlg.close(); return; }
-    const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"", actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(), fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
-    if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-    events()[i]=nv; saveMaybe(); render(); dlg.close && dlg.close();
-  };
 
 })();
 </script>
