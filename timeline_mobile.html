@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r42）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r43）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -45,9 +45,9 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   min-height:120px; resize:vertical;
 }
 
-/* ★ 関与者／場所／証拠：入力域は大きめ（フォーム＆編集ダイアログ） */
+/* ★ 関与者／場所／証拠：内容欄と同じ 16px に統一（フォーム＆編集ダイアログ） */
 #evActor,#evPlace,#evEvidence,
-#edActor,#edPlace,#edEvidence{ font-size:20px; min-height:52px; height:52px; }
+#edActor,#edPlace,#edEvidence{ font-size:16px; min-height:44px; height:44px; }
 
 /* 復旧バナー */
 #restoreBanner{ display:none; background:#fff7d1; border-color:#f0d48a; }
@@ -77,7 +77,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
 }
 
-/* 日付/時刻：線画アイコン */
+/* 日付/時刻：線画アイコン（黒塗りではない） */
 .ktl-dateWrap,.ktl-timeWrap{ position:relative; }
 .ktl-dateWrap input,.ktl-timeWrap input{ padding-right:44px; }
 .ktl-dateWrap::after,.ktl-timeWrap::after{
@@ -105,7 +105,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0;border:0}
 table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
 table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
-/* ★ さらに文字を小さく（11px/1.28 を強制） */
+/* さらに小さく（11px/1.28 を強制） */
 #ktl-app table.ktl-list th,
 #ktl-app table.ktl-list td{
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
@@ -173,7 +173,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r42</span>
+      <span class="ver">V10 r43</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -216,9 +216,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅合計100%：#5 / 日付15 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容16 / 証拠9 / 操作12 -->
-          <col style="width:5%"><col style="width:15%"><col style="width:10%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:16%"><col style="width:9%"><col style="width:12%">
+          <!-- 列幅合計100%：#5 / 日付13 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容18 / 証拠9 / 操作12 -->
+          <col style="width:5%"><col style="width:13%"><col style="width:10%"><col style="width:11%">
+          <col style="width:11%"><col style="width:11%"><col style="width:18%"><col style="width:9%"><col style="width:12%">
         </colgroup>
         <thead><tr>
           <th>#</th><th>日付</th><th>時刻</th><th>種別</th><th>関与者</th><th>場所</th>
@@ -261,7 +261,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 <div id="PRINT_SHEET"></div>
 
-<!-- 編集ダイアログ -->
+<!-- 編集ダイアログ（20pxのインライン指定は廃止） -->
 <dialog id="editDlg">
   <div style="padding:12px 14px;border-bottom:1px solid #eee;font-weight:700">編集</div>
   <div style="padding:14px 14px;min-width:300px">
@@ -274,10 +274,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
           <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
         </select>
       </label></div>
-      <div><label>関与者<input id="edActor" style="font-size:20px; min-height:52px; height:52px;"></label></div>
-      <div class="ktl-col2"><label>場所<input id="edPlace" style="font-size:20px; min-height:52px; height:52px;"></label></div>
+      <div><label>関与者<input id="edActor"></label></div>
+      <div class="ktl-col2"><label>場所<input id="edPlace"></label></div>
       <div class="ktl-col2"><label>内容<textarea id="edFact" maxlength="140" style="min-height:120px"></textarea></label></div>
-      <div class="ktl-col2"><label>証拠<input id="edEvidence" style="font-size:20px; min-height:52px; height:52px;"></label></div>
+      <div class="ktl-col2"><label>証拠<input id="edEvidence"></label></div>
     </div>
   </div>
   <div style="padding:10px 14px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
@@ -298,7 +298,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r42",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r43",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0, RESTORE_CAND_STR=null;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -317,7 +317,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r42", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r43", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -336,7 +336,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r42",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r43",updatedAt:Date.now()};
     normalizeOrder(); return true;
   }
 
@@ -441,7 +441,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const th=table.tHead && table.tHead.rows[0]; if(!th) return;
     const rectT=table.getBoundingClientRect();
     const xs=[0]; let acc=0; [...th.cells].forEach(c=>{ acc+=c.offsetWidth; xs.push(acc); });
-    // 垂直線：0.5px 位置に統一
     const ys=[0]; if(table.tBodies && table.tBodies.length){ for(const tr of table.tBodies[0].rows){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); } }
     const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
     rect.setAttribute("x",0.5); rect.setAttribute("y",0.5); rect.setAttribute("width",Math.max(0,W-1)); rect.setAttribute("height",Math.max(0,H-1));
@@ -492,7 +491,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
   window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（2倍スケールで高精細化） ====== */
+  /* ====== PDF（2倍スケール）— 列比率を UI に一致させる */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
 
   const measureCtx=(function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
@@ -513,19 +512,19 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     return arr.map(e=>({date:e.date||"", time:e.time||"", type:e.type||"", actor:e.actor||"", place:e.place||"", fact:e.fact||"", evidence:e.evidence||""}));
   }
 
-  // 列比率（合計100%）: 0.057, 0.170, 0.114, 0.125, 0.125, 0.125, 0.182, 0.102
+  // 8列（操作列を除く）の比率： #5 / 日付13 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容18 / 証拠9
+  // 正規化：5/88=0.057, 13/88=0.148, 10/88=0.114, 11/88=0.125, 11/88=0.125, 11/88=0.125, 18/88=0.205, 9/88=0.102
   function buildPageCanvases(list){
     const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
-    const SCALE=2; // ★ 高精細
+    const SCALE=2;
     const marginPx=Math.floor(PDF_MARGIN_PT/PX2PT);
     const innerW=pageWpx - marginPx*2;
     const innerH=pageHpx - marginPx*2;
 
-    const cols=[ {t:"#",w:.057,align:"center",vcenter:true},{t:"日付",w:.170,align:"center"},
+    const cols=[ {t:"#",w:.057,align:"center",vcenter:true},{t:"日付",w:.148,align:"center"},
       {t:"時刻",w:.114,align:"center",nowrap:true},{t:"種別",w:.125,align:"center"},
-      {t:"関与者",w:.125},{t:"場所",w:.125},{t:"内容（事実）",w:.182},{t:"証拠",w:.102} ];
+      {t:"関与者",w:.125},{t:"場所",w:.125},{t:"内容（事実）",w:.205},{t:"証拠",w:.102} ];
     let colW=cols.map(c=>Math.round(c.w*innerW));
-    // 誤差を最後の列に吸収して必ず100%にする
     const diff=innerW - colW.reduce((a,b)=>a+b,0); colW[colW.length-1]+=diff;
 
     const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
@@ -698,7 +697,7 @@ Q`;
     const pdf=pdfFromImages(imgs);
     const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r42</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r43</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -725,7 +724,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r42",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r43",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
