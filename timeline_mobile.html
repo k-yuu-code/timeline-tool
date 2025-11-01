@@ -63,7 +63,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
-/* ▼ 案件（ラベル＋セレクト横並び & 矢印二重対策） */
+/* ▼ 案件（ラベル＋セレクト横並び） */
 .ktl-caseRow1{
   display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center;
 }
@@ -80,7 +80,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   background-position:right 12px center !important;
   background-size:18px 18px !important;
 }
-/* ← テーマに背景を上書きされても表示される矢印の予備描画 */
+/* ← テーマ上書き対策の補助矢印（あまり出番はありませんが保険） */
 .ktl-combo::after{
   content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%);
   width:18px; height:18px; pointer-events:none; opacity:.95;
@@ -88,7 +88,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat center/18px 18px;
 }
 
-/* ▼ 2行目（案件ボタン群）：上マージンを少し広げる */
+/* ▼ 2行目（案件ボタン群） */
 .ktl-caseRow2{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
 
 /* ▼ 種別セレクトの矢印（フォーム＆編集ダイアログの両方） */
@@ -119,10 +119,11 @@ table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
   line-height:1.28 !important; font-size:11px !important; min-width:0;max-width:100%;
 }
-/* 日付セルを2行でクランプ */
+/* 日付セルの可読性（折返し強化） */
 .ktl-2lines{
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
   overflow:hidden; white-space:normal !important; line-height:1.28 !important;
+  overflow-wrap:anywhere; word-break:break-word;  /* ← ここを追加して欠け防止 */
 }
 .ktl-list td:nth-child(8){ word-break:break-all; } /* 証拠列の英数字折返し */
 .ktl-list th:nth-child(1), .ktl-list td:nth-child(1){ text-align:center }
@@ -133,7 +134,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（縦書き・少し小さく） */
+/* 操作ボタン（さらに小型化して列幅短縮に対応） */
 .ktl-list td:last-child{ padding:6px; overflow:hidden; text-align:center; }
 .ktl-actions{
   display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:center; min-width:0;
@@ -141,10 +142,11 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-actions .ktl-btn{
   writing-mode: vertical-rl; text-orientation: upright;
   display:inline-flex; align-items:center; justify-content:center;
-  min-height:56px; min-width:24px;
-  padding:6px 2px;
-  font-size:9px; line-height:1; letter-spacing:.08em;
-  border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip; transform:translateZ(0);
+  min-height:50px;   /* 56 → 50 */
+  min-width:20px;    /* 24 → 20 */
+  padding:4px 2px;   /* 6 → 4 */
+  font-size:8px;     /* 9 → 8 */
+  line-height:1; border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip; transform:translateZ(0);
 }
 
 /* 見出しとPDFボタン */
@@ -165,15 +167,15 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 /* 印刷レイヤ（iOS対策） */
 #PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
 
-/* ▼ 時系列メモ：削除ボタンを「枠の一番右下」へ */
-#memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:8px; }
+/* ▼ メモ枠：削除ボタンを右下に分離（距離を確保） */
+#memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:10px; }
 </style>
 </head>
 
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
 
-  <!-- ▼ 時系列メモ（削除ボタンは一番右下） -->
+  <!-- ▼ 時系列メモ（自動保存と全削除を離して配置） -->
   <div class="ktl-card" id="memoCard">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
       <span class="ver">V10 r54</span>
@@ -208,7 +210,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     </div>
   </div>
 
-  <!-- ▼ 一覧（列幅：日付=10%／操作=14%に調整） -->
+  <!-- ▼ 一覧（列幅：日付=15%／時刻=9%／操作=10%） -->
   <div class="ktl-card">
     <div class="ktl-cardHead">
       <h2 style="margin:0;font-size:16px">時系列一覧</h2>
@@ -221,9 +223,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- #5 / 日付10 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作14 -->
-          <col style="width:5%"><col style="width:10%"><col style="width:10%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:14%">
+          <!-- #5 / 日付15 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作10 = 100% -->
+          <col style="width:5%"><col style="width:15%"><col style="width:9%"><col style="width:11%">
+          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:10%">
         </colgroup>
         <thead><tr>
           <th data-field="index">#</th>
@@ -415,7 +417,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       const e=item.ev; const tr=document.createElement("tr");
       tr.append(
         cellText(i+1),
-        cell2lines(e.date),             /* ← 日付は2行クランプ */
+        cell2lines(e.date),             /* ← 日付は2行クランプ（折返し強化済み） */
         cellText(e.time,"ktl-nowrap"),
         cellText(e.type),
         cellText(e.actor),
