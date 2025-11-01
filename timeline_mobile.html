@@ -471,12 +471,24 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   };
 
   let editingIndex=-1; const dlg=$("editDlg");
-  function openEdit(i){ editingIndex=i; const ev=events()[i]; if(!ev) return;
+  function openEdit(i){
+    editingIndex=i; const ev=events()[i]; if(!ev) return;
+    if(!dlg.showModal){ // Safari古め対策：簡易プロンプト編集（フォールバック）
+      const nd=prompt("発生日 (YYYY-MM-DD)", ev.date||""); if(nd===null) return;
+      const nt=prompt("時刻 (HH:MM)", ev.time||""); if(nt===null) return;
+      const ty=prompt("種別", ev.type||""); if(ty===null) return;
+      const ac=prompt("関与者", ev.actor||""); if(ac===null) return;
+      const pl=prompt("場所", ev.place||""); if(pl===null) return;
+      const fa=prompt("内容", ev.fact||""); if(fa===null) return;
+      const evd=prompt("証拠", ev.evidence||""); if(evd===null) return;
+      const nv={date:nd,time:nt,type:ty,actor:ac,place:pl,fact:fa,evidence:evd};
+      if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
+      events()[i]=nv; saveMaybe(); render(); return;
+    }
     $("edDate").value=ev.date||""; $("edTime").value=ev.time||""; $("edType").value=ev.type||"その他";
     $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
     dlg.showModal();
   }
-  window.openEdit=openEdit;
   $("editCancel").onclick=()=>dlg.close();
   $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg.close(); return; }
     const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
@@ -545,7 +557,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     if(!S.current){ ensureDefault(); }
     persistAndMark(); fillCaseSelect(); render();
   }
-
   $("newCase").onclick = addCaseFlow;
   $("renameCase").onclick = renameCaseFlow;
   $("dupCase").onclick   = duplicateCaseFlow;
@@ -568,7 +579,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const lineH=19, padY=8, padX=12, headH=32;
-    const rows=list.map((e,i)=>{ const vals=cols.map(c=> c.key==='index' ? String(i+1) : (e[c.key]||"") ); const lines=vals.map((v,ci)=>{ const w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [v||"] : wrapText(measureCtx,v,w,cellFont); }); const blockHs=lines.map(ls=>Math.max(lineH, ls.length*lineH)); const h=Math.max(lineH + padY*2, Math.max(...blockHs) + padY*2); return {vals,lines,blockHs,h}; });
+    const rows=list.map((e,i)=>{
+      const vals=cols.map(c=> c.key==='index' ? String(i+1) : (e[c.key]||"") );
+      const lines=vals.map((v,ci)=>{
+        const w=Math.max(12,colW[ci]-padX*2-2);
+        return cols[ci].nowrap ? [ (v||"") ] : wrapText(measureCtx, v, w, cellFont);
+      });
+      const blockHs=lines.map(ls=>Math.max(lineH, ls.length*lineH));
+      const h=Math.max(lineH + padY*2, Math.max(...blockHs) + padY*2);
+      return {vals,lines,blockHs,h};
+    });
     const pages=[]; let idx=0;
     while(idx<rows.length){
       const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
@@ -589,13 +609,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
         r.lines.forEach((ls,i)=>{
           const colWidth=colW[i]; const blockH=r.blockHs[i]; const top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
           ctx.save(); ctx.beginPath(); ctx.rect(Math.floor(xx)+1, Math.floor(y)+1, Math.floor(colWidth)-2, Math.floor(r.h)-2); ctx.clip();
-          if(cols[i].vcenter){ ctx.textBaseline="middle"; const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width; const txX=xx + (colWidth - tw)/2; const txY=y + r.h/2 + 0.5; ctx.fillText(tx, txX, txY); ctx.textBaseline="top"; }
-          else{ ls.forEach((ln,li)=>{ let txX=xx + padX; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX=xx + (colWidth - tw)/2; } ctx.fillText(ln, txX, top + li*lineH); }); }
+          if(cols[i].vcenter){
+            ctx.textBaseline="middle"; const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width; const txX=xx + (colWidth - tw)/2; const txY=y + r.h/2 + 0.5; ctx.fillText(tx, txX, txY); ctx.textBaseline="top";
+          }else{
+            ls.forEach((ln,li)=>{ let txX=xx + padX; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX=xx + (colWidth - tw)/2; } ctx.fillText(ln, txX, top + li*lineH); });
+          }
           ctx.restore(); xx+=colWidth;
         });
         y+=r.h;
       }
-      ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1);
+      ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1); /* PDFビューア白紙対策のピクセル */
       pages.push({canvas:c});
     }
     return pages;
@@ -643,7 +666,7 @@ Q`;
     $("autoSave").addEventListener("change",()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
   })();
 
-  /* ====== 全削除（端末内保存の全クリア） ====== */
+  /* ====== 端末全削除 ====== */
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
