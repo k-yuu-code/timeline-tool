@@ -300,41 +300,47 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 <script>
 (function(){
   "use strict";
-  const $=id=>document.getElementById(id);
+  var $=function(id){ return document.getElementById(id); };
 
   /* ====== 保存キー & 状態 ====== */
-  const KEY_MAIN   ="KAWAI_TIMELINE_CASESAFE_V1";
-  const KEY_BACKUP = KEY_MAIN + "_BACKUP";
-  const KEY_SNAP   = KEY_MAIN + "_SNAPSHOTS";
-  const SNAP_MAX   = 5;
-  const SNAP_MINT  = 60*1000;
+  var KEY_MAIN   ="KAWAI_TIMELINE_CASESAFE_V1";
+  var KEY_BACKUP = KEY_MAIN + "_BACKUP";
+  var KEY_SNAP   = KEY_MAIN + "_SNAPSHOTS";
+  var SNAP_MAX   = 5;
+  var SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r54",updatedAt:Date.now()}};
-  let storeOK=false, LAST_SNAP_AT=0;
+  var S={cases:{},order:[],current:"",meta:{v:"r54",updatedAt:Date.now()}};
+  var storeOK=false, LAST_SNAP_AT=0;
 
-  const today = () => new Date().toISOString().slice(0,10);
-  const nowStr=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes());};
+  var today = function(){ return new Date().toISOString().slice(0,10); };
+  var nowStr=function(){ var d=new Date(),p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes()); };
 
   try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){ storeOK=false; }
 
-  const safeParse=str=>{ try{ return JSON.parse(str); }catch(_){ return null; } };
-  const isValidStore=o=>{
+  var safeParse=function(str){ try{ return JSON.parse(str); }catch(_){ return null; } };
+  var isValidStore=function(o){
     if(!o || typeof o!=="object" || !o.cases || typeof o.cases!=="object") return false;
     if(!Array.isArray(o.order)) o.order=Object.keys(o.cases);
     return true;
   };
-  const eventsTotal=o=>{ try{ let n=0; for(const k of Object.keys(o.cases||{})){ const a=o.cases[k]; if(Array.isArray(a)) n+=a.length; } return n; }catch(_){ return 0; } };
+  var eventsTotal=function(o){
+    try{
+      var n=0, k, a;
+      for(k in (o.cases||{})){ a=o.cases[k]; if(Array.isArray(a)) n+=a.length; }
+      return n;
+    }catch(_){ return 0; }
+  };
 
   function persist(){
     if(!storeOK) return;
     try{
       S.meta = {v:"r54", updatedAt: Date.now(), total: eventsTotal(S)};
-      const str=JSON.stringify(S);
+      var str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
       if(Date.now()-LAST_SNAP_AT >= SNAP_MINT){
         LAST_SNAP_AT=Date.now();
-        const snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
+        var snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
         if(str.length < 400000){
           snaps.push({t: Date.now(), d: str});
           while(snaps.length > SNAP_MAX) snaps.shift();
@@ -345,7 +351,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   }
 
   function loadFromStr(str){
-    const o=safeParse(str); if(!isValidStore(o)) return false;
+    var o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases);
     S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
     S.meta=o.meta||{v:"r54",updatedAt:Date.now()};
@@ -354,13 +360,13 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   function tryLoadAll(){
     if(storeOK){
-      const mainStr=localStorage.getItem(KEY_MAIN);
+      var mainStr=localStorage.getItem(KEY_MAIN);
       if(mainStr && loadFromStr(mainStr)) return "main";
-      const bkStr=localStorage.getItem(KEY_BACKUP);
+      var bkStr=localStorage.getItem(KEY_BACKUP);
       if(bkStr && loadFromStr(bkStr)) return "backup";
-      const snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
+      var snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
       if(snaps.length){
-        const last=snaps[snaps.length-1];
+        var last=snaps[snaps.length-1];
         if(last && last.d && loadFromStr(last.d)) return "snapshot";
       }
     }
@@ -368,66 +374,71 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   }
 
   function normalizeOrder(){
-    const names=Object.keys(S.cases);
-    const seen=new Set();
-    (S.order||[]).forEach(n=>{ if(names.includes(n)&&!seen.has(n)){ seen.add(n);} });
-    names.forEach(n=>{ if(!seen.has(n)){ S.order.push(n); seen.add(n);} });
-    S.order = Array.from(new Set(S.order));
+    var names=Object.keys(S.cases);
+    var seen={}, i;
+    // 既存順序を維持
+    var out=[];
+    for(i=0;i<(S.order||[]).length;i++){
+      var n=S.order[i];
+      if(names.indexOf(n)!==-1 && !seen[n]){ out.push(n); seen[n]=true; }
+    }
+    // 追加分を末尾へ
+    for(i=0;i<names.length;i++){
+      var nm=names[i];
+      if(!seen[nm]){ out.push(nm); seen[nm]=true; }
+    }
+    S.order=out;
   }
 
   function ensureDefault(){
     if(!S.order.length){
-      const n="案件A_"+today();
+      var n="案件A_"+today();
       S.cases[n]=[]; S.order=[n]; S.current=n;
     }
   }
 
-  const events=()=> S.cases[S.current]||(S.cases[S.current]=[]);
+  function events(){ return S.cases[S.current]||(S.cases[S.current]=[]); }
 
   function fillCaseSelect(){
-    const sel=$("caseSelect"); if(!sel) return;
+    var sel=$("caseSelect"); if(!sel) return;
     sel.innerHTML="";
-    S.order.forEach(n=>{
-      const op=document.createElement("option"); op.value=n; op.textContent=n;
+    for(var i=0;i<S.order.length;i++){
+      var n=S.order[i];
+      var op=document.createElement("option"); op.value=n; op.textContent=n;
       if(n===S.current) op.selected=true;
       sel.appendChild(op);
-    });
+    }
   }
-  if($("caseSelect")) $("caseSelect").addEventListener("change", e=>{
-    const v=e.target.value; if(S.cases[v]){ S.current=v; persist(); render(); }
-  });
 
-  function cellText(t,cls){ const x=document.createElement("td"); if(cls) x.className=cls; x.textContent=t||""; return x; }
-  function cell2lines(t){ const td=document.createElement("td"); const sp=document.createElement("span"); sp.className="ktl-2lines"; sp.textContent=t||""; td.appendChild(sp); return td; }
+  function cellText(t,cls){ var x=document.createElement("td"); if(cls) x.className=cls; x.textContent=t||""; return x; }
+  function cell2lines(t){ var td=document.createElement("td"); var sp=document.createElement("span"); sp.className="ktl-2lines"; sp.textContent=t||""; td.appendChild(sp); return td; }
 
   function render(){
-    const tbody=$("listBody"); if(!tbody) return;
+    var tbody=$("listBody"); if(!tbody) return;
     tbody.innerHTML="";
-    const arr=events().slice().map((ev,idx)=>({ev,idx}))
-      .sort((a,b)=>((a.ev.date||"")+(a.ev.time||"")).localeCompare((b.ev.date||"")+(b.ev.time||"")));
+    var arr=events().slice().map(function(ev,idx){return {ev:ev, idx:idx};})
+      .sort(function(a,b){ return ((a.ev.date||"")+(a.ev.time||"")).localeCompare((b.ev.date||"")+(b.ev.time||"")); });
     if(!arr.length){
-      const tr=document.createElement("tr"); const td=document.createElement("td");
+      var tr=document.createElement("tr"); var td=document.createElement("td");
       td.colSpan=9; td.className="ktl-muted"; td.textContent="まだ追加がありません";
       tr.appendChild(td); tbody.appendChild(tr); drawGrid(); return;
     }
-    arr.forEach((item,i)=>{
-      const e=item.ev; const tr=document.createElement("tr");
-      tr.append(
-        cellText(i+1),
-        cell2lines(e.date),
-        cellText(e.time,"ktl-nowrap"),
-        cellText(e.type),
-        cellText(e.actor),
-        cellText(e.place),
-        cellText(e.fact,"ktl-pre"),
-        cellText(e.evidence)
-      );
-      const tdAct=document.createElement("td"); tdAct.className="ktl-actions";
-      const bE=document.createElement("button"); bE.textContent="編集"; bE.className="ktl-btn ktl-btn-plain";
-      const bD=document.createElement("button"); bD.textContent="削除"; bD.className="ktl-btn ktl-btn-warn";
-      bE.onclick=()=>openEdit(item.idx);
-      bD.onclick=()=>{ if(confirm("この行を削除します。よろしいですか？")){ events().splice(item.idx,1); saveMaybe(); render(); } };
-      tdAct.append(bE,bD); tr.appendChild(tdAct);
+    arr.forEach(function(item,i){
+      var e=item.ev; var tr=document.createElement("tr");
+      tr.appendChild(cellText(i+1));
+      tr.appendChild(cell2lines(e.date));
+      tr.appendChild(cellText(e.time,"ktl-nowrap"));
+      tr.appendChild(cellText(e.type));
+      tr.appendChild(cellText(e.actor));
+      tr.appendChild(cellText(e.place));
+      tr.appendChild(cellText(e.fact,"ktl-pre"));
+      tr.appendChild(cellText(e.evidence));
+      var tdAct=document.createElement("td"); tdAct.className="ktl-actions";
+      var bE=document.createElement("button"); bE.textContent="編集"; bE.className="ktl-btn ktl-btn-plain";
+      var bD=document.createElement("button"); bD.textContent="削除"; bD.className="ktl-btn ktl-btn-warn";
+      bE.onclick=function(){ openEdit(item.idx); };
+      bD.onclick=function(){ if(confirm("この行を削除します。よろしいですか？")){ events().splice(item.idx,1); saveMaybe(); render(); } };
+      tdAct.appendChild(bE); tdAct.appendChild(bD); tr.appendChild(tdAct);
       tbody.appendChild(tr);
     });
     drawGrid(); setTimeout(drawGrid,50); setTimeout(drawGrid,300);
@@ -435,53 +446,55 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   /* ====== 罫線（SVG） ====== */
   function drawGrid(){
-    const wrap=$("tableWrap"); if(!wrap) return;
-    const table=wrap.querySelector("table"); const svg=wrap.querySelector(".ktl-gridlayer svg"); if(!table||!svg) return;
+    var wrap=$("tableWrap"); if(!wrap) return;
+    var table=wrap.querySelector("table"); var svg=wrap.querySelector(".ktl-gridlayer svg"); if(!table||!svg) return;
     svg.innerHTML="";
-    const stroke=getComputedStyle(document.documentElement).getPropertyValue('--grid-color')||"#000";
-    const sw=1, W=Math.round(table.offsetWidth), H=Math.round(table.offsetHeight);
+    var stroke=getComputedStyle(document.documentElement).getPropertyValue('--grid-color')||"#000";
+    var sw=1, W=Math.round(table.offsetWidth), H=Math.round(table.offsetHeight);
     svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("preserveAspectRatio","none");
-    const th=table.tHead && table.tHead.rows[0]; if(!th) return;
-    const rectT=table.getBoundingClientRect();
-    const xs=[0]; let acc=0; [...th.cells].forEach(c=>{ acc+=c.offsetWidth; xs.push(acc); });
-    const ys=[0]; if(table.tBodies && table.tBodies.length){ for(const tr of table.tBodies[0].rows){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); } }
-    const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+    var th=table.tHead && table.tHead.rows[0]; if(!th) return;
+    var rectT=table.getBoundingClientRect();
+    var xs=[0]; var acc=0; Array.prototype.forEach.call(th.cells, function(c){ acc+=c.offsetWidth; xs.push(acc); });
+    var ys=[0]; if(table.tBodies && table.tBodies.length){ Array.prototype.forEach.call(table.tBodies[0].rows, function(tr){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); }); }
+    var rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
     rect.setAttribute("x",0.5); rect.setAttribute("y",0.5); rect.setAttribute("width",Math.max(0,W-1)); rect.setAttribute("height",Math.max(0,H-1));
     rect.setAttribute("fill","none"); rect.setAttribute("stroke",stroke.trim()||"#000"); rect.setAttribute("stroke-width",sw); rect.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(rect);
-    xs.forEach((x,i)=>{ if(i===0||i===xs.length-1) return; const cx=Math.floor(x)+0.5;
-      const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+    xs.forEach(function(x,i){ if(i===0||i===xs.length-1) return; var cx=Math.floor(x)+0.5;
+      var ln=document.createElementNS("http://www.w3.org/2000/svg","line");
       ln.setAttribute("x1",cx); ln.setAttribute("y1",0); ln.setAttribute("x2",cx); ln.setAttribute("y2",H);
       ln.setAttribute("stroke",stroke.trim()||"#000"); ln.setAttribute("stroke-width",sw); ln.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(ln); });
-    ys.forEach((y,i)=>{ if(i===0||i===ys.length-1) return; const cy=Math.floor(y)+0.5;
-      const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
-      ln.setAttribute("x1",0); ln.setAttribute("y1",cy); ln.setAttribute("x2",W); ln.setAttribute("y2",cy);
-      ln.setAttribute("stroke",stroke.trim()||"#000"); ln.setAttribute("stroke-width",sw); ln.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(ln); });
+    ys.forEach(function(y,i){ if(i===0||i===ys.length-1) return; var cy=Math.floor(y)+0.5;
+      var ln2=document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln2.setAttribute("x1",0); ln2.setAttribute("y1",cy); ln2.setAttribute("x2",W); ln2.setAttribute("y2",cy);
+      ln2.setAttribute("stroke",stroke.trim()||"#000"); ln2.setAttribute("stroke-width",sw); ln2.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(ln2); });
   }
   window.addEventListener("resize", drawGrid);
   window.addEventListener("orientationchange", drawGrid);
 
   /* ====== 追加・編集 ====== */
-  $("evFact").addEventListener("input",()=>{$("counter").textContent=(($("evFact").value)||"").length+"/140";});
-  $("addBtn").onclick=()=>{
-    const e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"",
+  function bindAddEdit(){
+    $("evFact").addEventListener("input",function(){ $("counter").textContent=(($("evFact").value)||"").length+"/140"; });
+    $("addBtn").onclick=function(){
+      var e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"",
              actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(),
              fact:($("evFact").value)||"", evidence:($("evEvidence").value||"").trim()};
-    if(!e.date||!e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; } $("inlineError").textContent="";
-    events().push(e); saveMaybe(); render();
-  };
+      if(!e.date||!e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; } $("inlineError").textContent="";
+      events().push(e); saveMaybe(); render();
+    };
+  }
 
-  let editingIndex=-1; const dlg=$("editDlg");
+  var editingIndex=-1; var dlg=$("editDlg");
   function openEdit(i){
-    editingIndex=i; const ev=events()[i]; if(!ev) return;
-    if(!dlg.showModal){ // Safari古め対策：簡易プロンプト編集（フォールバック）
-      const nd=prompt("発生日 (YYYY-MM-DD)", ev.date||""); if(nd===null) return;
-      const nt=prompt("時刻 (HH:MM)", ev.time||""); if(nt===null) return;
-      const ty=prompt("種別", ev.type||""); if(ty===null) return;
-      const ac=prompt("関与者", ev.actor||""); if(ac===null) return;
-      const pl=prompt("場所", ev.place||""); if(pl===null) return;
-      const fa=prompt("内容", ev.fact||""); if(fa===null) return;
-      const evd=prompt("証拠", ev.evidence||""); if(evd===null) return;
-      const nv={date:nd,time:nt,type:ty,actor:ac,place:pl,fact:fa,evidence:evd};
+    editingIndex=i; var ev=events()[i]; if(!ev) return;
+    if(!(dlg && dlg.showModal)){ // 古いSafari等：フォールバック
+      var nd=prompt("発生日 (YYYY-MM-DD)", ev.date||""); if(nd===null) return;
+      var nt=prompt("時刻 (HH:MM)", ev.time||""); if(nt===null) return;
+      var ty=prompt("種別", ev.type||""); if(ty===null) return;
+      var ac=prompt("関与者", ev.actor||""); if(ac===null) return;
+      var pl=prompt("場所", ev.place||""); if(pl===null) return;
+      var fa=prompt("内容", ev.fact||""); if(fa===null) return;
+      var evd=prompt("証拠", ev.evidence||""); if(evd===null) return;
+      var nv={date:nd,time:nt,type:ty,actor:ac,place:pl,fact:fa,evidence:evd};
       if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
       events()[i]=nv; saveMaybe(); render(); return;
     }
@@ -489,203 +502,276 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
     dlg.showModal();
   }
-  $("editCancel").onclick=()=>dlg.close();
-  $("editSave").onclick=()=>{ const i=editingIndex; if(i<0){ dlg.close(); return; }
-    const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
+  window.openEdit=openEdit;
+
+  function bindEditDialog(){
+    if(!$("editCancel")||!$("editSave")) return;
+    $("editCancel").onclick=function(){ dlg.close(); };
+    $("editSave").onclick=function(){
+      var i=editingIndex; if(i<0){ dlg.close(); return; }
+      var nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
               actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(),
               fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
-    if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-    events()[i]=nv; saveMaybe(); render(); dlg.close();
-  };
+      if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
+      events()[i]=nv; saveMaybe(); render(); dlg.close();
+    };
+  }
 
   /* ====== 保存UI ====== */
-  let DIRTY=false;
-  const showUnsaved=on=>{const u=$("unsaved"); if(u) u.style.display=on?"inline":"none";};
-  const persistAndMark=()=>{ persist(); DIRTY=false; showUnsaved(false); };
-  const saveMaybe=()=>{ if($("autoSave").checked){ persistAndMark(); }else{ DIRTY=true; showUnsaved(true); } };
-  $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
-  window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
+  var DIRTY=false;
+  function showUnsaved(on){ var u=$("unsaved"); if(u) u.style.display=on?"inline":"none"; }
+  function persistAndMark(){ persist(); DIRTY=false; showUnsaved(false); }
+  function saveMaybe(){ if($("autoSave").checked){ persistAndMark(); }else{ DIRTY=true; showUnsaved(true); } }
+  function bindSave(){
+    $("saveNow").onclick=function(){ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
+    window.addEventListener("beforeunload", function(e){ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
+  }
 
   /* ====== 案件操作（新規／名前変更／複製／削除） ====== */
   function ensureUniqueName(base){
-    let name=base||"案件";
-    let i=2;
-    while(S.cases[name]){ name=`${base} (${i++})`; }
+    var name=base||"案件", i=2;
+    while(S.cases[name]){ name=base+" ("+(i++)+")"; }
     return name;
   }
   function defaultCaseName(){
-    return `案件${(S.order?.length||0)+1}_${today()}`;
+    var len=(S.order && S.order.length) ? S.order.length : 0;
+    return "案件"+(len+1)+"_"+today();
   }
   function addCaseFlow(){
-    const input = prompt("新しい案件名を入力してください", defaultCaseName());
+    var input = prompt("新しい案件名を入力してください", defaultCaseName());
     if(input===null) return;
-    const base=(input||"").trim(); if(!base) return;
-    const name=ensureUniqueName(base);
+    var base=(input||"").trim(); if(!base) return;
+    var name=ensureUniqueName(base);
     S.cases[name]=[];
-    if(!S.order.includes(name)) S.order.push(name);
+    if(S.order.indexOf(name)===-1) S.order.push(name);
     S.current=name;
     persistAndMark(); fillCaseSelect(); render();
-    alert(`案件を作成しました：${name}`);
+    alert("案件を作成しました："+name);
   }
   function renameCaseFlow(){
-    const old=S.current; if(!old){ alert("案件が選択されていません。"); return; }
-    const input = prompt("案件名を変更します", old);
+    var old=S.current; if(!old){ alert("案件が選択されていません。"); return; }
+    var input = prompt("案件名を変更します", old);
     if(input===null) return;
-    const name=(input||"").trim(); if(!name || name===old) return;
+    var name=(input||"").trim(); if(!name || name===old) return;
     if(S.cases[name] && name!==old){ alert("同名の案件が既にあります。別の名前にしてください。"); return; }
     S.cases[name]=S.cases[old]; delete S.cases[old];
-    S.order=S.order.map(n=> n===old? name : n);
+    S.order=S.order.map(function(n){ return n===old? name : n; });
     S.current=name;
     persistAndMark(); fillCaseSelect(); render();
   }
   function duplicateCaseFlow(){
-    const src=S.current; if(!src){ alert("案件が選択されていません。"); return; }
-    const name=ensureUniqueName(src+"（複製）");
+    var src=S.current; if(!src){ alert("案件が選択されていません。"); return; }
+    var name=ensureUniqueName(src+"（複製）");
     S.cases[name]=JSON.parse(JSON.stringify(S.cases[src]||[]));
-    if(!S.order.includes(name)) S.order.push(name);
+    if(S.order.indexOf(name)===-1) S.order.push(name);
     S.current=name;
     persistAndMark(); fillCaseSelect(); render();
-    alert(`案件を複製しました：${name}`);
+    alert("案件を複製しました："+name);
   }
   function deleteCaseFlow(){
-    const cur=S.current; if(!cur){ alert("案件が選択されていません。"); return; }
-    const cnt=(S.cases[cur]||[]).length;
-    if(!confirm(`案件「${cur}」を削除します（行数：${cnt}）。よろしいですか？`)) return;
+    var cur=S.current; if(!cur){ alert("案件が選択されていません。"); return; }
+    var cnt=(S.cases[cur]||[]).length;
+    if(!confirm("案件「"+cur+"」を削除します（行数："+cnt+"）。よろしいですか？")) return;
     delete S.cases[cur];
-    S.order=S.order.filter(n=>n!==cur);
+    S.order=S.order.filter(function(n){ return n!==cur; });
     S.current=S.order[0]||"";
     if(!S.current){ ensureDefault(); }
     persistAndMark(); fillCaseSelect(); render();
   }
-  $("newCase").onclick = addCaseFlow;
-  $("renameCase").onclick = renameCaseFlow;
-  $("dupCase").onclick   = duplicateCaseFlow;
-  $("deleteCase").onclick= deleteCaseFlow;
 
-  /* ====== PDF ====== */
-  const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
-  const measureCtx=(function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
-  function wrapLine(ctx, text, maxW, font){ ctx.save(); ctx.font=font; const lines=[]; let line=""; for(const ch of (text||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else{ lines.push(line); line=ch; } } if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""]; }
-  function wrapText(ctx, text, maxW, font){ const paras=String(text||"").split(/\r\n|\r|\n/); const out=[]; paras.forEach((p,pi)=>{ const chunk=wrapLine(ctx,p,maxW,font); out.push(...chunk); if(pi<paras.length-1) out.push(""); }); return out.length?out:[""]; }
-  function getPdfColumnsFromDom(){ const ths=[...document.querySelectorAll('#listTable thead th')]; const incl=ths.filter(th=> th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0); const sumW = incl.reduce((s,th)=>s+th.offsetWidth,0)||1;
-    return incl.map(th=>{ const key = th.dataset.field || th.textContent.trim(); const w=(th.offsetWidth/sumW); const cfg={ key, t: th.textContent.trim(), w, align:null, nowrap:false, vcenter:false }; if(key==='index'){ cfg.align='center'; cfg.vcenter=true; } if(key==='date'||key==='time'||key==='type'){ cfg.align='center'; } if(key==='time'){ cfg.nowrap=true; } return cfg; }); }
-  function collectRowsFromDom(cols){ const tbody=document.querySelector('#listTable tbody'); if(!tbody) return []; const thAll=[...document.querySelectorAll('#listTable thead th')];
-    const targets=cols.map(c=>{ const th=thAll.find(h=>(h.dataset.field||h.textContent.trim())===c.key ); return th ? th.cellIndex : -1; });
-    const rows=[]; [...tbody.rows].forEach(tr=>{ if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return; const obj={}; targets.forEach((tdIdx,i)=>{ if(tdIdx<0) return; const td=tr.cells[tdIdx]; const text=(td? td.innerText || td.textContent : "").replace(/\s+\n/g,"\n").trim(); obj[cols[i].key]=text; }); rows.push(obj); }); return rows; }
-  function buildPageCanvases(list, cols){
-    const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
-    const SCALE=2; const marginPx=Math.floor(PDF_MARGIN_PT/PX2PT); const innerW=pageWpx - marginPx*2; const innerH=pageHpx - marginPx*2;
-    let colW=cols.map(c=>Math.round(c.w*innerW)); const diff=innerW - colW.reduce((a,b)=>a+b,0); colW[colW.length-1]+=diff;
-    const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    const lineH=19, padY=8, padX=12, headH=32;
-    const rows=list.map((e,i)=>{
-      const vals=cols.map(c=> c.key==='index' ? String(i+1) : (e[c.key]||"") );
-      const lines=vals.map((v,ci)=>{
-        const w=Math.max(12,colW[ci]-padX*2-2);
-        return cols[ci].nowrap ? [ (v||"") ] : wrapText(measureCtx, v, w, cellFont);
-      });
-      const blockHs=lines.map(ls=>Math.max(lineH, ls.length*lineH));
-      const h=Math.max(lineH + padY*2, Math.max(...blockHs) + padY*2);
-      return {vals,lines,blockHs,h};
+  function bindCaseButtons(){
+    var b1=$("newCase"), b2=$("renameCase"), b3=$("dupCase"), b4=$("deleteCase");
+    if(b1) b1.addEventListener("click", addCaseFlow);
+    if(b2) b2.addEventListener("click", renameCaseFlow);
+    if(b3) b3.addEventListener("click", duplicateCaseFlow);
+    if(b4) b4.addEventListener("click", deleteCaseFlow);
+    var sel=$("caseSelect");
+    if(sel) sel.addEventListener("change", function(e){
+      var v=e.target.value; if(S.cases[v]){ S.current=v; persist(); render(); }
     });
-    const pages=[]; let idx=0;
+  }
+
+  /* ====== PDF（必要時のみ実行されるため互換影響なし） ====== */
+  var PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
+  var measureCtx=(function(){ var c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
+  function wrapLine(ctx, text, maxW, font){ ctx.save(); ctx.font=font; var lines=[], line="", i, ch, test; text=String(text||""); for(i=0;i<text.length;i++){ ch=text.charAt(i); test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { lines.push(line); line=ch; } } if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""]; }
+  function wrapText(ctx, text, maxW, font){ var paras=String(text||"").split(/\r\n|\r|\n/), out=[], i, chunk; for(i=0;i<paras.length;i++){ chunk=wrapLine(ctx,paras[i],maxW,font); Array.prototype.push.apply(out,chunk); if(i<paras.length-1) out.push(""); } return out.length?out:[""]; }
+  function getPdfColumnsFromDom(){
+    var ths=[].slice.call(document.querySelectorAll('#listTable thead th'));
+    var incl=ths.filter(function(th){ return th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0; });
+    var sumW = incl.reduce(function(s,th){return s+th.offsetWidth;},0)||1;
+    return incl.map(function(th){
+      var key = th.getAttribute('data-field') || th.textContent.replace(/\s+/g," ").trim();
+      var w=(th.offsetWidth/sumW);
+      var cfg={ key:key, t: th.textContent.trim(), w:w, align:null, nowrap:false, vcenter:false };
+      if(key==='index'){ cfg.align='center'; cfg.vcenter=true; }
+      if(key==='date'||key==='time'||key==='type'){ cfg.align='center'; }
+      if(key==='time'){ cfg.nowrap=true; }
+      return cfg;
+    });
+  }
+  function collectRowsFromDom(cols){
+    var tbody=document.querySelector('#listTable tbody'); if(!tbody) return [];
+    var thAll=[].slice.call(document.querySelectorAll('#listTable thead th'));
+    var targets=cols.map(function(c){ var th=thAll.find ? thAll.find(function(h){return ((h.getAttribute('data-field')||h.textContent.trim())===c.key);}) : null; return th ? th.cellIndex : -1; });
+    var rows=[];
+    [].slice.call(tbody.rows).forEach(function(tr){
+      if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return;
+      var obj={}, i, tdIdx, td, text;
+      for(i=0;i<targets.length;i++){
+        tdIdx=targets[i]; if(tdIdx<0) continue;
+        td=tr.cells[tdIdx];
+        text=(td? (td.innerText || td.textContent) : "");
+        text=(text||"").replace(/\s+\n/g,"\n").trim();
+        obj[cols[i].key]=text;
+      }
+      rows.push(obj);
+    });
+    return rows;
+  }
+  function buildPageCanvases(list, cols){
+    var pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
+    var SCALE=2; var marginPx=Math.floor(PDF_MARGIN_PT/PX2PT); var innerW=pageWpx - marginPx*2; var innerH=pageHpx - marginPx*2;
+    var colW=cols.map(function(c){return Math.round(c.w*innerW);}); var diff=innerW - colW.reduce(function(a,b){return a+b;},0); colW[colW.length-1]+=diff;
+    var headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
+    var cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
+    var lineH=19, padY=8, padX=12, headH=32;
+    var rows=list.map(function(e,i){
+      var vals=cols.map(function(c){ return c.key==='index' ? String(i+1) : (e[c.key]||""); });
+      var lines=vals.map(function(v,ci){ var w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [ (v||"") ] : wrapText(measureCtx,v,w,cellFont); });
+      var blockHs=lines.map(function(ls){ return Math.max(lineH, ls.length*lineH); });
+      var h=Math.max(lineH + padY*2, Math.max.apply(null, blockHs) + padY*2);
+      return {vals:vals,lines:lines,blockHs:blockHs,h:h};
+    });
+    var pages=[], idx=0;
     while(idx<rows.length){
-      const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
-      const ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false; ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
-      const line={ rect:(x,y,w,h)=>{ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h));},
-                   v:(x,y1,y2)=>{x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
-                   h:(y,x1,x2)=>{y=Math.floor(y)+0.5;x1=Math.floor(x1)+0.5;x2=Math.floor(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();} };
-      let x0=marginPx,y0=marginPx;
+      var c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
+      var ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false; ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
+      var line={ rect:function(x,y,w,h){ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h));},
+                 v:function(x,y1,y2){x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
+                 h:function(y,x1,x2){y=Math.floor(y)+0.5;x1=Math.floor(x1)+0.5;x2=Math.floor(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();} };
+      var x0=marginPx,y0=marginPx;
       ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
       ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
-      let cx=x0; cols.forEach((cdef,i)=>{ const tx=cdef.t; let txX=cx+padX; if(cdef.align==="center"){ const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; } ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
-      line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
-      let y=y0+headH; ctx.font=cellFont; ctx.textBaseline="top";
+      var cx=x0; cols.forEach(function(cdef,i){ var tx=cdef.t; var txX=cx+padX; var wtx=measureCtx.measureText(tx).width; if(cdef.align==="center"){ txX=cx+(colW[i]-wtx)/2; } ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
+      line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach(function(cdef,i){ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
+      var y=y0+headH; ctx.font=cellFont; ctx.textBaseline="top";
       for(; idx<rows.length; idx++){
-        const r=rows[idx]; if(y + r.h > marginPx + innerH){ break; }
-        line.rect(x0,y,innerW,r.h); let cx2=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
-        let xx=x0;
-        r.lines.forEach((ls,i)=>{
-          const colWidth=colW[i]; const blockH=r.blockHs[i]; const top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
+        var r=rows[idx]; if(y + r.h > marginPx + innerH){ break; }
+        line.rect(x0,y,innerW,r.h); var cx2=x0; cols.forEach(function(cdef,i){ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
+        var xx=x0;
+        r.lines.forEach(function(ls,i){
+          var colWidth=colW[i]; var blockH=r.blockHs[i]; var top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
           ctx.save(); ctx.beginPath(); ctx.rect(Math.floor(xx)+1, Math.floor(y)+1, Math.floor(colWidth)-2, Math.floor(r.h)-2); ctx.clip();
           if(cols[i].vcenter){
-            ctx.textBaseline="middle"; const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width; const txX=xx + (colWidth - tw)/2; const txY=y + r.h/2 + 0.5; ctx.fillText(tx, txX, txY); ctx.textBaseline="top";
+            ctx.textBaseline="middle"; var tx=r.vals[i]||""; var tw=measureCtx.measureText(tx).width; var txX=xx + (colWidth - tw)/2; var txY=y + r.h/2 + 0.5; ctx.fillText(tx, txX, txY); ctx.textBaseline="top";
           }else{
-            ls.forEach((ln,li)=>{ let txX=xx + padX; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX=xx + (colWidth - tw)/2; } ctx.fillText(ln, txX, top + li*lineH); });
+            ls.forEach(function(ln,li){ var txX=xx + padX; if(cols[i].align==="center"){ var tw2=measureCtx.measureText(ln).width; txX=xx + (colWidth - tw2)/2; } ctx.fillText(ln, txX, top + li*lineH); });
           }
           ctx.restore(); xx+=colWidth;
         });
         y+=r.h;
       }
-      ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1); /* PDFビューア白紙対策のピクセル */
+      ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1);
       pages.push({canvas:c});
     }
     return pages;
   }
-  function canvasToJpegBytes(canvas){ let b64, binStr, bin; try{ b64=canvas.toDataURL("image/jpeg",0.92); } catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); } binStr=b64.split(",").pop()||""; bin=atob(binStr); const u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i); return u8; }
-  function pdfFromImages(imgs, pageW=595.28, pageH=841.89, margin=24){
-    const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0];
-    const add=b=>{ parts.push(b); off+=b.length; }; const addS=s=>add(enc.encode(s));
-    const obj=(n,bufs)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
-    const W=pageW, H=pageH, N=imgs.length;
-    const imgObj=(i)=> 3 + i*3, cntObj=(i)=> 3 + i*3 + 1, pagObj=(i)=> 3 + i*3 + 2;
-    addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-    for(let i=0;i<N;i++){
-      const {bytes,wpx,hpx}=imgs[i]; const px2pt=72/96, wpt=wpx*px2pt/2, hpt=hpx*px2pt/2;
-      const maxW=W-margin*2, maxH=H-margin*2; const sc=Math.min(maxW/wpt, maxH/hpt, 1);
-      const dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2); const x=((W - wpt*sc)/2).toFixed(2), y=((H - hpt*sc)/2).toFixed(2);
-      obj(imgObj(i),[ enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`), bytes, enc.encode("\nendstream\n") ]);
-      const content=`q
-${dw} 0 0 ${dh} ${x} ${y} cm
-/Im${i} Do
-Q`;
-      obj(cntObj(i),`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
-      obj(pagObj(i),`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${imgObj(i)} 0 R >> >> /Contents ${cntObj(i)} 0 R >>`);
-    }
-    const kids = Array.from({length:N}, (_,i)=> `${pagObj(i)} 0 R`).join(" "); obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`); obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
-    const maxId=(N>0)?pagObj(N-1):2; const start=off; let xS=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`; for(let n=1;n<=maxId;n++){ const pos=(typeof xref[n]==="number")?xref[n]:0; xS+=`${String(pos).padStart(10,"0")} 00000 ${pos? "n":"f"} \n`; } xS+=`trailer << /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`; addS(xS); return new Blob(parts,{type:"application/pdf"}); }
-  function makePDF(){
-    const cols=getPdfColumnsFromDom(); const list=collectRowsFromDom(cols); if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
-    let pages; try{ pages=buildPageCanvases(list, cols); } catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
-    const imgs=pages.map(p=>({bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
-    const pdf=pdfFromImages(imgs); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
-    const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r54</span>`; }
-    setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
+  function canvasToJpegBytes(canvas){
+    var b64, binStr, bin;
+    try{ b64=canvas.toDataURL("image/jpeg",0.92); } catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); }
+    binStr=b64.split(",").pop()||""; bin=atob(binStr); var u8=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i); return u8;
   }
-  $("pdfBtn").onclick=makePDF;
+  function pdfFromImages(imgs, pageW, pageH, margin){
+    pageW=pageW||595.28; pageH=pageH||841.89; margin=margin||24;
+    var enc=new TextEncoder(); var parts=[]; var off=0; var xref=[0];
+    var add=function(b){ parts.push(b); off+=b.length; }; var addS=function(s){ add(enc.encode(s)); };
+    var obj=function(n,bufs){ xref[n]=off; addS(n+" 0 obj\n"); if(Array.isArray(bufs)){ for(var i=0;i<bufs.length;i++) add(bufs[i]); } else { addS(bufs); } addS("\nendobj\n"); };
+    var W=pageW, H=pageH, N=imgs.length;
+    var imgObj=function(i){return 3 + i*3;}, cntObj=function(i){return 3 + i*3 + 1;}, pagObj=function(i){return 3 + i*3 + 2;};
+    addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+    for(var i=0;i<N;i++){
+      var it=imgs[i]; var bytes=it.bytes, wpx=it.wpx, hpx=it.hpx;
+      var px2pt=72/96, wpt=wpx*px2pt/2, hpt=hpx*px2pt/2;
+      var maxW=W-margin*2, maxH=H-margin*2; var sc=Math.min(maxW/wpt, maxH/hpt, 1);
+      var dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2); var x=((W - wpt*sc)/2).toFixed(2), y=((H - hpt*sc)/2).toFixed(2);
+      obj(imgObj(i),[ enc.encode("<< /Type /XObject /Subtype /Image /Width "+wpx+" /Height "+hpx+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+bytes.length+" >>\nstream\n"), bytes, enc.encode("\nendstream\n") ]);
+      var content="q\n"+dw+" 0 0 "+dh+" "+x+" "+y+" cm\n/Im"+i+" Do\nQ";
+      obj(cntObj(i),"<< /Length "+enc.encode(content).length+" >>\nstream\n"+content+"\nendstream");
+      obj(pagObj(i),"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+W+" "+H+"] /Resources << /XObject << /Im"+i+" "+imgObj(i)+" 0 R >> >> /Contents "+cntObj(i)+" 0 R >>");
+    }
+    var kids=[], i; for(i=0;i<N;i++){ kids.push(pagObj(i)+" 0 R"); }
+    obj(2,"<< /Type /Pages /Count "+N+" /Kids [ "+kids.join(" ")+" ] >>");
+    obj(1,"<< /Type /Catalog /Pages 2 0 R >>");
+    var maxId=(N>0)?pagObj(N-1):2; var start=off; var xS="xref\n0 "+(maxId+1)+"\n0000000000 65535 f \n"; for(i=1;i<=maxId;i++){ var pos=(typeof xref[i]==="number")?xref[i]:0; xS+=String(pos).padStart(10,"0")+" 00000 "+(pos? "n":"f")+" \n"; } xS+="trailer << /Size "+(maxId+1)+" /Root 1 0 R >>\nstartxref\n"+start+"\n%%EOF"; addS(xS);
+    return new Blob(parts,{type:"application/pdf"});
+  }
+  function getPdfColumnsFromDom_and_list(){
+    var cols=getPdfColumnsFromDom(); var list=collectRowsFromDom(cols); return {cols:cols,list:list};
+  }
+  function makePDF(){
+    var pair=getPdfColumnsFromDom_and_list(); var cols=pair.cols, list=pair.list;
+    if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
+    var pages; try{ pages=buildPageCanvases(list, cols); } catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
+    var imgs=pages.map(function(p){return {bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height};});
+    var pdf=pdfFromImages(imgs); var url=URL.createObjectURL(pdf); var name="timeline_"+nowStr()+".pdf";
+    var a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
+    var s=$("pdfStatus"); if(s){ s.innerHTML='PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="'+url+'" download="'+name+'">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r54</span>'; }
+    setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
+  }
 
-  /* ====== 初期化 ====== */
-  function fillCaseAndRender(){ normalizeOrder(); ensureDefault(); persist(); fillCaseSelect(); render(); }
-  (function init(){
-    const mode=tryLoadAll(); if(!mode){ ensureDefault(); }
-    fillCaseAndRender();
-    $("evDate").value=today(); $("counter").textContent="0/140";
-    const savedAuto=localStorage.getItem("__autosave__")==="1"; $("autoSave").checked=!!savedAuto;
-    $("autoSave").addEventListener("change",()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
-  })();
+  /* ====== 初期化・バインド（DOM読み込み後に実行） ====== */
+  function initAfterDom(){
+    var mode=tryLoadAll(); if(!mode){ ensureDefault(); }
+    normalizeOrder(); ensureDefault(); persist(); fillCaseSelect(); render();
 
-  /* ====== 端末全削除 ====== */
-  $("wipeAll").onclick=()=>{
+    // デフォルト値
+    if($("evDate")) $("evDate").value=today();
+    if($("counter")) $("counter").textContent="0/140";
+
+    // 自動保存ON/OFF保持
+    var savedAuto=(localStorage.getItem("__autosave__")==="1");
+    var as=$("autoSave"); if(as){ as.checked=!!savedAuto; as.addEventListener("change", function(){ localStorage.setItem("__autosave__", as.checked?"1":"0"); }); }
+
+    // バインド
+    bindAddEdit();
+    bindEditDialog();
+    bindSave();
+    bindCaseButtons();
+
+    // PDF
+    var pb=$("pdfBtn"); if(pb) pb.addEventListener("click", makePDF);
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded", initAfterDom);
+  }else{
+    initAfterDom();
+  }
+
+  /* ====== 全削除（端末） ====== */
+  function wipeAllHandler(){
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
     S.cases={}; S.order=[]; S.current=""; S.meta={v:"r54",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
-  };
+  }
+  var w=$("wipeAll"); if(w){ if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", function(){ $("wipeAll").onclick=wipeAllHandler; }); } else { w.onclick=wipeAllHandler; } }
 
-  /* ====== エラー表示（一般的な "Script error." は非表示） ====== */
-  const showError=(msg)=>{ const el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; };
-  window.addEventListener("error", e=>{
-    if(!e || e.message==="Script error." || !e.error) return;
-    showError("エラー: " + (e.error?.message || e.message));
+  /* ====== エラー表示（解析可能なメッセージだけ表示） ====== */
+  function showError(msg){ var el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; }
+  window.addEventListener("error", function(e){
+    if(!e) return;
+    var m = (e.error && e.error.message) || e.message || "";
+    if(m && m!=="Script error.") showError("エラー: "+m);
   });
-  window.addEventListener("unhandledrejection", e=>{
+  window.addEventListener("unhandledrejection", function(e){
     if(!e || !e.reason) return;
-    const m = typeof e.reason==="string" ? e.reason : (e.reason.message || "");
+    var m = (typeof e.reason==="string")? e.reason : (e.reason.message || "");
     if(m) showError("エラー: " + m);
   });
+
 })();
 </script>
 </body>
