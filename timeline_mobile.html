@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r35）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r36）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -45,10 +45,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   min-height:120px; resize:vertical;
 }
 
-/* ★ 関与者／場所／証拠：大きめに（入力しやすさ優先） */
+/* ★ 関与者／場所／証拠：さらに大きく（フォーム＆編集ダイアログ） */
 #evActor,#evPlace,#evEvidence,
 #edActor,#edPlace,#edEvidence{
-  font-size:18px; min-height:48px; height:48px;
+  font-size:20px; min-height:52px; height:52px;
 }
 
 /* 復旧バナー（必要時のみ表示） */
@@ -121,21 +121,19 @@ table.ktl-list th, table.ktl-list td{
 
 /* 内容は改行保持 */
 table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
-
-/* nowrap（日時の折返し抑止・省略表示） */
 .ktl-nowrap{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
 /* 罫線オーバーレイ (SVG) */
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（枠内に収める：文字をさらに小さく） */
+/* 操作ボタン（枠内に収める：列幅12%＋小さめ文字） */
 .ktl-list td:last-child{ padding:6px; overflow:hidden; }
 .ktl-actions{display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:0}
 .ktl-actions .ktl-btn{
   display:block;width:100%;box-sizing:border-box;
-  padding:5px 5px;font-size:11px;line-height:1.25;border-radius:10px;
-  white-space:nowrap;text-align:center;overflow:hidden;text-overflow:ellipsis; letter-spacing:0;
+  padding:5px 4px;font-size:11px;line-height:1.25;border-radius:10px;
+  white-space:nowrap;text-align:center;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;
 }
 
 /* 見出しとPDFボタン */
@@ -177,7 +175,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r35</span>
+      <span class="ver">V10 r36</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -220,16 +218,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅合計100%：日付を少し狭く（17%）、証拠を広く（9%） -->
+          <!-- 列幅合計100%：#5 / 日付17 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容14 / 証拠9 / 操作12 -->
           <col style="width:5%">
           <col style="width:17%">
           <col style="width:10%">
           <col style="width:11%">
           <col style="width:11%">
           <col style="width:11%">
-          <col style="width:16%">
+          <col style="width:14%">
           <col style="width:9%">
-          <col style="width:10%">
+          <col style="width:12%">
         </colgroup>
         <thead><tr>
           <th>#</th><th>日付</th><th>時刻</th><th>種別</th><th>関与者</th><th>場所</th>
@@ -285,10 +283,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
           <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
         </select>
       </label></div>
-      <div><label>関与者<input id="edActor" style="font-size:18px; min-height:48px; height:48px;"></label></div>
-      <div class="ktl-col2"><label>場所<input id="edPlace" style="font-size:18px; min-height:48px; height:48px;"></label></div>
+      <div><label>関与者<input id="edActor" style="font-size:20px; min-height:52px; height:52px;"></label></div>
+      <div class="ktl-col2"><label>場所<input id="edPlace" style="font-size:20px; min-height:52px; height:52px;"></label></div>
       <div class="ktl-col2"><label>内容<textarea id="edFact" maxlength="140" style="min-height:120px"></textarea></label></div>
-      <div class="ktl-col2"><label>証拠<input id="edEvidence" style="font-size:18px; min-height:48px; height:48px;"></label></div>
+      <div class="ktl-col2"><label>証拠<input id="edEvidence" style="font-size:20px; min-height:52px; height:52px;"></label></div>
     </div>
   </div>
   <div style="padding:10px 14px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
@@ -302,14 +300,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   "use strict";
   const $=id=>document.getElementById(id);
 
-  /* ====== 保存キー & 状態（r33/34の保護機構を継続） ====== */
+  /* ====== 保存キー & 状態（保護機構あり） ====== */
   const KEY_MAIN   ="KAWAI_TIMELINE_CASESAFE_V1";
   const KEY_BACKUP = KEY_MAIN + "_BACKUP";
   const KEY_SNAP   = KEY_MAIN + "_SNAPSHOTS";
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r35",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r36",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0, RESTORE_CAND_STR=null;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -332,7 +330,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r35", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r36", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -351,7 +349,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r35",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r36",updatedAt:Date.now()};
     normalizeOrder();
     return true;
   }
@@ -405,8 +403,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const sel=$("caseSelect"); if(!sel) return;
     sel.innerHTML="";
     S.order.forEach(n=>{
-      const op=document.createElement("option");
-      op.value=n; op.textContent=n;
+      const op=document.createElement("option"); op.value=n; op.textContent=n;
       if(n===S.current) op.selected=true;
       sel.appendChild(op);
     });
@@ -460,8 +457,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const th=table.tHead && table.tHead.rows[0]; if(!th) return;
     const rectT=table.getBoundingClientRect();
     const xs=[0]; let acc=0; [...th.cells].forEach(c=>{ acc+=c.offsetWidth; xs.push(acc); });
-    const ys=[0];
-    if(table.tBodies && table.tBodies.length){ for(const tr of table.tBodies[0].rows){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); } }
+    const ys=[0]; if(table.tBodies && table.tBodies.length){ for(const tr of table.tBodies[0].rows){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); } }
     const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
     rect.setAttribute("x",0.5); rect.setAttribute("y",0.5); rect.setAttribute("width",Math.max(0,W-1)); rect.setAttribute("height",Math.max(0,H-1));
     rect.setAttribute("fill","none"); rect.setAttribute("stroke",stroke.trim()||"#000"); rect.setAttribute("stroke-width",sw); rect.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(rect);
@@ -511,7 +507,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
   window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（Canvas→JPEG→PDF：列比率を同期） ====== */
+  /* ====== PDF（Canvas→JPEG→PDF：安定版 xref） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
 
   const measureCtx=(function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
@@ -533,11 +529,11 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function buildCanvas(list){
     const innerWpx=Math.floor((PDF_W_PT-2*PDF_MARGIN_PT)/PX2PT), marginPx=Math.floor(PDF_MARGIN_PT/PX2PT);
     const W=innerWpx+marginPx*2, innerW=innerWpx;
-    /* ★ PDFの列比率：#0.06 / 日付0.18 / 時刻0.12 / 種別0.11 / 関与者0.11 / 場所0.11 / 内容0.21 / 証拠0.10 */
+    /* 画面に合わせた列比率：#0.05 / 日付0.17 / 時刻0.10 / 種別0.11 / 関与者0.11 / 場所0.11 / 内容0.14 / 証拠0.09 / 操作0.12（操作はPDF非表示）*/
     const cols=[
-      {t:"#",w:.06,align:"center",vcenter:true},
-      {t:"日付",w:.18},{t:"時刻",w:.12,nowrap:true},{t:"種別",w:.11},
-      {t:"関与者",w:.11},{t:"場所",w:.11},{t:"内容（事実）",w:.21},{t:"証拠",w:.10}
+      {t:"#",w:.05,align:"center",vcenter:true},
+      {t:"日付",w:.17},{t:"時刻",w:.10,nowrap:true},{t:"種別",w:.11},
+      {t:"関与者",w:.11},{t:"場所",w:.11},{t:"内容（事実）",w:.14},{t:"証拠",w:.09}
     ];
     const colW=cols.map(c=>Math.round(c.w*innerW)); const sum=colW.reduce((a,b)=>a+b,0); if(sum!==innerW) colW[colW.length-1]+=innerW-sum;
 
@@ -611,43 +607,39 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   }
 
   function jpegToPdf(bytes, wpx, hpx){
-    const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0];
-    const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
-    const obj=(n,bufs)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
+    const enc=new TextEncoder();
+    const parts=[]; let offset=0; const xref=[0];
+    const add=b=>{ parts.push(b); offset+=b.length; };
+    const addS=s=>add(enc.encode(s));
+    const obj=(n,bufs)=>{ xref[n]=offset; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
 
     const W=595.28,H=841.89,M=24,px2pt=72/96;
     const wpt=wpx*px2pt, hpt=hpx*px2pt, maxW=W-M*2, maxH=H-M*2;
     const sc=Math.min(maxW/wpt, maxH/hpt, 1), dw=Math.max(1,wpt*sc), dh=Math.max(1,hpt*sc), x=(W-dw)/2, y=(H-dh)/2;
 
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+
     const content=`q
 ${dw.toFixed(2)} 0 0 ${dh.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm
 /Im0 Do
 Q`;
 
+    // Catalog / Pages / Image / Content / Page の順に作成
     obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
     obj(2,`<< /Type /Pages /Count 1 /Kids [3 0 R] /MediaBox [0 0 ${W} ${H}] >>`);
-    obj(4,[enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>
-stream
-`),bytes,enc.encode("\nendstream\n")]);
-    obj(5,`<< /Length ${enc.encode(content).length} >>
-stream
-${content}
-endstream`);
+    obj(4,[enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`), bytes, enc.encode("\nendstream\n")]);
+    obj(5,`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
     obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
 
-    const start=off;
-    let xS=`xref
-0 6
-0000000000 65535 f 
-`;
-    for(let i=1;i<=5;i++){ xS+=`${String(parts.slice(0,i).reduce((s,b)=>s+b.length,0)).padStart(10,"0")} 00000 n 
-`; }
-    xS+=`trailer << /Size 6 /Root 1 0 R >>
-startxref
-${start}
-%%EOF`;
+    const start=offset;
+    // xref を正しく出力（保存したオフセットを使用）
+    let xS=`xref\n0 6\n0000000000 65535 f \n`;
+    for(let i=1;i<=5;i++){
+      xS+=`${String(xref[i]).padStart(10,"0")} 00000 n \n`;
+    }
+    xS+=`trailer << /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
     addS(xS);
+
     return new Blob(parts,{type:"application/pdf"});
   }
 
@@ -670,7 +662,7 @@ ${start}
     const pdf=jpegToPdf(u8,c.width,c.height);
     const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r35</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r36</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -697,14 +689,22 @@ ${start}
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r35",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r36",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
 
-  /* 例外の簡易表示 */
+  /* ====== エラー表示（一般的な "Script error." は非表示） ====== */
+  const showError=(msg)=>{ const el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; };
   window.addEventListener("error", e=>{
-    const el=$("inlineError"); if(el){ el.textContent="起動エラー: "+(e.error?.message||e.message); }
+    // cross-origin 由来など詳細不明の "Script error." は無視
+    if(!e || e.message==="Script error." || !e.error) return;
+    showError("エラー: " + (e.error?.message || e.message));
+  });
+  window.addEventListener("unhandledrejection", e=>{
+    if(!e || !e.reason) return;
+    const m = typeof e.reason==="string" ? e.reason : (e.reason.message || "");
+    if(m) showError("エラー: " + m);
   });
 })();
 </script>
