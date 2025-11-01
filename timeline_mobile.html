@@ -166,13 +166,38 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 /* ▼ メモ枠：削除ボタンを右下に分離（距離を確保） */
 #memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:10px; }
+
+/* ===== 編集ダイアログの統一スタイル ===== */
+#editDlg{ padding:0; border:0; border-radius:12px; width:min(640px,96vw); max-width:96vw; }
+#editDlg::backdrop{ background:rgba(0,0,0,.35); }
+#editDlg .ktl-dlgHead{ padding:14px 16px; border-bottom:1px solid #eee; font-weight:700; font-size:18px; }
+#editDlg .ktl-dlgBody{ padding:16px; }
+#editDlg .ktl-dlgBody .ktl-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+#editDlg .ktl-dlgBody .ktl-col2{ grid-column:1 / -1; }
+#editDlg label{ display:block; margin:6px 0 4px; font-weight:600; }
+#editDlg input[type="text"],
+#editDlg input[type="date"],
+#editDlg input[type="time"],
+#editDlg select{
+  width:100%; font-size:16px; line-height:1.3; padding:12px;
+  border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
+  min-height:44px; height:44px; -webkit-appearance:none; appearance:none;
+}
+#editDlg textarea{
+  width:100%; font-size:16px; line-height:1.5; padding:12px;
+  border:1px solid var(--field); border-radius:10px; min-height:140px; resize:vertical;
+}
+#editDlg .ktl-dlgFoot{ padding:10px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
+@media (max-width:520px){
+  #editDlg .ktl-dlgBody .ktl-grid{ grid-template-columns:1fr; }
+}
 </style>
 </head>
 
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
 
-  <!-- ▼ 時系列メモ（自動保存と全削除を離して配置） -->
+  <!-- ▼ 時系列メモ -->
   <div class="ktl-card" id="memoCard">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
       <span class="ver">V10 r54</span>
@@ -189,7 +214,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     </div>
   </div>
 
-  <!-- ▼ 案件：横並び（Grid） -->
+  <!-- ▼ 案件 -->
   <div class="ktl-card">
     <div class="ktl-caseRow1">
       <label for="caseSelect">案件：</label>
@@ -197,8 +222,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
         <select id="caseSelect"></select>
       </div>
     </div>
-
-    <!-- 2行目（案件ボタン群） -->
     <div class="ktl-caseRow2">
       <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
       <button id="renameCase" class="ktl-btn ktl-btn-plain">名前変更</button>
@@ -207,7 +230,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     </div>
   </div>
 
-  <!-- ▼ 一覧（列幅：#5 / 日付17 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作8） -->
+  <!-- ▼ 一覧 -->
   <div class="ktl-card">
     <div class="ktl-cardHead">
       <h2 style="margin:0;font-size:16px">時系列一覧</h2>
@@ -220,6 +243,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
+          <!-- #5 / 日付17 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作8 -->
           <col style="width:5%"><col style="width:17%"><col style="width:9%"><col style="width:11%">
           <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:8%">
         </colgroup>
@@ -239,7 +263,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     </div>
   </div>
 
-  <!-- ▼ 出来事の追加 -->
+  <!-- ▼ 追加フォーム -->
   <div class="ktl-card">
     <h2 style="font-size:16px">出来事の追加</h2>
     <div class="ktl-grid">
@@ -272,10 +296,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 <div id="PRINT_SHEET"></div>
 
-<!-- 編集ダイアログ -->
+<!-- ▼ 編集ダイアログ（統一サイズ） -->
 <dialog id="editDlg">
-  <div style="padding:12px 14px;border-bottom:1px solid #eee;font-weight:700">編集</div>
-  <div style="padding:14px 14px;min-width:300px">
+  <div class="ktl-dlgHead">編集</div>
+  <div class="ktl-dlgBody">
     <div class="ktl-grid">
       <div><label class="ktl-dateWrap">発生日<input id="edDate" type="date"></label></div>
       <div><label class="ktl-timeWrap">時刻<input id="edTime" type="time"></label></div>
@@ -287,11 +311,11 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       </label></div>
       <div><label>関与者<input id="edActor"></label></div>
       <div class="ktl-col2"><label>場所<input id="edPlace"></label></div>
-      <div class="ktl-col2"><label>内容<textarea id="edFact" maxlength="140" style="min-height:120px"></textarea></label></div>
+      <div class="ktl-col2"><label>内容<textarea id="edFact" maxlength="140"></textarea></label></div>
       <div class="ktl-col2"><label>証拠<input id="edEvidence"></label></div>
     </div>
   </div>
-  <div style="padding:10px 14px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+  <div class="ktl-dlgFoot">
     <button id="editSave" class="ktl-btn ktl-btn-primary">保存</button>
     <button id="editCancel" class="ktl-btn ktl-btn-plain">キャンセル</button>
   </div>
@@ -375,14 +399,11 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   function normalizeOrder(){
     var names=Object.keys(S.cases);
-    var seen={}, i;
-    // 既存順序を維持
-    var out=[];
+    var seen={}, i, out=[];
     for(i=0;i<(S.order||[]).length;i++){
       var n=S.order[i];
       if(names.indexOf(n)!==-1 && !seen[n]){ out.push(n); seen[n]=true; }
     }
-    // 追加分を末尾へ
     for(i=0;i<names.length;i++){
       var nm=names[i];
       if(!seen[nm]){ out.push(nm); seen[nm]=true; }
@@ -527,7 +548,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     window.addEventListener("beforeunload", function(e){ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
   }
 
-  /* ====== 案件操作（新規／名前変更／複製／削除） ====== */
+  /* ====== 案件操作 ====== */
   function ensureUniqueName(base){
     var name=base||"案件", i=2;
     while(S.cases[name]){ name=base+" ("+(i++)+")"; }
@@ -578,7 +599,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     if(!S.current){ ensureDefault(); }
     persistAndMark(); fillCaseSelect(); render();
   }
-
   function bindCaseButtons(){
     var b1=$("newCase"), b2=$("renameCase"), b3=$("dupCase"), b4=$("deleteCase");
     if(b1) b1.addEventListener("click", addCaseFlow);
@@ -591,7 +611,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     });
   }
 
-  /* ====== PDF（必要時のみ実行されるため互換影響なし） ====== */
+  /* ====== PDF ====== */
   var PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   var measureCtx=(function(){ var c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   function wrapLine(ctx, text, maxW, font){ ctx.save(); ctx.font=font; var lines=[], line="", i, ch, test; text=String(text||""); for(i=0;i<text.length;i++){ ch=text.charAt(i); test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { lines.push(line); line=ch; } } if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""]; }
@@ -613,7 +633,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function collectRowsFromDom(cols){
     var tbody=document.querySelector('#listTable tbody'); if(!tbody) return [];
     var thAll=[].slice.call(document.querySelectorAll('#listTable thead th'));
-    var targets=cols.map(function(c){ var th=thAll.find ? thAll.find(function(h){return ((h.getAttribute('data-field')||h.textContent.trim())===c.key);}) : null; return th ? th.cellIndex : -1; });
+    var targets=cols.map(function(c){
+      var th=(thAll.find)? thAll.find(function(h){return ((h.getAttribute('data-field')||h.textContent.trim())===c.key);}) : null;
+      return th ? th.cellIndex : -1;
+    });
     var rows=[];
     [].slice.call(tbody.rows).forEach(function(tr){
       if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return;
@@ -720,36 +743,31 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
 
-  /* ====== 初期化・バインド（DOM読み込み後に実行） ====== */
+  /* ====== 初期化・バインド ====== */
   function initAfterDom(){
     var mode=tryLoadAll(); if(!mode){ ensureDefault(); }
     normalizeOrder(); ensureDefault(); persist(); fillCaseSelect(); render();
 
-    // デフォルト値
     if($("evDate")) $("evDate").value=today();
     if($("counter")) $("counter").textContent="0/140";
 
-    // 自動保存ON/OFF保持
     var savedAuto=(localStorage.getItem("__autosave__")==="1");
     var as=$("autoSave"); if(as){ as.checked=!!savedAuto; as.addEventListener("change", function(){ localStorage.setItem("__autosave__", as.checked?"1":"0"); }); }
 
-    // バインド
     bindAddEdit();
     bindEditDialog();
     bindSave();
     bindCaseButtons();
 
-    // PDF
     var pb=$("pdfBtn"); if(pb) pb.addEventListener("click", makePDF);
   }
-
   if(document.readyState==="loading"){
     document.addEventListener("DOMContentLoaded", initAfterDom);
   }else{
     initAfterDom();
   }
 
-  /* ====== 全削除（端末） ====== */
+  /* ====== 全削除 ====== */
   function wipeAllHandler(){
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
@@ -759,7 +777,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   }
   var w=$("wipeAll"); if(w){ if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", function(){ $("wipeAll").onclick=wipeAllHandler; }); } else { w.onclick=wipeAllHandler; } }
 
-  /* ====== エラー表示（解析可能なメッセージだけ表示） ====== */
+  /* ====== エラー表示（一般的な "Script error." は非表示） ====== */
   function showError(msg){ var el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; }
   window.addEventListener("error", function(e){
     if(!e) return;
@@ -771,7 +789,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     var m = (typeof e.reason==="string")? e.reason : (e.reason.message || "");
     if(m) showError("エラー: " + m);
   });
-
 })();
 </script>
 </body>
