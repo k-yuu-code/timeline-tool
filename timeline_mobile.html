@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r52）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r53）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -10,9 +10,7 @@
 <style>
 /* ===== 基本トークン ===== */
 #ktl-app{ --bg:#f7f8fb; --b:#111; --m:#666; --bd:#dcdfea; --acc:#0a58cc;
-          --th:#eef2fb; --td:#fff; --grid-color:#000; --field:#cfd3e2;
-          --case-w:220px; }   /* 案件名の枠幅：従来相当 */
-@media (max-width:360px){ #ktl-app{ --case-w:200px; } }
+          --th:#eef2fb; --td:#fff; --grid-color:#000; --field:#cfd3e2; }
 #ktl-app, #ktl-app *{ box-sizing:border-box; }
 html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;}
@@ -66,20 +64,20 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
-/* ▼ 案件セレクト（横並び維持・枠幅は --case-w・矢印は背景固定） */
+/* ▼ 案件（ラベル＋セレクトを必ず横並び・同一行） */
 .ktl-caseRow1{
-  display:flex; align-items:center; gap:12px; flex-wrap:nowrap;
-  /* ← テーマに縦書き指定があっても横書きで固定 */
+  display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center;
   writing-mode:horizontal-tb !important; text-orientation:mixed !important;
 }
 .ktl-caseRow1 > label{
   margin:0; font-weight:700; white-space:nowrap;
   writing-mode:horizontal-tb !important; text-orientation:mixed !important;
 }
-.ktl-combo{ position:relative !important; flex:0 0 var(--case-w); width:var(--case-w); max-width:90vw; }
+/* セレクトは行内で 1fr（幅いっぱい）。矢印は背景で枠内固定 */
+.ktl-combo{ position:relative !important; width:100%; max-width:100%; }
 #caseSelect{
   width:100%;
-  padding-right:46px !important;  /* 矢印ぶんの余白を強制確保 */
+  padding-right:46px !important;
   -webkit-appearance:none !important; appearance:none !important;
   background-color:#fff !important;
   background-image:url("data:image/svg+xml;utf8,\
@@ -91,17 +89,18 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 }
 
 /* ▼ 2行目（案件ボタン群）の上マージンを少し広げる */
-.ktl-caseRow2{ gap:8px; margin-top:14px; }  /* ← ご要望の「少し広げる」 */
+.ktl-caseRow2{ gap:8px; margin-top:16px !important; }
 
-/* 種別セレクトの矢印（背景方式） */
+/* ▼ 種別セレクトの矢印（フォーム＆編集ダイアログの両方に適用 ／ 復活） */
 .ktl-selectWrap select{
-  padding-right:42px;
-  background-color:#fff;
+  -webkit-appearance:none !important; appearance:none !important;
+  padding-right:42px !important;
+  background-color:#fff !important;
   background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat:no-repeat;
-  background-position:right 12px center;
-  background-size:18px 18px;
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") !important;
+  background-repeat:no-repeat !important;
+  background-position:right 12px center !important;
+  background-size:18px 18px !important;
 }
 
 /* ボタン */
@@ -116,7 +115,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0;border:0}
 table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
 table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
-/* 小さめ文字（11px/1.28 を強制） */
 #ktl-app table.ktl-list th,
 #ktl-app table.ktl-list td{
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
@@ -169,7 +167,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r52</span>
+      <span class="ver">V10 r53</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -181,13 +179,12 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
         <label for="autoSave">変更のたびに自動保存</label>
       </div>
       <span class="ktl-spacer"></span>
-      <!-- 復旧ボタンは非表示のまま -->
       <button id="wipeAll" class="ktl-btn ktl-btn-warn">全データ削除（この端末）</button>
     </div>
   </div>
 
   <div class="ktl-card">
-    <!-- 案件：横並び固定（ラベル＋セレクト） -->
+    <!-- 案件：横並び（Grid） -->
     <div class="ktl-caseRow1">
       <label for="caseSelect">案件：</label>
       <div class="ktl-combo">
@@ -195,7 +192,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       </div>
     </div>
 
-    <!-- 2行目（案件ボタン群）：上マージンを14pxに拡大 -->
+    <!-- 2行目（案件ボタン群）：上マージン拡大 -->
     <div class="ktl-toolbar ktl-caseRow2">
       <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
       <button id="renameCase" class="ktl-btn ktl-btn-plain">名前変更</button>
@@ -304,7 +301,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r52",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r53",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -323,7 +320,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r52", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r53", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);          // UIは出さないがバックアップは継続
@@ -342,7 +339,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r52",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r53",updatedAt:Date.now()};
     normalizeOrder(); return true;
   }
 
@@ -563,7 +560,7 @@ Q`;
     const imgs=pages.map(p=>({bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
     const pdf=pdfFromImages(imgs); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r52</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r53</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -582,7 +579,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r52",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r53",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
