@@ -16,9 +16,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;}
 .ktl-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02);overflow:hidden}
 .ktl-muted{color:var(--m)}
-.ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.ktl-toolbar-split{display:flex;gap:10px;align-items:center}
-.ktl-toolbar-split .ktl-right{margin-left:auto}  /* ← 右端寄せ */
 #ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
 
 /* ラベル（checkbox 除く） */
@@ -46,7 +43,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
-/* 関与者／場所／証拠は内容と同じ16px（フォーム＆編集） */
+/* 関与者／場所／証拠は16px（フォーム＆編集） */
 #evActor,#evPlace,#evEvidence,
 #edActor,#edPlace,#edEvidence{ font-size:16px; min-height:44px; height:44px; }
 
@@ -66,16 +63,12 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
-/* ▼ 案件（ラベル＋セレクトを必ず横並び） */
+/* ▼ 案件（ラベル＋セレクト横並び & 矢印二重対策） */
 .ktl-caseRow1{
   display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center;
-  writing-mode:horizontal-tb !important; text-orientation:mixed !important;
 }
-.ktl-caseRow1 > label{
-  margin:0; font-weight:700; white-space:nowrap;
-  writing-mode:horizontal-tb !important; text-orientation:mixed !important;
-}
-.ktl-combo{ position:relative !important; width:100%; max-width:100%; }
+.ktl-caseRow1 > label{ margin:0; font-weight:700; white-space:nowrap; }
+.ktl-combo{ position:relative; width:100%; max-width:100%; }
 #caseSelect{
   width:100%;
   padding-right:46px !important;
@@ -86,11 +79,17 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   background-repeat:no-repeat !important;
   background-position:right 12px center !important;
   background-size:18px 18px !important;
-  writing-mode:horizontal-tb !important; text-orientation:mixed !important;
+}
+/* ← テーマに背景を上書きされても表示される矢印の予備描画 */
+.ktl-combo::after{
+  content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  width:18px; height:18px; pointer-events:none; opacity:.95;
+  background: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat center/18px 18px;
 }
 
 /* ▼ 2行目（案件ボタン群）：上マージンを少し広げる */
-.ktl-caseRow2{ gap:8px; margin-top:16px !important; }
+.ktl-caseRow2{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
 
 /* ▼ 種別セレクトの矢印（フォーム＆編集ダイアログの両方） */
 .ktl-selectWrap select{
@@ -109,7 +108,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-btn-plain{border:1px solid #999}
 .ktl-btn-warn{border-color:#b11;color:#b11}
 .ktl-btn-primary{border-color:var(--acc);color:var(--acc);font-weight:700}
-.ktl-spacer{flex:1}
 
 /* ===== 一覧（画面） ===== */
 .ktl-tableWrap{position:relative;padding:0;margin:0;overflow-x:hidden}
@@ -143,9 +141,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-actions .ktl-btn{
   writing-mode: vertical-rl; text-orientation: upright;
   display:inline-flex; align-items:center; justify-content:center;
-  min-height:56px; min-width:24px;          /* ← 少し小さく */
+  min-height:56px; min-width:24px;
   padding:6px 2px;
-  font-size:9px; line-height:1; letter-spacing:.08em; /* ← 少し小さく */
+  font-size:9px; line-height:1; letter-spacing:.08em;
   border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip; transform:translateZ(0);
 }
 
@@ -166,30 +164,34 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 /* 印刷レイヤ（iOS対策） */
 #PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
+
+/* ▼ 時系列メモ：削除ボタンを「枠の一番右下」へ */
+#memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:8px; }
 </style>
 </head>
 
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
 
-  <div class="ktl-card">
+  <!-- ▼ 時系列メモ（削除ボタンは一番右下） -->
+  <div class="ktl-card" id="memoCard">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
       <span class="ver">V10 r54</span>
     </h1>
-    <div class="ktl-toolbar-split">
-      <div class="ktl-checkRow">
-        <input type="checkbox" id="autoSave">
-        <label for="autoSave">変更のたびに自動保存</label>
-      </div>
-      <button id="wipeAll" class="ktl-btn ktl-btn-warn ktl-right">全データ削除（この端末）</button>
+    <div class="ktl-checkRow">
+      <input type="checkbox" id="autoSave">
+      <label for="autoSave">変更のたびに自動保存</label>
     </div>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px;margin-top:8px">
       入力は<strong>この端末のブラウザにのみ保存</strong>され、<strong>外部には送信されません</strong>。
     </p>
+    <div class="ktl-bottomRight">
+      <button id="wipeAll" class="ktl-btn ktl-btn-warn">全データ削除（この端末）</button>
+    </div>
   </div>
 
+  <!-- ▼ 案件：横並び（Grid） -->
   <div class="ktl-card">
-    <!-- 案件：横並び（Grid） -->
     <div class="ktl-caseRow1">
       <label for="caseSelect">案件：</label>
       <div class="ktl-combo">
@@ -197,8 +199,8 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       </div>
     </div>
 
-    <!-- 2行目（案件ボタン群）：上マージン拡大 -->
-    <div class="ktl-toolbar ktl-caseRow2">
+    <!-- 2行目（案件ボタン群） -->
+    <div class="ktl-caseRow2">
       <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
       <button id="renameCase" class="ktl-btn ktl-btn-plain">名前変更</button>
       <button id="dupCase"   class="ktl-btn ktl-btn-plain">複製</button>
@@ -206,6 +208,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     </div>
   </div>
 
+  <!-- ▼ 一覧（列幅：日付=10%／操作=14%に調整） -->
   <div class="ktl-card">
     <div class="ktl-cardHead">
       <h2 style="margin:0;font-size:16px">時系列一覧</h2>
@@ -218,9 +221,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅は据え置き：#5 / 日付12 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作12 -->
-          <col style="width:5%"><col style="width:12%"><col style="width:10%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:12%">
+          <!-- #5 / 日付10 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作14 -->
+          <col style="width:5%"><col style="width:10%"><col style="width:10%"><col style="width:11%">
+          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:14%">
         </colgroup>
         <thead><tr>
           <th data-field="index">#</th>
@@ -238,6 +241,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     </div>
   </div>
 
+  <!-- ▼ 出来事の追加 -->
   <div class="ktl-card">
     <h2 style="font-size:16px">出来事の追加</h2>
     <div class="ktl-grid">
