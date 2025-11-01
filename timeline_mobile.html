@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r40）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r41）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -108,12 +108,13 @@ table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:f
 table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
 table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
 /* ★フォントをさらに小さく（確実適用） */
-table.ktl-list th, table.ktl-list td{
+#ktl-app table.ktl-list th,
+#ktl-app table.ktl-list td{
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
-  line-height:1.35; font-size:13px !important;
+  line-height:1.32 !important; font-size:12px !important;
   min-width:0;max-width:100%;
 }
-/* 証拠列は英数字の長文対策のみ維持（サイズは統一） */
+/* 証拠列は英数字の長文対策のみ */
 .ktl-list td:nth-child(8){ word-break:break-all; }
 
 /* #列：中央寄せ */
@@ -182,7 +183,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r40</span>
+      <span class="ver">V10 r41</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -314,7 +315,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r40",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r41",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0, RESTORE_CAND_STR=null;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -337,7 +338,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r40", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r41", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -356,7 +357,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r40",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r41",updatedAt:Date.now()};
     normalizeOrder();
     return true;
   }
@@ -391,9 +392,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function normalizeOrder(){
     const names=Object.keys(S.cases);
     const seen=new Set(); const out=[];
-    (S.order||[]).forEach(n=>{ if(names.includes(n)&&!seen.has(n)){ seen.add(n); out.push(n);} });
+    (S.order||[]).forEach(n=>{ if(names.includes(n)&&!seen.has(n)){ seen.add(n);} });
     names.forEach(n=>{ if(!seen.has(n)){ out.push(n); seen.add(n);} });
-    S.order=out;
+    // 重複なしの順序に
+    S.order = Array.from(new Set([...(S.order||[]), ...names]));
   }
 
   function ensureDefault(){
@@ -557,13 +559,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
     const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    const lineH=19, padY=10, padX=12, headH=32; // ← 少しコンパクト
+    const lineH=19, padY=8, padX=12, headH=32; // ← 余白をやや小さく
 
     const rows=list.map((e,i)=>{
       const vals=[String(i+1),e.date,e.time,e.type,e.actor,e.place,e.fact,e.evidence];
       const lines=vals.map((v,ci)=>{ const w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [v||""] : wrapText(measureCtx,v,w,cellFont); });
-      const h=Math.max( lineH + padY*2, padY*2 + Math.max(...lines.map(ls=>ls.length))*lineH );
-      return {vals,lines,h};
+      const blockHs=lines.map(ls=>ls.length*lineH || lineH);
+      const h=Math.max(lineH + padY*2, Math.max(...blockHs) + padY*2);
+      return {vals,lines,blockHs,h};
     });
 
     const pages=[]; let idx=0;
@@ -591,29 +594,32 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
       // 明細（ページ割り）
       let y=y0+headH;
-      ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="alphabetic";
+      ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="top"; // ← 行描画は top 基準
       for(; idx<rows.length; idx++){
         const r=rows[idx];
         if(y + r.h > marginPx + innerH){ break; } // 次ページへ
         line.rect(x0,y,innerW,r.h);
         let cx2=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
 
+        // 各セル描画
         let xx=x0;
         r.lines.forEach((ls,i)=>{
           const colWidth=colW[i];
-          const blockH = ls.length * lineH;
-          // ★ 縦方向センタリング（最小余白は padY）
+          const blockH = r.blockHs[i];
+          // ★ 縦方向センタリング：セル内のテキストブロックを中央に配置（padYは最小余白）
           const top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
-          // ★ 横方向センタリングは align:center の列のみ
-          let left = xx + padX;
           ctx.save(); ctx.beginPath(); ctx.rect(Math.round(xx)+1, Math.round(y)+1, Math.round(colWidth)-2, Math.round(r.h)-2); ctx.clip();
-          if(cols[i].vcenter){ // #列だけ完全中央
+
+          if(cols[i].vcenter){ // #列は完全中央（1行固定）
+            ctx.textBaseline="middle";
             const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width;
-            const txX = xx + (colWidth - tw)/2; const txY = y + r.h/2 + 0.5;
-            ctx.textBaseline="middle"; ctx.fillText(tx, txX, txY); ctx.textBaseline="alphabetic";
+            const txX = xx + (colWidth - tw)/2;
+            const txY = y + r.h/2 + 0.5;
+            ctx.fillText(tx, txX, txY);
+            ctx.textBaseline="top";
           }else{
             ls.forEach((ln,li)=>{
-              let txX = left;
+              let txX = xx + padX;
               if(cols[i].align==="center"){
                 const tw=measureCtx.measureText(ln).width;
                 txX = xx + (colWidth - tw)/2;
@@ -721,7 +727,7 @@ Q`;
     const pdf=pdfFromImages(imgs);
     const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r40</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r41</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -748,7 +754,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r40",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r41",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
