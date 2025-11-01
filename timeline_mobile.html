@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r55）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r56）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -17,9 +17,11 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02);overflow:hidden}
 .ktl-muted{color:var(--m)}
 .ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.ktl-toolbar-split{display:flex;align-items:center;gap:10px;width:100%}
-.ktl-toolbar-split .ktl-checkRow{flex:1}      /* 左側は伸びる */
-.ktl-toolbar-split .ktl-right{margin-left:auto} /* 右端寄せ */
+
+/* ← 右端寄せを確実にするため Grid で2列（左：1fr 右：auto）*/
+.ktl-toolbar-split{
+  display:grid; grid-template-columns: 1fr auto; column-gap:10px; align-items:center; width:100%;
+}
 #ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
 
 /* ラベル（checkbox 除く） */
@@ -29,7 +31,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 #ktl-app label > textarea{ display:block; margin-top:6px; width:100%; }
 
 /* 自動保存（チェックと文言を横並び） */
-.ktl-checkRow{ display:flex; align-items:center; gap:8px; margin:2px 0 0; }
+.ktl-checkRow{ display:flex; align-items:center; gap:8px; margin:2px 0 0; min-width:0; }
 .ktl-checkRow input[type="checkbox"]{ width:20px; height:20px; margin:0; }
 .ktl-checkRow label{ margin:0; font-weight:700; }
 
@@ -67,7 +69,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
-/* ▼ 案件（ラベル＋セレクトを横並び維持：既定どおり） */
+/* ▼ 案件（ラベル＋セレクトを横並び維持：据え置き） */
 .ktl-caseRow1{
   display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center;
   writing-mode:horizontal-tb !important; text-orientation:mixed !important;
@@ -91,7 +93,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 }
 .ktl-caseRow2{ gap:8px; margin-top:16px !important; }
 
-/* ▼ 種別セレクトの矢印（復活保持） */
+/* ▼ 種別セレクトの矢印（フォーム＆編集ダイアログ） */
 .ktl-selectWrap select{
   -webkit-appearance:none !important; appearance:none !important;
   padding-right:42px !important;
@@ -108,7 +110,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-btn-plain{border:1px solid #999}
 .ktl-btn-warn{border-color:#b11;color:#b11}
 .ktl-btn-primary{border-color:var(--acc);color:var(--acc);font-weight:700}
-.ktl-spacer{flex:1}
 
 /* ===== 一覧（画面） ===== */
 .ktl-tableWrap{position:relative;padding:0;margin:0;overflow-x:hidden}
@@ -130,11 +131,12 @@ table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
 .ktl-list tbody td:nth-child(1){ vertical-align:middle }
 table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-nowrap{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
 /* 罫線レイヤ（SVG） */
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（縦書き・さらに小型化） */
+/* ▼ 操作ボタン：さらに小型化（幅を詰めて日付幅を確保） */
 .ktl-list td:last-child{ padding:6px; overflow:hidden; text-align:center; }
 .ktl-actions{
   display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:center; min-width:0;
@@ -142,9 +144,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-actions .ktl-btn{
   writing-mode: vertical-rl; text-orientation: upright;
   display:inline-flex; align-items:center; justify-content:center;
-  min-height:52px; min-width:20px;          /* ← さらに小さく */
+  min-height:48px; min-width:18px;      /* ← さらに小さく */
   padding:4px 2px;
-  font-size:8.5px; line-height:1; letter-spacing:.05em;
+  font-size:8px; line-height:1; letter-spacing:.04em;
   border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip; transform:translateZ(0);
 }
 
@@ -173,16 +175,16 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r55</span>
+      <span class="ver">V10 r56</span>
     </h1>
 
-    <!-- 自動保存（左）と全削除（右端） -->
+    <!-- ▼ 自動保存（左）と全削除（右端に固定） -->
     <div class="ktl-toolbar-split">
       <div class="ktl-checkRow">
         <input type="checkbox" id="autoSave">
         <label for="autoSave">変更のたびに自動保存</label>
       </div>
-      <button id="wipeAll" class="ktl-btn ktl-btn-warn ktl-right">全データ削除（この端末）</button>
+      <button id="wipeAll" class="ktl-btn ktl-btn-warn">全データ削除（この端末）</button>
     </div>
 
     <p class="ktl-muted" style="line-height:1.6;font-size:14px;margin-top:8px">
@@ -191,7 +193,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   </div>
 
   <div class="ktl-card">
-    <!-- 案件：前版のまま（横並びOK） -->
+    <!-- 案件：据え置き（OK） -->
     <div class="ktl-caseRow1">
       <label for="caseSelect">案件：</label>
       <div class="ktl-combo">
@@ -219,9 +221,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅合計100%：#5 / 日付15 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作9 -->
-          <col style="width:5%"><col style="width:15%"><col style="width:10%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:9%">
+          <!-- 列幅合計100%：#5 / 日付18 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作6 -->
+          <col style="width:5%"><col style="width:18%"><col style="width:10%"><col style="width:11%">
+          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:6%">
         </colgroup>
         <thead><tr>
           <th data-field="index">#</th>
@@ -308,7 +310,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r55",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r56",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -327,7 +329,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r55", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r56", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -346,7 +348,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r55",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r56",updatedAt:Date.now()};
     normalizeOrder(); return true;
   }
 
@@ -569,7 +571,7 @@ Q`;
     const imgs=pages.map(p=>({bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
     const pdf=pdfFromImages(imgs); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r55</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r56</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -588,7 +590,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r55",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r56",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
