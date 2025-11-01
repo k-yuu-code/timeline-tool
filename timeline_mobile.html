@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r47）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r48）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -44,7 +44,6 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
-
 /* 関与者／場所／証拠は内容と同じ16px（フォーム＆編集） */
 #evActor,#evPlace,#evEvidence,
 #edActor,#edPlace,#edEvidence{ font-size:16px; min-height:44px; height:44px; }
@@ -65,18 +64,28 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
-/* ▼▼▼ ここが矢印修正（擬似要素を廃止し、selectの背景に描画） ▼▼▼ */
-.ktl-selectWrap select,
-.ktl-caseWrap select{
+/* ▼▼▼ 案件セレクト専用：実体矢印（ラッパー＋span）で確実に枠内に表示 ▼▼▼ */
+.ktl-caseRow1{ gap:12px; }
+.ktl-caseRow1 > label{ margin:0; font-weight:700; }       /* 「案件：」 */
+.ktl-combo{ position:relative; flex:1 1 auto; width:100%; }
+.ktl-combo select{ width:100%; padding-right:42px; }       /* 右側に余白を確保 */
+.ktl-combo .arrow{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  width:18px; height:18px; pointer-events:none; opacity:.9;
+}
+.ktl-combo .arrow svg{ width:100%; height:100%; display:block; fill:#666; }
+/* ▲▲▲ ここまで（案件の矢印はこれで常に枠内） ▲▲▲ */
+
+/* 種別セレクトの矢印は背景でOK（はみ出しが起きないため） */
+.ktl-selectWrap select{
   padding-right:42px;
   background-color:#fff;
   background-image:url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
   background-repeat:no-repeat;
-  background-position:right 12px center; /* ← 常に枠内右に配置 */
+  background-position:right 12px center;
   background-size:18px 18px;
 }
-/* ▲▲▲ 修正ここまで ▲▲▲ */
 
 /* ボタン */
 .ktl-btn{padding:10px 14px;border:1px solid #333;border-radius:10px;background:#fff;cursor:pointer;font-size:15px;white-space:nowrap}
@@ -126,8 +135,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-grid .ktl-col2{grid-column:1 / -1}
 @media (max-width:480px){ .ktl-grid{grid-template-columns:1fr;} }
 
-/* 案件コントロール */
-.ktl-caseRow1{ margin-bottom:6px; }
+/* 案件ボタン群 */
 .ktl-caseRow2{ gap:8px; }
 .ktl-caseRow2 .ktl-btn{ flex:1; }
 
@@ -148,7 +156,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r47</span>
+      <span class="ver">V10 r48</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -166,11 +174,15 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   </div>
 
   <div class="ktl-card">
-    <!-- 案件：select -->
-    <div class="ktl-toolbar ktl-caseRow1 ktl-caseWrap">
-      <label>案件：
+    <!-- 案件：ラベル + コンボ（矢印はspanで確実に枠内） -->
+    <div class="ktl-toolbar ktl-caseRow1">
+      <label for="caseSelect">案件：</label>
+      <div class="ktl-combo">
         <select id="caseSelect"></select>
-      </label>
+        <span class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        </span>
+      </div>
     </div>
     <div class="ktl-toolbar ktl-caseRow2">
       <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
@@ -282,7 +294,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r47",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r48",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -301,7 +313,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r47", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r48", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -320,7 +332,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r47",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r48",updatedAt:Date.now()};
     normalizeOrder(); return true;
   }
 
@@ -466,221 +478,82 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   /* ====== PDF（画面に見えている列＆現在の行のみ） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
-
   const measureCtx=(function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
-  function wrapLine(ctx, text, maxW, font){
-    ctx.save(); ctx.font=font; const lines=[]; let line="";
-    for(const ch of (text||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else{ lines.push(line); line=ch; } }
-    if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""];
-  }
-  function wrapText(ctx, text, maxW, font){
-    const paras=String(text||"").split(/\r\n|\r|\n/); const out=[];
-    paras.forEach((p,pi)=>{ const chunk=wrapLine(ctx,p,maxW,font); out.push(...chunk); if(pi<paras.length-1) out.push(""); });
-    return out.length?out:[""];
-  }
-  function getPdfColumnsFromDom(){
-    const ths=[...document.querySelectorAll('#listTable thead th')];
-    const incl=ths.filter(th=> th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0);
-    const sumW = incl.reduce((s,th)=>s+th.offsetWidth,0)||1;
-    return incl.map(th=>{
-      const key = th.dataset.field || th.textContent.trim();
-      const w   = (th.offsetWidth/sumW);
-      const cfg = { key, t: th.textContent.trim(), w, align:null, nowrap:false, vcenter:false };
-      if(key==='index'){ cfg.align='center'; cfg.vcenter=true; }
-      if(key==='date' || key==='time' || key==='type'){ cfg.align='center'; }
-      if(key==='time'){ cfg.nowrap=true; }
-      return cfg;
-    });
-  }
-  function collectRowsFromDom(cols){
-    const tbody=document.querySelector('#listTable tbody'); if(!tbody) return [];
-    const thAll=[...document.querySelectorAll('#listTable thead th')];
-    const targets = cols.map(c=>{
-      const th = thAll.find(h => (h.dataset.field||h.textContent.trim())===c.key );
-      return th ? th.cellIndex : -1;
-    });
-    const rows=[];
-    [...tbody.rows].forEach(tr=>{
-      if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return;
-      const obj={};
-      targets.forEach((tdIdx,i)=>{
-        if(tdIdx<0) return;
-        const td=tr.cells[tdIdx];
-        const text=(td? td.innerText || td.textContent : "").replace(/\s+\n/g,"\n").trim();
-        obj[cols[i].key]=text;
-      });
-      rows.push(obj);
-    });
-    return rows;
-  }
+  function wrapLine(ctx, text, maxW, font){ ctx.save(); ctx.font=font; const lines=[]; let line=""; for(const ch of (text||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else{ lines.push(line); line=ch; } } if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""]; }
+  function wrapText(ctx, text, maxW, font){ const paras=String(text||"").split(/\r\n|\r|\n/); const out=[]; paras.forEach((p,pi)=>{ const chunk=wrapLine(ctx,p,maxW,font); out.push(...chunk); if(pi<paras.length-1) out.push(""); }); return out.length?out:[""]; }
+  function getPdfColumnsFromDom(){ const ths=[...document.querySelectorAll('#listTable thead th')]; const incl=ths.filter(th=> th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0); const sumW = incl.reduce((s,th)=>s+th.offsetWidth,0)||1;
+    return incl.map(th=>{ const key = th.dataset.field || th.textContent.trim(); const w=(th.offsetWidth/sumW); const cfg={ key, t: th.textContent.trim(), w, align:null, nowrap:false, vcenter:false }; if(key==='index'){ cfg.align='center'; cfg.vcenter=true; } if(key==='date'||key==='time'||key==='type'){ cfg.align='center'; } if(key==='time'){ cfg.nowrap=true; } return cfg; }); }
+  function collectRowsFromDom(cols){ const tbody=document.querySelector('#listTable tbody'); if(!tbody) return []; const thAll=[...document.querySelectorAll('#listTable thead th')];
+    const targets=cols.map(c=>{ const th=thAll.find(h=>(h.dataset.field||h.textContent.trim())===c.key ); return th ? th.cellIndex : -1; });
+    const rows=[]; [...tbody.rows].forEach(tr=>{ if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return; const obj={}; targets.forEach((tdIdx,i)=>{ if(tdIdx<0) return; const td=tr.cells[tdIdx]; const text=(td? td.innerText || td.textContent : "").replace(/\s+\n/g,"\n").trim(); obj[cols[i].key]=text; }); rows.push(obj); }); return rows; }
   function buildPageCanvases(list, cols){
     const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
-    const SCALE=2;
-    const marginPx=Math.floor(PDF_MARGIN_PT/PX2PT);
-    const innerW=pageWpx - marginPx*2;
-    const innerH=pageHpx - marginPx*2;
-
-    let colW=cols.map(c=>Math.round(c.w*innerW));
-    const diff=innerW - colW.reduce((a,b)=>a+b,0); colW[colW.length-1]+=diff;
-
+    const SCALE=2; const marginPx=Math.floor(PDF_MARGIN_PT/PX2PT); const innerW=pageWpx - marginPx*2; const innerH=pageHpx - marginPx*2;
+    let colW=cols.map(c=>Math.round(c.w*innerW)); const diff=innerW - colW.reduce((a,b)=>a+b,0); colW[colW.length-1]+=diff;
     const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const lineH=19, padY=8, padX=12, headH=32;
-
-    const rows=list.map((e,i)=>{
-      const vals=cols.map(c=> c.key==='index' ? String(i+1) : (e[c.key]||"") );
-      const lines=vals.map((v,ci)=>{ const w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [v||""] : wrapText(measureCtx,v,w,cellFont); });
-      const blockHs=lines.map(ls=>Math.max(lineH, ls.length*lineH));
-      const h=Math.max(lineH + padY*2, Math.max(...blockHs) + padY*2);
-      return {vals,lines,blockHs,h};
-    });
-
+    const rows=list.map((e,i)=>{ const vals=cols.map(c=> c.key==='index' ? String(i+1) : (e[c.key]||"") ); const lines=vals.map((v,ci)=>{ const w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [v||""] : wrapText(measureCtx,v,w,cellFont); }); const blockHs=lines.map(ls=>Math.max(lineH, ls.length*lineH)); const h=Math.max(lineH + padY*2, Math.max(...blockHs) + padY*2); return {vals,lines,blockHs,h}; });
     const pages=[]; let idx=0;
     while(idx<rows.length){
       const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(pageHpx*SCALE);
-      const ctx=c.getContext("2d");
-      ctx.scale(SCALE,SCALE);
-      ctx.imageSmoothingEnabled=false;
-      ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width, c.height);
-      ctx.strokeStyle="#000"; ctx.lineWidth=1;
-
-      const line={
-        rect:(x,y,w,h)=>{ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h));},
-        v:(x,y1,y2)=>{x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
-        h:(y,x1,x2)=>{y=Math.floor(y)+0.5;x1=Math.floor(x1)+0.5;x2=Math.floor(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();}
-      };
-
+      const ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false; ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
+      const line={ rect:(x,y,w,h)=>{ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h));},
+                   v:(x,y1,y2)=>{x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
+                   h:(y,x1,x2)=>{y=Math.floor(y)+0.5;x1=Math.floor(x1)+0.5;x2=Math.floor(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();} };
       let x0=marginPx,y0=marginPx;
-      // ヘッダ
       ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
       ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
-      let cx=x0;
-      cols.forEach((cdef,i)=>{ const tx=cdef.t; let txX=cx+padX;
-        if(cdef.align==="center"){ const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; }
-        ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i];
-      });
+      let cx=x0; cols.forEach((cdef,i)=>{ const tx=cdef.t; let txX=cx+padX; if(cdef.align==="center"){ const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; } ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
       line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
-
-      // 明細
-      let y=y0+headH;
-      ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="top";
+      let y=y0+headH; ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="top";
       for(; idx<rows.length; idx++){
-        const r=rows[idx];
-        if(y + r.h > marginPx + innerH){ break; } // 次ページ
-        line.rect(x0,y,innerW,r.h);
-        let cx2=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
-
-        // 各セル
+        const r=rows[idx]; if(y + r.h > marginPx + innerH){ break; }
+        line.rect(x0,y,innerW,r.h); let cx2=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
         let xx=x0;
         r.lines.forEach((ls,i)=>{
-          const colWidth=colW[i];
-          const blockH=r.blockHs[i];
-          const top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
+          const colWidth=colW[i]; const blockH=r.blockHs[i]; const top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
           ctx.save(); ctx.beginPath(); ctx.rect(Math.floor(xx)+1, Math.floor(y)+1, Math.floor(colWidth)-2, Math.floor(r.h)-2); ctx.clip();
-
-          if(cols[i].vcenter){ // index列は完全中央
-            ctx.textBaseline="middle";
-            const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width;
-            const txX = xx + (colWidth - tw)/2;
-            const txY = y + r.h/2 + 0.5;
-            ctx.fillText(tx, txX, txY);
-            ctx.textBaseline="top";
-          }else{
-            ls.forEach((ln,li)=>{
-              let txX = xx + padX;
-              if(cols[i].align==="center"){
-                const tw=measureCtx.measureText(ln).width;
-                txX = xx + (colWidth - tw)/2;
-              }
-              ctx.fillText(ln, txX, top + li*lineH);
-            });
-          }
-          ctx.restore();
-          xx+=colWidth;
+          if(cols[i].vcenter){ ctx.textBaseline="middle"; const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width; const txX=xx + (colWidth - tw)/2; const txY=y + r.h/2 + 0.5; ctx.fillText(tx, txX, txY); ctx.textBaseline="top"; }
+          else{ ls.forEach((ln,li)=>{ let txX=xx + padX; if(cols[i].align==="center"){ const tw=measureCtx.measureText(ln).width; txX=xx + (colWidth - tw)/2; } ctx.fillText(ln, txX, top + li*lineH); }); }
+          ctx.restore(); xx+=colWidth;
         });
         y+=r.h;
       }
-
-      // 白紙誤判定防止
-      ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1);
-
+      ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1); // 白紙誤判定防止
       pages.push({canvas:c});
     }
     return pages;
   }
-  function canvasToJpegBytes(canvas){
-    let b64, binStr, bin;
-    try{ b64=canvas.toDataURL("image/jpeg",0.92); }
-    catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); }
-    binStr=b64.split(",").pop()||"";
-    bin=atob(binStr);
-    const u8=new Uint8Array(bin.length);
-    for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
-    return u8;
-  }
+  function canvasToJpegBytes(canvas){ let b64, binStr, bin; try{ b64=canvas.toDataURL("image/jpeg",0.92); } catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); } binStr=b64.split(",").pop()||""; bin=atob(binStr); const u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i); return u8; }
   function pdfFromImages(imgs, pageW=595.28, pageH=841.89, margin=24){
-    const enc=new TextEncoder();
-    const parts=[]; let off=0; const xref=[0];
-    const add=b=>{ parts.push(b); off+=b.length; };
-    const addS=s=>add(enc.encode(s));
+    const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0];
+    const add=b=>{ parts.push(b); off+=b.length; }; const addS=s=>add(enc.encode(s));
     const obj=(n,bufs)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
-
     const W=pageW, H=pageH, N=imgs.length;
     const imgObj=(i)=> 3 + i*3, cntObj=(i)=> 3 + i*3 + 1, pagObj=(i)=> 3 + i*3 + 2;
-
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-
     for(let i=0;i<N;i++){
-      const {bytes,wpx,hpx}=imgs[i];
-      const px2pt=72/96, wpt=wpx*px2pt/2, hpt=hpx*px2pt/2;
-      const maxW=W-margin*2, maxH=H-margin*2;
-      const sc=Math.min(maxW/wpt, maxH/hpt, 1);
-      const dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2);
-      const x=((W - wpt*sc)/2).toFixed(2), y=((H - hpt*sc)/2).toFixed(2);
-
-      obj(imgObj(i),[
-        enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`),
-        bytes,
-        enc.encode("\nendstream\n")
-      ]);
-
+      const {bytes,wpx,hpx}=imgs[i]; const px2pt=72/96, wpt=wpx*px2pt/2, hpt=hpx*px2pt/2;
+      const maxW=W-margin*2, maxH=H-margin*2; const sc=Math.min(maxW/wpt, maxH/hpt, 1);
+      const dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2); const x=((W - wpt*sc)/2).toFixed(2), y=((H - hpt*sc)/2).toFixed(2);
+      obj(imgObj(i),[ enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`), bytes, enc.encode("\nendstream\n") ]);
       const content=`q
 ${dw} 0 0 ${dh} ${x} ${y} cm
 /Im${i} Do
 Q`;
       obj(cntObj(i),`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
-
       obj(pagObj(i),`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${imgObj(i)} 0 R >> >> /Contents ${cntObj(i)} 0 R >>`);
     }
-
-    const kids = Array.from({length:N}, (_,i)=> `${pagObj(i)} 0 R`).join(" ");
-    obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`);
-    obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
-
-    const maxId = (N>0) ? pagObj(N-1) : 2;
-    const start = off;
-    let xS=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`;
-    for(let n=1;n<=maxId;n++){
-      const pos = (typeof xref[n]==="number") ? xref[n] : 0;
-      xS+=`${String(pos).padStart(10,"0")} 00000 ${pos? "n":"f"} \n`;
-    }
-    xS+=`trailer << /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
-    addS(xS);
-    return new Blob(parts,{type:"application/pdf"});
-  }
+    const kids = Array.from({length:N}, (_,i)=> `${pagObj(i)} 0 R`).join(" "); obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`); obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
+    const maxId=(N>0)?pagObj(N-1):2; const start=off; let xS=`xref\n0 ${maxId+1}\n0000000000 65535 f \n`; for(let n=1;n<=maxId;n++){ const pos=(typeof xref[n]==="number")?xref[n]:0; xS+=`${String(pos).padStart(10,"0")} 00000 ${pos? "n":"f"} \n`; } xS+=`trailer << /Size ${maxId+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`; addS(xS); return new Blob(parts,{type:"application/pdf"}); }
   function makePDF(){
-    const cols=getPdfColumnsFromDom();
-    const list=collectRowsFromDom(cols);
-    if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
-    let pages;
-    try{ pages=buildPageCanvases(list, cols); }
-    catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
-
+    const cols=getPdfColumnsFromDom(); const list=collectRowsFromDom(cols); if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
+    let pages; try{ pages=buildPageCanvases(list, cols); } catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
     const imgs=pages.map(p=>({bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
-    const pdf=pdfFromImages(imgs);
-    const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
+    const pdf=pdfFromImages(imgs); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r47</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r48</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -709,7 +582,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r47",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r48",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
