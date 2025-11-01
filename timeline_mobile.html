@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r36）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r37）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -45,7 +45,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   min-height:120px; resize:vertical;
 }
 
-/* ★ 関与者／場所／証拠：さらに大きく（フォーム＆編集ダイアログ） */
+/* ★ 関与者／場所／証拠：大きめ（フォーム＆編集ダイアログ） */
 #evActor,#evPlace,#evEvidence,
 #edActor,#edPlace,#edEvidence{
   font-size:20px; min-height:52px; height:52px;
@@ -56,7 +56,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 #restoreBanner .msg{ font-size:14px; line-height:1.6; }
 #restoreBanner .act{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:6px; }
 
-/* 案件セレクト：カスタム矢印（消失/二重対策） */
+/* 案件セレクト：カスタム矢印 */
 .ktl-caseWrap label{ position:relative; }
 .ktl-caseWrap select{
   -webkit-appearance:none !important; appearance:none !important;
@@ -111,7 +111,7 @@ table.ktl-list th, table.ktl-list td{
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
   line-height:1.45; font-size:15px; min-width:0;max-width:100%;
 }
-/* 証拠列は長い英数対策 */
+/* 証拠列：英数長文対策 */
 .ktl-list td:nth-child(8){ font-size:17px; word-break:break-all; }
 .ktl-list td:nth-child(5), .ktl-list td:nth-child(6){ font-size:17px; }
 
@@ -127,13 +127,18 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（枠内に収める：列幅12%＋小さめ文字） */
+/* 操作ボタン（縦書き・小サイズ・確実に収める） */
 .ktl-list td:last-child{ padding:6px; overflow:hidden; }
-.ktl-actions{display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:0}
+.ktl-actions{
+  display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;min-width:0
+}
 .ktl-actions .ktl-btn{
-  display:block;width:100%;box-sizing:border-box;
-  padding:5px 4px;font-size:11px;line-height:1.25;border-radius:10px;
-  white-space:nowrap;text-align:center;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  display:block; width:auto; max-width:100%;
+  padding:6px 4px; font-size:10px; line-height:1.15; letter-spacing:.08em;
+  border-radius:10px; white-space:nowrap; text-align:center;
+  overflow:hidden; text-overflow:ellipsis;
 }
 
 /* 見出しとPDFボタン */
@@ -175,7 +180,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r36</span>
+      <span class="ver">V10 r37</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -300,14 +305,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   "use strict";
   const $=id=>document.getElementById(id);
 
-  /* ====== 保存キー & 状態（保護機構あり） ====== */
+  /* ====== 保存キー & 状態（バックアップ／スナップショット付） ====== */
   const KEY_MAIN   ="KAWAI_TIMELINE_CASESAFE_V1";
   const KEY_BACKUP = KEY_MAIN + "_BACKUP";
   const KEY_SNAP   = KEY_MAIN + "_SNAPSHOTS";
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r36",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r37",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0, RESTORE_CAND_STR=null;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -330,7 +335,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r36", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r37", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -349,7 +354,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r36",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r37",updatedAt:Date.now()};
     normalizeOrder();
     return true;
   }
@@ -507,7 +512,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   $("saveNow").onclick=()=>{ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
   window.addEventListener("beforeunload", e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（Canvas→JPEG→PDF：安定版 xref） ====== */
+  /* ====== PDF（マルチページ：A4固定キャンバス → JPEG → 複数ページPDF） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
 
   const measureCtx=(function(){ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
@@ -521,15 +526,21 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     paras.forEach((p,pi)=>{ const chunk=wrapLine(ctx,p,maxW,font); out.push(...chunk); if(pi<paras.length-1) out.push(""); });
     return out.length?out:[""];
   }
+
   function collectForPdf(){
     const arr=(events().slice()||[]);
     arr.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
     return arr.map(e=>({date:e.date||"", time:e.time||"", type:e.type||"", actor:e.actor||"", place:e.place||"", fact:e.fact||"", evidence:e.evidence||""}));
   }
-  function buildCanvas(list){
-    const innerWpx=Math.floor((PDF_W_PT-2*PDF_MARGIN_PT)/PX2PT), marginPx=Math.floor(PDF_MARGIN_PT/PX2PT);
-    const W=innerWpx+marginPx*2, innerW=innerWpx;
-    /* 画面に合わせた列比率：#0.05 / 日付0.17 / 時刻0.10 / 種別0.11 / 関与者0.11 / 場所0.11 / 内容0.14 / 証拠0.09 / 操作0.12（操作はPDF非表示）*/
+
+  // 1ページ分のキャンバス群を作成（行を自動でページ割り）
+  function buildPageCanvases(list){
+    const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
+    const marginPx=Math.floor(PDF_MARGIN_PT/PX2PT);
+    const innerW=pageWpx - marginPx*2;
+    const innerH=pageHpx - marginPx*2;
+
+    // PDF用の列比率（画面の操作列を除く 8列）
     const cols=[
       {t:"#",w:.05,align:"center",vcenter:true},
       {t:"日付",w:.17},{t:"時刻",w:.10,nowrap:true},{t:"種別",w:.11},
@@ -541,6 +552,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const cellFont="14px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const lineH=20, padY=14, padX=14, headH=36;
 
+    // 事前に各行の高さを計算
     const rows=list.map((e,i)=>{
       const vals=[String(i+1),e.date,e.time,e.type,e.actor,e.place,e.fact,e.evidence];
       const lines=vals.map((v,ci)=>{ const w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [v||""] : wrapText(measureCtx,v,w,cellFont); });
@@ -548,96 +560,139 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       return {vals,lines,h};
     });
 
-    const H=Math.max(
-      Math.ceil((PDF_H_PT-2*PDF_MARGIN_PT)/PX2PT)+marginPx*2,
-      Math.ceil(marginPx+headH+rows.reduce((s,r)=>s+r.h,0)+marginPx)
-    );
+    const pages=[]; let idx=0;
+    while(idx<rows.length){
+      const c=document.createElement("canvas"); c.width=pageWpx; c.height=pageHpx; const ctx=c.getContext("2d");
+      ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
+      ctx.strokeStyle="#000"; ctx.lineWidth=1;
 
-    const c=document.createElement("canvas"); c.width=W; c.height=H; const ctx=c.getContext("2d");
-    ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H);
+      const line={
+        rect:(x,y,w,h)=>{ctx.strokeRect(Math.round(x)+0.5,Math.round(y)+0.5,Math.round(w),Math.round(h));},
+        v:(x,y1,y2)=>{x=Math.round(x)+0.5;y1=Math.round(y1)+0.5;y2=Math.round(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
+        h:(y,x1,x2)=>{y=Math.round(y)+0.5;x1=Math.round(x1)+0.5;x2=Math.round(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();}
+      };
 
-    const line={rect:(x,y,w,h)=>{ctx.strokeRect(Math.round(x)+0.5,Math.round(y)+0.5,Math.round(w),Math.round(h));},
-                v:(x,y1,y2)=>{x=Math.round(x)+0.5;y1=Math.round(y1)+0.5;y2=Math.round(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
-                h:(y,x1,x2)=>{y=Math.round(y)+0.5;x1=Math.round(x1)+0.5;x2=Math.round(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();}};
-    ctx.strokeStyle="#000"; ctx.lineWidth=1;
-
-    let x0=marginPx,y0=marginPx;
-
-    // ヘッダ
-    ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
-    ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
-    let cx=x0; const mCtx=measureCtx;
-    cols.forEach((c,i)=>{ const tx=c.t; let txX=cx+padX;
-      if(c.align==="center"){ const wtx=mCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; }
-      ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
-    line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
-
-    // 明細
-    let y=y0+headH; ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="alphabetic";
-    rows.forEach(r=>{
-      const h=r.h; line.rect(x0,y,innerW,h); let cx2=x0; cols.forEach((c,i)=>{ if(i>0) line.v(cx2,y,y+h); cx2+=colW[i]; });
-      let xx=x0;
-      r.lines.forEach((ls,i)=>{
-        const colWidth=colW[i], left=xx+padX, top=y+padY;
-        ctx.save(); ctx.beginPath(); ctx.rect(Math.round(xx)+1, Math.round(y)+1, Math.round(colWidth)-2, Math.round(h)-2); ctx.clip();
-        if(cols[i].vcenter){
-          const tx=r.vals[i]||""; const tw=mCtx.measureText(tx).width;
-          const txX = left + (colWidth-padX*2 - tw)/2; const txY = y + h/2 + 0.5;
-          ctx.textBaseline="middle"; ctx.fillText(tx, Math.max(left, txX), txY); ctx.textBaseline="alphabetic";
-        }else{
-          ls.forEach((ln,li)=>{
-            let txX=left;
-            if(cols[i].align==="center"){
-              const tw=mCtx.measureText(ln).width;
-              txX = left + (colWidth-padX*2 - tw)/2;
-            }
-            ctx.fillText(ln, Math.max(left, txX), top + li*lineH);
-          });
-        }
-        ctx.restore();
-        xx+=colWidth;
+      let x0=marginPx,y0=marginPx;
+      // ヘッダ
+      ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
+      ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
+      let cx=x0;
+      cols.forEach((cdef,i)=>{ const tx=cdef.t; let txX=cx+padX;
+        if(cdef.align==="center"){ const wtx=measureCtx.measureText(tx).width; txX=cx+(colW[i]-wtx)/2; }
+        ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i];
       });
-      y+=h;
-    });
+      line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
 
-    // 白紙誤判定防止：右下に1px
-    ctx.fillStyle="#000"; ctx.fillRect(W-2, H-2, 1, 1);
+      // 明細（ページ割り）
+      let y=y0+headH;
+      ctx.font=cellFont; ctx.fillStyle="#000"; ctx.textBaseline="alphabetic";
+      for(; idx<rows.length; idx++){
+        const r=rows[idx];
+        if(y + r.h > marginPx + innerH){ break; } // 次ページへ
+        line.rect(x0,y,innerW,r.h);
+        let cx2=x0; cols.forEach((cdef,i)=>{ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
 
-    return c;
+        let xx=x0;
+        r.lines.forEach((ls,i)=>{
+          const colWidth=colW[i], left=xx+padX, top=y+padY;
+          ctx.save(); ctx.beginPath(); ctx.rect(Math.round(xx)+1, Math.round(y)+1, Math.round(colWidth)-2, Math.round(r.h)-2); ctx.clip();
+          if(cols[i].vcenter){
+            const tx=r.vals[i]||""; const tw=measureCtx.measureText(tx).width;
+            const txX = left + (colWidth-padX*2 - tw)/2; const txY = y + r.h/2 + 0.5;
+            ctx.textBaseline="middle"; ctx.fillText(tx, Math.max(left, txX), txY); ctx.textBaseline="alphabetic";
+          }else{
+            ls.forEach((ln,li)=>{
+              let txX=left;
+              if(cols[i].align==="center"){
+                const tw=measureCtx.measureText(ln).width;
+                txX = left + (colWidth-padX*2 - tw)/2;
+              }
+              ctx.fillText(ln, Math.max(left, txX), top + li*lineH);
+            });
+          }
+          ctx.restore();
+          xx+=colWidth;
+        });
+        y+=r.h;
+      }
+
+      // 白紙誤判定防止：右下に1px
+      ctx.fillStyle="#000"; ctx.fillRect(c.width-2, c.height-2, 1, 1);
+
+      pages.push({canvas:c, innerW, headH, colW});
+    }
+    return pages;
   }
 
-  function jpegToPdf(bytes, wpx, hpx){
-    const enc=new TextEncoder();
-    const parts=[]; let offset=0; const xref=[0];
-    const add=b=>{ parts.push(b); offset+=b.length; };
-    const addS=s=>add(enc.encode(s));
-    const obj=(n,bufs)=>{ xref[n]=offset; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
+  function canvasToJpegBytes(canvas){
+    let b64, binStr, bin;
+    try{ b64=canvas.toDataURL("image/jpeg",0.92); }
+    catch(e){ b64=canvas.toDataURL("image/jpeg",0.85); }
+    binStr=b64.split(",").pop()||"";
+    bin=atob(binStr);
+    const u8=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
+    return u8;
+  }
 
-    const W=595.28,H=841.89,M=24,px2pt=72/96;
-    const wpt=wpx*px2pt, hpt=hpx*px2pt, maxW=W-M*2, maxH=H-M*2;
-    const sc=Math.min(maxW/wpt, maxH/hpt, 1), dw=Math.max(1,wpt*sc), dh=Math.max(1,hpt*sc), x=(W-dw)/2, y=(H-dh)/2;
+  // 複数画像 → 複数ページPDF
+  function pdfFromImages(imgs, pageW=PDF_W_PT, pageH=PDF_H_PT, margin=PDF_MARGIN_PT){
+    const enc=new TextEncoder();
+    const parts=[]; let off=0; const xref=[0];
+    const add=b=>{ parts.push(b); off+=b.length; };
+    const addS=s=>add(enc.encode(s));
+    const obj=(n,bufs)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
+
+    const W=pageW, H=pageH, M=margin;
+    const px2pt=72/96; // キャンバスは96DPI相当
+
+    const N=imgs.length;
+    const firstObj=3; // 1:Catalog, 2:Pages, 以降で 3つ/ページ
+    const imgObj=(i)=> firstObj + i*3;       // 画像XObject
+    const cntObj=(i)=> firstObj + i*3 + 1;   // 描画コンテンツ
+    const pagObj=(i)=> firstObj + i*3 + 2;   // Page
 
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
 
-    const content=`q
+    // 先に各ページのオブジェクトを作る
+    for(let i=0;i<N;i++){
+      const {bytes,wpx,hpx}=imgs[i];
+      const wpt=wpx*px2pt, hpt=hpx*px2pt;
+      const maxW=W-M*2, maxH=H-M*2;
+      const sc=Math.min(maxW/wpt, maxH/hpt, 1);
+      const dw=Math.max(1,wpt*sc), dh=Math.max(1,hpt*sc);
+      const x=(W-dw)/2, y=(H-dh)/2;
+
+      // Image XObject
+      obj(imgObj(i),[
+        enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`),
+        bytes,
+        enc.encode("\nendstream\n")
+      ]);
+
+      // Content stream
+      const content=`q
 ${dw.toFixed(2)} 0 0 ${dh.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm
-/Im0 Do
+/Im${i} Do
 Q`;
+      obj(cntObj(i),`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
 
-    // Catalog / Pages / Image / Content / Page の順に作成
-    obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
-    obj(2,`<< /Type /Pages /Count 1 /Kids [3 0 R] /MediaBox [0 0 ${W} ${H}] >>`);
-    obj(4,[enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`), bytes, enc.encode("\nendstream\n")]);
-    obj(5,`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
-    obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
-
-    const start=offset;
-    // xref を正しく出力（保存したオフセットを使用）
-    let xS=`xref\n0 6\n0000000000 65535 f \n`;
-    for(let i=1;i<=5;i++){
-      xS+=`${String(xref[i]).padStart(10,"0")} 00000 n \n`;
+      // Page
+      obj(pagObj(i),`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${imgObj(i)} 0 R >> >> /Contents ${cntObj(i)} 0 R >>`);
     }
-    xS+=`trailer << /Size 6 /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
+
+    // Pages
+    const kids = Array.from({length:N}, (_,i)=> `${pagObj(i)} 0 R`).join(" ");
+    obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`);
+
+    // Catalog
+    obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
+
+    // xref
+    const total = 1 + (N*3) + 1; // 0..(3N+2)
+    let xS=`xref\n0 ${total+1}\n0000000000 65535 f \n`;
+    for(let n=1;n<=total;n++){ xS+=`${String(xref[n]).padStart(10,"0")} 00000 n \n`; }
+    xS+=`trailer << /Size ${total+1} /Root 1 0 R >>\nstartxref\n${off}\n%%EOF`;
     addS(xS);
 
     return new Blob(parts,{type:"application/pdf"});
@@ -652,17 +707,22 @@ Q`;
     }
     if(!list.length){ alert("時系列一覧にまだ行がありません。「＋ この内容を追加」で行を追加してください。"); return; }
 
-    let c; try{ c=buildCanvas(list); }catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
-    let b64,binStr,bin;
-    try{ b64=c.toDataURL("image/jpeg",0.92); binStr=b64.split(",").pop()||""; bin=atob(binStr); }
-    catch(e){ try{ b64=c.toDataURL("image/jpeg",0.85); binStr=b64.split(",").pop()||""; bin=atob(binStr); }catch(_){ bin=""; } }
-    if(!bin){ alert("PDF作成に失敗しました（画像化エラー）。再度お試しください。"); return; }
+    // 1) ページキャンバス群を作成
+    let pages;
+    try{ pages=buildPageCanvases(list); }
+    catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
 
-    const u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i);
-    const pdf=jpegToPdf(u8,c.width,c.height);
+    // 2) 各キャンバスをJPEGに
+    const imgs=pages.map(p=>{
+      const u8=canvasToJpegBytes(p.canvas);
+      return {bytes:u8, wpx:p.canvas.width, hpx:p.canvas.height};
+    });
+
+    // 3) 複数ページPDFを生成
+    const pdf=pdfFromImages(imgs);
     const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r36</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r37</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -689,7 +749,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r36",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r37",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
@@ -697,8 +757,7 @@ Q`;
   /* ====== エラー表示（一般的な "Script error." は非表示） ====== */
   const showError=(msg)=>{ const el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; };
   window.addEventListener("error", e=>{
-    // cross-origin 由来など詳細不明の "Script error." は無視
-    if(!e || e.message==="Script error." || !e.error) return;
+    if(!e || e.message==="Script error." || !e.error) return; // 詳細不明は表示しない
     showError("エラー: " + (e.error?.message || e.message));
   });
   window.addEventListener("unhandledrejection", e=>{
