@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r45）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r46）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -142,18 +142,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 <body>
 <div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
 
-  <!-- 必要時のみ出る復旧バナー -->
-  <div id="restoreBanner" class="ktl-card">
-    <div class="msg">以前の保存データが見つかりました。復旧を実行しますか？</div>
-    <div class="act">
-      <button id="doRestore" class="ktl-btn ktl-btn-primary">復旧する</button>
-      <button id="dismissRestore" class="ktl-btn ktl-btn-plain">閉じる</button>
-    </div>
-  </div>
-
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r45</span>
+      <span class="ver">V10 r46</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -165,6 +156,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
         <label for="autoSave">変更のたびに自動保存</label>
       </div>
       <span class="ktl-spacer"></span>
+      <button id="restoreBtn" class="ktl-btn ktl-btn-plain" title="バックアップ／スナップショットから復旧">データ復旧</button>
       <button id="wipeAll" class="ktl-btn ktl-btn-warn">全データ削除（この端末）</button>
     </div>
   </div>
@@ -196,9 +188,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅合計100%：#5 / 日付13 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容18 / 証拠9 / 操作12 -->
-          <col style="width:5%"><col style="width:13%"><col style="width:10%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:18%"><col style="width:9%"><col style="width:12%">
+          <!-- 列幅合計100%：#5 / 日付12 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作12 -->
+          <col style="width:5%"><col style="width:12%"><col style="width:10%"><col style="width:11%">
+          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:12%">
         </colgroup>
         <thead><tr>
           <!-- data-field でPDFの列マッピング、data-pdf="0" はPDF除外 -->
@@ -286,8 +278,8 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r45",updatedAt:Date.now()}};
-  let storeOK=false, LAST_SNAP_AT=0, RESTORE_CAND_STR=null;
+  const S={cases:{},order:[],current:"",meta:{v:"r46",updatedAt:Date.now()}};
+  let storeOK=false, LAST_SNAP_AT=0;
 
   const today = () => new Date().toISOString().slice(0,10);
   const nowStr=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes());};
@@ -305,7 +297,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r45", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r46", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -324,10 +316,11 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r45",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r46",updatedAt:Date.now()};
     normalizeOrder(); return true;
   }
 
+  // 自動復旧バナーは廃止。MAIN→BACKUP→SNAP の順でロード。見つからなければ初期化。
   function tryLoadAll(){
     if(storeOK){
       const mainStr=localStorage.getItem(KEY_MAIN);
@@ -338,18 +331,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       if(snaps.length){
         const last=snaps[snaps.length-1];
         if(last && last.d && loadFromStr(last.d)) return "snapshot";
-        RESTORE_CAND_STR = last && last.d || null;
       }
-      let best=null, bestStr=null;
-      for(let i=0;i<localStorage.length;i++){
-        const k=localStorage.key(i); if(!k) continue;
-        if(k===KEY_MAIN || k===KEY_BACKUP || k===KEY_SNAP || k==="__t" || k==="__autosave__") continue;
-        const v=localStorage.getItem(k); if(!v) continue;
-        const o=safeParse(v); if(!isValidStore(o)) continue;
-        const score=(o.meta&&o.meta.updatedAt?o.meta.updatedAt:0)+eventsTotal(o)*1000;
-        if(best===null || score>best){ best=score; bestStr=v; }
-      }
-      if(bestStr && loadFromStr(bestStr)) return "scan";
     }
     return "";
   }
@@ -511,11 +493,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     return cols;
   }
 
-  // 現在 tbody に表示されている行だけをオブジェクト配列にして返す
+  // 現在 tbody に表示されている行だけをオブジェクト配列に
   function collectRowsFromDom(cols){
     const tbody=document.querySelector('#listTable tbody'); if(!tbody) return [];
     const thAll=[...document.querySelectorAll('#listTable thead th')];
-    // 対象列のインデックス（操作列など除外済み）
     const targets = cols.map(c=>{
       const th = thAll.find(h => (h.dataset.field||h.textContent.trim())===c.key );
       return th ? th.cellIndex : -1;
@@ -523,7 +504,6 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
     const rows=[];
     [...tbody.rows].forEach(tr=>{
-      // プレースホルダ行はスキップ
       if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return;
       const obj={};
       targets.forEach((tdIdx,i)=>{
@@ -702,7 +682,6 @@ Q`;
   }
 
   function makePDF(){
-    // 画面に見えている列＆現在表示中の行だけを収集
     const cols=getPdfColumnsFromDom();
     const list=collectRowsFromDom(cols);
     if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
@@ -715,7 +694,7 @@ Q`;
     const pdf=pdfFromImages(imgs);
     const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r45</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r46</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -728,21 +707,25 @@ Q`;
     $("evDate").value=today(); $("counter").textContent="0/140";
     const savedAuto=localStorage.getItem("__autosave__")==="1"; $("autoSave").checked=!!savedAuto;
     $("autoSave").addEventListener("change",()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
-    if(!mode && RESTORE_CAND_STR){ const b=$("restoreBanner"); if(b) b.style.display="block"; }
   })();
 
-  /* ====== 復旧/削除 ====== */
-  $("doRestore").onclick=()=>{
-    if(!RESTORE_CAND_STR) return alert("復旧候補が見つかりませんでした。");
-    if(loadFromStr(RESTORE_CAND_STR)){ fillCaseAndRender(); persist(); $("restoreBanner").style.display="none"; alert("保存データを復旧しました。"); }
+  /* ====== 復旧（手動） ====== */
+  $("restoreBtn").onclick=()=>{
+    const bk = localStorage.getItem(KEY_BACKUP);
+    const snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
+    const lastSnap = snaps.length ? snaps[snaps.length-1].d : null;
+    if(!bk && !lastSnap){ alert("復旧できるバックアップが見つかりませんでした。"); return; }
+    if(!confirm("保存データを復旧します。現在の未保存の変更は失われます。よろしいですか？")) return;
+    const src = bk || lastSnap;
+    if(loadFromStr(src)){ fillCaseAndRender(); persist(); alert("保存データを復旧しました。"); }
     else{ alert("復旧に失敗しました。"); }
   };
-  $("dismissRestore").onclick=()=>{ $("restoreBanner").style.display="none"; };
 
+  /* ====== 復旧/削除 ====== */
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r45",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r46",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
