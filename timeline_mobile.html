@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r37）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r38）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザのみに保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -111,15 +111,14 @@ table.ktl-list th, table.ktl-list td{
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
   line-height:1.45; font-size:15px; min-width:0;max-width:100%;
 }
-/* 証拠列：英数長文対策 */
-.ktl-list td:nth-child(8){ font-size:17px; word-break:break-all; }
-.ktl-list td:nth-child(5), .ktl-list td:nth-child(6){ font-size:17px; }
+.ktl-list td:nth-child(8){ font-size:17px; word-break:break-all; } /* 証拠 */
+.ktl-list td:nth-child(5), .ktl-list td:nth-child(6){ font-size:17px; } /* 関与者・場所 */
 
 /* #列：中央寄せ */
 .ktl-list th:nth-child(1), .ktl-list td:nth-child(1){ text-align:center }
 .ktl-list tbody td:nth-child(1){ vertical-align:middle }
 
-/* 内容は改行保持 */
+/* 内容は改行保持／日時は省略表示可 */
 table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-nowrap{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
@@ -127,18 +126,19 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（縦書き・小サイズ・確実に収める） */
-.ktl-list td:last-child{ padding:6px; overflow:hidden; }
+/* 操作ボタン（縦書き・見切れ防止の工夫） */
+.ktl-list td:last-child{ padding:6px; overflow:hidden; text-align:center; }
 .ktl-actions{
-  display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;min-width:0
+  display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:center; min-width:0;
 }
 .ktl-actions .ktl-btn{
   writing-mode: vertical-rl;
   text-orientation: upright;
-  display:block; width:auto; max-width:100%;
-  padding:6px 4px; font-size:10px; line-height:1.15; letter-spacing:.08em;
-  border-radius:10px; white-space:nowrap; text-align:center;
-  overflow:hidden; text-overflow:ellipsis;
+  display:inline-flex; align-items:center; justify-content:center;
+  max-width:100%; height:56px; padding:6px 2px;
+  font-size:10px; line-height:1; letter-spacing:.1em;
+  border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip;
+  transform:translateZ(0); /* モバイルでの描画崩れ防止 */
 }
 
 /* 見出しとPDFボタン */
@@ -180,7 +180,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r37</span>
+      <span class="ver">V10 r38</span>
     </h1>
     <p class="ktl-muted" style="line-height:1.6;font-size:14px">
       本ツールは<strong>ご相談準備のための時系列整理</strong>に利用できます。<br>
@@ -223,14 +223,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <!-- 列幅合計100%：#5 / 日付17 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容14 / 証拠9 / 操作12 -->
+          <!-- 列幅合計100%：#5 / 日付15 / 時刻10 / 種別11 / 関与者11 / 場所11 / 内容16 / 証拠9 / 操作12 -->
           <col style="width:5%">
-          <col style="width:17%">
+          <col style="width:15%">
           <col style="width:10%">
           <col style="width:11%">
           <col style="width:11%">
           <col style="width:11%">
-          <col style="width:14%">
+          <col style="width:16%">
           <col style="width:9%">
           <col style="width:12%">
         </colgroup>
@@ -312,7 +312,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   const SNAP_MAX   = 5;
   const SNAP_MINT  = 60*1000;
 
-  const S={cases:{},order:[],current:"",meta:{v:"r37",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{v:"r38",updatedAt:Date.now()}};
   let storeOK=false, LAST_SNAP_AT=0, RESTORE_CAND_STR=null;
 
   const today = () => new Date().toISOString().slice(0,10);
@@ -335,7 +335,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r37", updatedAt: Date.now(), total: eventsTotal(S)};
+      S.meta = {v:"r38", updatedAt: Date.now(), total: eventsTotal(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN, str);
       localStorage.setItem(KEY_BACKUP, str);
@@ -354,7 +354,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   function loadFromStr(str){
     const o=safeParse(str); if(!isValidStore(o)) return false;
     S.cases=o.cases; S.order=o.order||Object.keys(o.cases); S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r37",updatedAt:Date.now()};
+    S.meta=o.meta||{v:"r38",updatedAt:Date.now()};
     normalizeOrder();
     return true;
   }
@@ -540,13 +540,14 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const innerW=pageWpx - marginPx*2;
     const innerH=pageHpx - marginPx*2;
 
-    // PDF用の列比率（画面の操作列を除く 8列）
+    /* ★ PDF列比率（操作列除く8列）：画面の 5/15/10/11/11/11/16/9 を正規化
+       = 0.057 / 0.170 / 0.114 / 0.125 / 0.125 / 0.125 / 0.182 / 0.102 （合計1.000） */
     const cols=[
-      {t:"#",w:.05,align:"center",vcenter:true},
-      {t:"日付",w:.17},{t:"時刻",w:.10,nowrap:true},{t:"種別",w:.11},
-      {t:"関与者",w:.11},{t:"場所",w:.11},{t:"内容（事実）",w:.14},{t:"証拠",w:.09}
+      {t:"#",w:.057,align:"center",vcenter:true},
+      {t:"日付",w:.170},{t:"時刻",w:.114,nowrap:true},{t:"種別",w:.125},
+      {t:"関与者",w:.125},{t:"場所",w:.125},{t:"内容（事実）",w:.182},{t:"証拠",w:.102}
     ];
-    const colW=cols.map(c=>Math.round(c.w*innerW)); const sum=colW.reduce((a,b)=>a+b,0); if(sum!==innerW) colW[colW.length-1]+=innerW-sum;
+    const colW=cols.map(c=>Math.round(c.w*innerW));
 
     const headFont="bold 16px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="14px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
@@ -619,7 +620,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       // 白紙誤判定防止：右下に1px
       ctx.fillStyle="#000"; ctx.fillRect(c.width-2, c.height-2, 1, 1);
 
-      pages.push({canvas:c, innerW, headH, colW});
+      pages.push({canvas:c});
     }
     return pages;
   }
@@ -644,17 +645,15 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     const obj=(n,bufs)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(bufs)?bufs.forEach(add):addS(bufs); addS("\nendobj\n"); };
 
     const W=pageW, H=pageH, M=margin;
-    const px2pt=72/96; // キャンバスは96DPI相当
+    const px2pt=72/96;
 
     const N=imgs.length;
-    const firstObj=3; // 1:Catalog, 2:Pages, 以降で 3つ/ページ
-    const imgObj=(i)=> firstObj + i*3;       // 画像XObject
-    const cntObj=(i)=> firstObj + i*3 + 1;   // 描画コンテンツ
-    const pagObj=(i)=> firstObj + i*3 + 2;   // Page
+    const imgObj=(i)=> 3 + i*3;
+    const cntObj=(i)=> 3 + i*3 + 1;
+    const pagObj=(i)=> 3 + i*3 + 2;
 
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
 
-    // 先に各ページのオブジェクトを作る
     for(let i=0;i<N;i++){
       const {bytes,wpx,hpx}=imgs[i];
       const wpt=wpx*px2pt, hpt=hpx*px2pt;
@@ -663,36 +662,29 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       const dw=Math.max(1,wpt*sc), dh=Math.max(1,hpt*sc);
       const x=(W-dw)/2, y=(H-dh)/2;
 
-      // Image XObject
       obj(imgObj(i),[
         enc.encode(`<< /Type /XObject /Subtype /Image /Width ${wpx} /Height ${hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n`),
         bytes,
         enc.encode("\nendstream\n")
       ]);
 
-      // Content stream
       const content=`q
 ${dw.toFixed(2)} 0 0 ${dh.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm
 /Im${i} Do
 Q`;
       obj(cntObj(i),`<< /Length ${enc.encode(content).length} >>\nstream\n${content}\nendstream`);
 
-      // Page
       obj(pagObj(i),`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${imgObj(i)} 0 R >> >> /Contents ${cntObj(i)} 0 R >>`);
     }
 
-    // Pages
     const kids = Array.from({length:N}, (_,i)=> `${pagObj(i)} 0 R`).join(" ");
     obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`);
-
-    // Catalog
     obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
 
-    // xref
-    const total = 1 + (N*3) + 1; // 0..(3N+2)
+    const total = 1 + (N*3) + 1;
     let xS=`xref\n0 ${total+1}\n0000000000 65535 f \n`;
-    for(let n=1;n<=total;n++){ xS+=`${String(xref[n]).padStart(10,"0")} 00000 n \n`; }
-    xS+=`trailer << /Size ${total+1} /Root 1 0 R >>\nstartxref\n${off}\n%%EOF`;
+    for(let n=1;n<=total;n++){ xS+=`${String(off=parts.slice(0,n).reduce((s,b)=>s+b.length,0)).padStart(10,"0")} 00000 n \n`; }
+    xS+=`trailer << /Size ${total+1} /Root 1 0 R >>\nstartxref\n${parts.reduce((s,b)=>s+b.length,0)}\n%%EOF`;
     addS(xS);
 
     return new Blob(parts,{type:"application/pdf"});
@@ -707,22 +699,15 @@ Q`;
     }
     if(!list.length){ alert("時系列一覧にまだ行がありません。「＋ この内容を追加」で行を追加してください。"); return; }
 
-    // 1) ページキャンバス群を作成
     let pages;
     try{ pages=buildPageCanvases(list); }
     catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
 
-    // 2) 各キャンバスをJPEGに
-    const imgs=pages.map(p=>{
-      const u8=canvasToJpegBytes(p.canvas);
-      return {bytes:u8, wpx:p.canvas.width, hpx:p.canvas.height};
-    });
-
-    // 3) 複数ページPDFを生成
+    const imgs=pages.map(p=>({bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
     const pdf=pdfFromImages(imgs);
     const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
     const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r37</span>`; }
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r38</span>`; }
     setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
   }
   $("pdfBtn").onclick=makePDF;
@@ -749,7 +734,7 @@ Q`;
   $("wipeAll").onclick=()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r37",updatedAt:Date.now()};
+    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r38",updatedAt:Date.now()};
     ensureDefault(); persist(); fillCaseSelect(); render();
     alert("この端末の保存データを削除しました。");
   };
