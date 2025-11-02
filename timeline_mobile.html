@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-05）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-06）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -12,7 +12,7 @@
   --bg:#f7f8fb; --txt:#111; --muted:#666; --bd:#dcdfea; --bd-strong:#9aa4c8;
   --accent:#0a58cc; --th:#eef2fb; --td:#fff; --grid:#000;
   --ctl-h:42px; --radius:10px; --pad:12px; --line:1.4px; --gap:10px;
-  /* らせんとの間隔（ここで調整可能） */
+  /* PDFボタンと一覧の確実な間隔（らせんも同期して下げる） */
   --head-gap:16px;
 }
 *{box-sizing:border-box}
@@ -45,16 +45,16 @@ textarea{width:100%;min-height:120px;font-size:16px;line-height:1.45;padding:var
 .wrap-date::after{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>")}
 .wrap-time::after{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>")}
 
-/* セレクトの矢印（案件・種別） */
+/* セレクト矢印（案件・種別） */
 select.arrow{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
   background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:40px}
 
-/* チェック＋文言 横並び */
+/* 自動保存：チェックと文言を横並び */
 .checkRow{display:flex;align-items:center;gap:8px}
 .checkRow input{width:20px;height:20px}
 
-/* 削除ボタン行：距離を明確に離す（区切り線＋余白） */
+/* 削除ボタン行：距離を離す（区切り線＋余白） */
 .memoActions{display:flex;justify-content:flex-end;margin-top:20px;padding-top:12px;border-top:1px dashed #e7eaf4}
 
 /* ボタン */
@@ -66,10 +66,10 @@ select.arrow{
 .caseRow1>label{margin:0;white-space:nowrap}
 .caseRow2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 
-/* 一覧（ヘッダーと表の距離を“確実に”空ける） */
-.tableWrap{position:relative;overflow-x:hidden; padding-top: var(--head-gap) !important;} /* ← 追加：表全体を下げる */
+/* 一覧：ヘッダーと表の距離を“確実に”空ける */
+.tableWrap{position:relative;overflow-x:hidden;padding-top:var(--head-gap) !important;}
 .head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.card > .head{ margin-bottom:0 !important; } /* マージン依存を避ける */
+.card > .head{margin-bottom:0 !important;} /* マージン依存を避ける */
 
 /* らせん（SVGレイヤ）を表と同じだけ下げる */
 .gridlayer{position:absolute;left:0;top:var(--head-gap) !important;height:calc(100% - var(--head-gap)) !important;width:100%;pointer-events:none}
@@ -84,7 +84,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 .pre{white-space:pre-wrap!important}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-/* 操作列：小型縦ボタン（列幅を圧縮） */
+/* 操作列：小型縦ボタン */
 .list td:last-child{padding:3px;text-align:center}
 .actions{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}
 .actions .btn{
@@ -92,7 +92,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   min-width:12px;min-height:36px;padding:2px 0;
   font-size:7.5px;letter-spacing:.05em;border-radius:9px}
 
-/* 追加フォーム（確定順） */
+/* 追加フォーム */
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap)}
 .grid .span2{grid-column:1 / -1}
 
@@ -125,7 +125,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
   <!-- ▼ 時系列メモ -->
   <div class="card">
-    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-05</span></h1>
+    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-06</span></h1>
     <div class="checkRow">
       <input id="autoSave" type="checkbox"><label for="autoSave">変更のたびに自動保存</label>
     </div>
@@ -156,8 +156,8 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     <div class="head">
       <h2>時系列一覧</h2>
       <div>
-        <button id="pdfBtn" class="btn btn-primary">PDF</button>
-        <div id="pdfStatus"></div>
+        <button id="pdfBtn" class="btn btn-primary" aria-busy="false">PDF</button>
+        <div id="pdfStatus" class="muted" style="min-height:1.2em;"></div>
       </div>
     </div>
     <div class="tableWrap" id="tableWrap">
@@ -372,7 +372,6 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     const rectT=table.getBoundingClientRect();
     const xs=[0]; let acc=0; [...th.cells].forEach(c=>{ acc+=c.offsetWidth; xs.push(acc); });
     const ys=[0]; if(table.tBodies && table.tBodies.length){ for(const tr of table.tBodies[0].rows){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); } }
-    /* 外枠＋縦横罫線 */
     const rect=(x,y,w,h)=>{ const r=document.createElementNS("http://www.w3.org/2000/svg","rect");
       r.setAttribute("x",x+0.5); r.setAttribute("y",y+0.5); r.setAttribute("width",Math.max(0,w-1)); r.setAttribute("height",Math.max(0,h-1));
       r.setAttribute("fill","none"); r.setAttribute("stroke",stroke.trim()); r.setAttribute("stroke-width",sw); r.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(r); };
@@ -427,11 +426,16 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ===== PDF ===== */
+  /* ===== PDF（堅牢化：進捗表示・多重クリック防止・例外捕捉） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
+
+  const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
+  const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
+
   const wrapLine=(ctx,t,maxW,font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of String(t||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
   const wrapText=(ctx,t,maxW,font)=>{ const ps=String(t||"").split(/\r\n|\r|\n/); const out=[]; ps.forEach((p,i)=>{ out.push(...wrapLine(ctx,p,maxW,font)); if(i<ps.length-1) out.push(""); }); return out.length?out:[""]; };
+
   function pdfCols(){
     const ths=[...document.querySelectorAll('#listTable thead th')];
     const ok=ths.filter(th=> th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0);
@@ -481,31 +485,80 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     }
     return pages;
   }
+
   const jpegBytes=(canvas)=>{ let b64; try{ b64=canvas.toDataURL("image/jpeg",0.92); }catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); } const b=atob(b64.split(",").pop()||""); const u8=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u8[i]=b.charCodeAt(i); return u8; };
+
   function pdfFrom(imgs,W=595.28,H=841.89,M=24){
-    const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0]; const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
-    const obj=(n,buf)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(buf)?buf.forEach(add):addS(buf); addS("\nendobj\n"); };
+    const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0];
+    const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
+
+    // ★修正：配列/単体を正しく処理（以前の bufs 参照ミスを修正）
+    const obj=(n,buf)=>{
+      xref[n]=off; addS(`${n} 0 obj\n`);
+      if(Array.isArray(buf)){ buf.forEach(add); } else { addS(buf); }
+      addS("\nendobj\n");
+    };
+
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+
     const N=imgs.length, img=i=>3+i*3, cnt=i=>4+i*3, page=i=>5+i*3;
     for(let i=0;i<N;i++){
       const it=imgs[i], px2pt=72/96, wpt=it.wpx*px2pt/2, hpt=it.hpx*px2pt/2;
       const sc=Math.min((W-M*2)/wpt,(H-M*2)/hpt,1), dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2), x=((W-wpt*sc)/2).toFixed(2), y=((H-hpt*sc)/2).toFixed(2);
-      obj(img(i),[ enc.encode(`<< /Type /XObject /Subtype /Image /Width ${it.wpx} /Height ${it.hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${it.bytes.length} >>\nstream\n`), it.bytes, enc.encode("\nendstream\n") ]);
-      const c=`q\n${dw} 0 0 ${dh} ${x} ${y} cm\n/Im${i} Do\nQ`; obj(cnt(i),`<< /Length ${enc.encode(c).length} >>\nstream\n${c}\nendstream`);
+      obj(img(i),[
+        enc.encode(`<< /Type /XObject /Subtype /Image /Width ${it.wpx} /Height ${it.hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${it.bytes.length} >>\nstream\n`),
+        it.bytes,
+        enc.encode("\nendstream\n")
+      ]);
+      const c=`q
+${dw} 0 0 ${dh} ${x} ${y} cm
+/Im${i} Do
+Q`;
+      obj(cnt(i),`<< /Length ${enc.encode(c).length} >>\nstream\n${c}\nendstream`);
       obj(page(i),`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${img(i)} 0 R >> >> /Contents ${cnt(i)} 0 R >>`);
     }
-    const kids=Array.from({length:N},(_,i)=>`${page(i)} 0 R`).join(" "); obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`); obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
-    const max=(N>0)?page(N-1):2; const start=off; let x="xref\n0 "+(max+1)+"\n0000000000 65535 f \n"; for(let i=1;i<=max;i++){ const p=(typeof xref[i]==="number")?xref[i]:0; x+=String(p).padStart(10,"0")+" 00000 "+(p?"n":"f")+" \n"; } x+=`trailer << /Size ${max+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`; addS(x);
+    const kids=Array.from({length:N},(_,i)=>`${page(i)} 0 R`).join(" ");
+    obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`);
+    obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
+
+    const max=(N>0)?page(N-1):2; const start=off;
+    let x="xref\n0 "+(max+1)+"\n0000000000 65535 f \n";
+    for(let i=1;i<=max;i++){ const p=(typeof xref[i]==="number")?xref[i]:0; x+=String(p).padStart(10,"0")+" 00000 "+(p?"n":"f")+" \n"; }
+    x+=`trailer << /Size ${max+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
+    addS(x);
     return new Blob(parts,{type:"application/pdf"});
   }
+
   $("pdfBtn").addEventListener("click",()=>{
-    const cols=pdfCols(); const list=rowsForPdf(cols); if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
-    let pages; try{ pages=pagesFrom(list,cols); }catch(e){ alert("PDF作成で内部エラーが発生しました。"); return; }
-    const imgs=pages.map(p=>({bytes:jpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
-    const pdf=pdfFrom(imgs); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
-    const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a); a.click();
-    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。`; }
-    setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(_){ } try{a.remove();}catch(_){ } if(s) s.textContent=""; },60000);
+    try{
+      setPdfBusy(true); setPdfStatus("PDFを作成中…", false);
+
+      const cols=pdfCols(); const list=rowsForPdf(cols);
+      if(!list.length){ setPdfStatus("",false); setPdfBusy(false); alert("PDFに出力できる行がありません。"); return; }
+
+      let pages;
+      try{ pages=pagesFrom(list,cols); }catch(e){ throw new Error("PDFページ生成でエラー: "+(e.message||e)); }
+
+      const imgs=pages.map(p=>({bytes:jpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
+      const pdf=pdfFrom(imgs);
+      const url=URL.createObjectURL(pdf);
+      const name="timeline_"+nowStr()+".pdf";
+
+      const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a);
+      a.click();
+
+      setPdfStatus(`PDFを作成し、ダウンロードを開始しました。保存できない場合は こちらをタップして保存（60秒以内）。`, false);
+      const s=$("pdfStatus");
+      if(s){ const link=document.createElement("a"); link.href=url; link.download=name; link.textContent="こちらをタップして保存"; link.style.marginLeft="4px"; s.innerHTML="PDFを作成し、ダウンロードを開始しました。"; s.appendChild(link); s.appendChild(document.createTextNode("（60秒以内）")); }
+
+      setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(_){ } try{a.remove();}catch(_){ } setPdfStatus("",false); },60000);
+    }catch(err){
+      console.error(err);
+      setPdfStatus("PDF作成でエラー: " + (err && err.message ? err.message : err), true);
+      alert("PDF作成でエラーが発生しました。\n" + (err && err.message ? err.message : err));
+    }finally{
+      setPdfBusy(false);
+    }
   });
 
   /* ===== 初期化 ===== */
@@ -520,7 +573,10 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   /* ===== 全削除 ===== */
   $("wipeAll").addEventListener("click",()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
-    try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); localStorage.removeItem(KEY_SNAP+"_t"); }catch(e){}
+    try{
+      localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP);
+      localStorage.removeItem(KEY_SNAP); localStorage.removeItem(KEY_SNAP+"_t");
+    }catch(e){}
     S.cases={}; S.order=[]; S.current=""; ensureDefault(); persist(); fillCases(); render();
     alert("この端末の保存データを削除しました。");
   });
