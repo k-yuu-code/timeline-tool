@@ -78,7 +78,7 @@
     @page { size: A4 portrait; margin: 10mm; }
     html, body { background:#fff; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-    body > *:not(#PRINT_SHEET){ display:none !important; }  /* ← 画面側を完全に隠す（重複防止） */
+    body > *:not(#PRINT_SHEET){ display:none !important; }
     #PRINT_SHEET{ display:block !important; padding-right: var(--print-right-pad) !important; }
     #PRINT_SHEET table{ width: var(--print-table-width) !important; border-collapse:collapse !important; table-layout:fixed !important; border:1px solid #000; box-sizing:border-box !important; margin:0; }
     #PRINT_SHEET th, #PRINT_SHEET td{ border:1px solid #000; padding:6px !important; font-size:12px !important; vertical-align:top; box-sizing:border-box !important; word-break:break-word !important; overflow-wrap:anywhere !important; }
@@ -150,9 +150,16 @@
       <div class="col2"><label>場所（任意）<input id="evPlace" placeholder="例：自宅／職場／LINE"></label></div>
       <div class="col3"><label>内容（事実ベース・140字まで）<textarea id="evFact" maxlength="140" style="height:100px"></textarea></label></div>
       <div><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" placeholder="例：スクショ（2025-05-10）"></label></div>
+
+      <!-- 1行目：カウンタ & 追加 -->
       <div class="col4 toolbar" style="justify-content:space-between">
         <span id="counter" class="muted">0/140</span>
         <button id="addBtn" class="btn btn-plain">＋ この内容を追加</button>
+      </div>
+      <!-- 2行目：未保存表示 & 手動保存（復元） -->
+      <div class="col4 toolbar" style="justify-content:flex-end;gap:10px">
+        <span id="unsaved" class="muted" style="display:none">● 未保存あり</span>
+        <button id="saveNow" class="btn btn-primary">保存（この端末）</button>
       </div>
     </div>
     <div id="inlineError" class="muted" style="color:#b11;margin-top:6px;"></div>
@@ -205,13 +212,21 @@
   const KEY_MAIN="KAWAI_TIMELINE_CASESAFE_V1"; // 既存データを引き継ぐ
   const MAX_CASES=500;
   const S={cases:{},order:[],current:""};
-  let storeOK=false;
+  let storeOK=false, DIRTY=false;
 
   // ローカル保存可否の診断（UI表示はしない）
   try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){ storeOK=false; }
 
   function today(){ return new Date().toISOString().slice(0,10); }
-  function persist(){ try{ if(storeOK) localStorage.setItem(KEY_MAIN, JSON.stringify(S)); }catch(e){} }
+  function persist(){
+    try{ if(storeOK) localStorage.setItem(KEY_MAIN, JSON.stringify(S)); }catch(e){}
+    DIRTY=false; showUnsaved(false);
+  }
+  function showUnsaved(on){ const u=$("unsaved"); if(u) u.style.display = on ? "inline" : "none"; }
+  function markDirty(){
+    if($("autoSave").checked){ persist(); }
+    else { DIRTY=true; showUnsaved(true); }
+  }
   function loadMain(){
     try{
       const o=JSON.parse(localStorage.getItem(KEY_MAIN)||"null");
@@ -245,7 +260,7 @@
       const bE=document.createElement("button"); bE.textContent="編集"; bE.className="btn btn-plain";
       const bD=document.createElement("button"); bD.textContent="削除"; bD.className="btn btn-warn";
       bE.onclick=()=>openEdit(item.idx);
-      bD.onclick=()=>{ if(confirm("この行を削除します。よろしいですか？")){ events().splice(item.idx,1); if($("autoSave").checked) persist(); render(); } };
+      bD.onclick=()=>{ if(confirm("この行を削除します。よろしいですか？")){ events().splice(item.idx,1); markDirty(); render(); } };
       tdAct.append(bE,bD); tr.appendChild(tdAct);
       tbody.appendChild(tr);
     });
@@ -343,10 +358,10 @@
     const i=editingIndex; if(i<0){ dlg.close && dlg.close(); return; }
     const nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"", actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(), fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
     if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-    events()[i]=nv; if($("autoSave").checked) persist(); render(); dlg.close && dlg.close();
+    events()[i]=nv; markDirty(); render(); dlg.close && dlg.close();
   };
 
-  // —— 案件操作（完成版どおりの動作）
+  // —— 案件操作（完成版どおり）
   const caseDlg = $("caseDlg"), caseName = $("caseName"), caseError = $("caseError");
   let caseMode="new";
   function openCaseDialog(mode){
@@ -391,51 +406,59 @@
     persist(); render();
   });
 
-  // 自動保存 ON/OFF を保持
+  // 初期化
   (function init(){
     if(!loadMain()) ensureDefault();
     uiCases();
-    document.getElementById("evDate").value=today();
-    document.getElementById("counter").textContent="0/140";
+    $("evDate").value=today();
+    $("counter").textContent="0/140";
     const savedAuto = localStorage.getItem("__autosave__")==="1";
-    document.getElementById("autoSave").checked = !!savedAuto;
-    document.getElementById("autoSave").addEventListener("change", ()=>{
-      localStorage.setItem("__autosave__", document.getElementById("autoSave").checked ? "1" : "0");
+    $("autoSave").checked = !!savedAuto;
+    $("autoSave").addEventListener("change", ()=>{
+      const on = $("autoSave").checked;
+      localStorage.setItem("__autosave__", on ? "1" : "0");
+      if(on && DIRTY){ persist(); }   // オンに切替時に未保存があれば即保存
     });
-    requestAnimationFrame(drawGrid);
+    // 未保存表示は初期非表示
+    showUnsaved(false);
+    // 離脱警告（未保存あり & オートセーブOFF時）
+    window.addEventListener("beforeunload", e=>{
+      if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; }
+    });
   })();
 
   // 入力
-  document.getElementById("evFact").addEventListener("input",()=>{
-    document.getElementById("counter").textContent=(document.getElementById("evFact").value||"").length+"/140";
-  });
-  document.getElementById("addBtn").onclick=()=>{
+  $("evFact").addEventListener("input",()=>{ $("counter").textContent=($("evFact").value||"").length+"/140"; });
+  $("addBtn").onclick=()=>{
     const e={
-      date:document.getElementById("evDate").value||"",
-      time:document.getElementById("evTime").value||"",
-      type:document.getElementById("evType").value||"",
-      actor:(document.getElementById("evActor").value||"").trim(),
-      place:(document.getElementById("evPlace").value||"").trim(),
-      fact:(document.getElementById("evFact").value||"").trim(),
-      evidence:(document.getElementById("evEvidence").value||"").trim()
+      date:$("evDate").value||"",
+      time:$("evTime").value||"",
+      type:$("evType").value||"",
+      actor:($("evActor").value||"").trim(),
+      place:($("evPlace").value||"").trim(),
+      fact:($("evFact").value||"").trim(),
+      evidence:($("evEvidence").value||"").trim()
     };
-    if(!e.date||!e.fact){ document.getElementById("inlineError").textContent="日付 と 内容 は必須です"; return; }
-    document.getElementById("inlineError").textContent="";
-    events().push(e); if(document.getElementById("autoSave").checked) persist(); render();
+    if(!e.date||!e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; }
+    $("inlineError").textContent="";
+    events().push(e); markDirty(); render();
   };
 
+  // 手動保存（この端末）
+  $("saveNow").onclick=()=>{ persist(); alert("この端末のブラウザに保存しました。"); };
+
   // 端末の全データ削除
-  document.getElementById("wipeAll").onclick=()=>{
+  $("wipeAll").onclick=()=>{
     if(confirm("この端末のブラウザに保存された全ての案件・データを削除します。よろしいですか？")){
       try{ localStorage.removeItem(KEY_MAIN); }catch(e){}
       location.reload();
     }
   };
 
-  // —— 印刷（同一ページ方式・操作欄なし・ヘッダ青）※重複防止ロジックを固定化
-  document.getElementById("printBtn").onclick=()=>{
-    const host = document.getElementById("PRINT_SHEET");
-    host.innerHTML="";                              /* ← 毎回クリア（重複防止） */
+  // —— 印刷（同一ページ方式・操作欄なし・ヘッダ青）
+  $("printBtn").onclick=()=>{
+    const host = $("PRINT_SHEET");
+    host.innerHTML="";
     const sheet = buildPrintSheetNode(12);
     host.appendChild(sheet);
     setTimeout(()=>{
@@ -484,6 +507,7 @@
     container.appendChild(table);
     return container;
   }
-})();</script>
+})();
+</script>
 </body>
 </html>
