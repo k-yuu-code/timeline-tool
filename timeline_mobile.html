@@ -406,68 +406,63 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（禁則処理つき） ====== */
+  /* ====== PDF（日本語禁則＋先読みで「予。定」を回避） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
   const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
-  /* 行頭禁則の対象（句読点＋閉じ記号） */
+  /* 行頭禁則対象（句読点・閉じ記号など） */
   const KINSOKU_HEAD = new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】〕"));
 
-  /* 語尾クラスタを抽出（漢字・ひらがな・カタカナ・長音・々・英数） */
-  function tailCluster(s){
-    const m = s.match(/([一-龯々〆ヶぁ-んァ-ヶーa-zA-Z0-9]+)$/u);
-    return m ? m[1] : s.slice(-1);
-  }
   const textW=(ctx,s)=>ctx.measureText(s).width;
+  const lastChar = s => { const a=Array.from(s); return a.length?a[a.length-1]:""; };
+  const dropLast = s => { const a=Array.from(s); a.pop(); return a.join(""); };
 
-  /* 改行：禁則（句読点だけ行頭に来ない）＋ 語尾クラスタごと移送 */
-  function wrapLineKinsoku(ctx, text, maxW, font){
+  // 1文字先読み・禁則対応の折返し
+  function wrapLineSmart(ctx, text, maxW, font){
     ctx.save(); ctx.font=font;
-    const lines=[]; let run="";
-    for(const ch of String(text||"")){
-      const test = run + ch;
-      if (textW(ctx,test) <= maxW || run===""){ run = test; continue; }
+    const out=[]; let run="";
+    const arr=Array.from(String(text||""));
+    for(let i=0;i<arr.length;i++){
+      const ch=arr[i];
+      const test=run + ch;
+      if(textW(ctx,test)<=maxW || run===""){ run=test; continue; }
+
+      const next=arr[i+1];
 
       if (KINSOKU_HEAD.has(ch)){
-        // 句読点が行頭になりそう → 語尾クラスタ＋句読点を次行へ
-        let cluster = tailCluster(run);
-        if (!cluster) cluster = run.slice(-1);
-        let before = run.slice(0, run.length - cluster.length);
-        // まずは「before」を確定行にし、次行を「cluster+ch」で開始
-        if (before) lines.push(before); else lines.push("");  // 極端に狭い枠対応
-        run = cluster + ch;
-
-        // それでも幅オーバーなら段階的に縮退
-        if (textW(ctx, run) > maxW){
-          // 最後の1文字＋句読点だけを次行へ（行頭禁則は満たす）
-          const last = cluster.slice(-1);
-          const rest = cluster.slice(0, -1);
-          if (rest) lines[lines.length-1] += rest; // 前行の末尾に残す
-          run = last + ch;
-          if (textW(ctx, run) > maxW){
-            // どうしても入らない極端な列幅 → 句読点を単独扱いにフォールバック
-            lines.push(last); run = ch;
-          }
+        // 句読点が次行頭になりそう → 直前の1文字とセットで次行へ
+        const last=lastChar(run), left=dropLast(run);
+        if(left!=="") out.push(left); else out.push("");
+        run = last + ch; // 次ループで続行
+      }else if (next && KINSOKU_HEAD.has(next)){
+        // ch の直後が句読点 → ch+句読点をセットで次行へ（=「定。」を次行へ）
+        let pair = ch + next; i++; // 句読点も消費
+        // ペアが列幅より大きい場合、前行末から1文字ずつこちらへ寄せる
+        while(textW(ctx,pair)>maxW && run.length){
+          const last=lastChar(run); run=dropLast(run); pair = last + pair;
         }
+        out.push(run===""?"":run);
+        run = pair;
       }else{
-        lines.push(run); run = ch;
+        // 通常の改行
+        out.push(run); run = ch;
       }
     }
-    if (run!=="") lines.push(run);
+    if(run!=="") out.push(run);
     ctx.restore();
-    return lines.length ? lines : [""];
+    return out.length?out:[""];
   }
   function wrapText(ctx, text, maxW, font){
     const paras=String(text||"").split(/\r\n|\r|\n/);
-    const out=[];
+    const lines=[];
     paras.forEach((p,i)=>{
-      const ls = wrapLineKinsoku(ctx, p, maxW, font);
-      out.push(...ls);
-      if(i<paras.length-1) out.push("");
+      const ls=wrapLineSmart(ctx,p,maxW,font);
+      lines.push(...ls);
+      if(i<paras.length-1) lines.push("");
     });
-    return out.length?out:[""];
+    return lines.length?lines:[""];
   }
 
   function pdfCols(){
