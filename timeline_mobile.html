@@ -406,20 +406,17 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（日本語禁則＋先読みで「予。定」を回避） ====== */
+  /* ====== PDF（禁則＋改行の余白なし） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
   const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
-  /* 行頭禁則対象（句読点・閉じ記号など） */
   const KINSOKU_HEAD = new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】〕"));
-
   const textW=(ctx,s)=>ctx.measureText(s).width;
-  const lastChar = s => { const a=Array.from(s); return a.length?a[a.length-1]:""; };
-  const dropLast = s => { const a=Array.from(s); a.pop(); return a.join(""); };
+  const lastChar=s=>{const a=Array.from(s);return a.length?a[a.length-1]:"";};
+  const dropLast=s=>{const a=Array.from(s);a.pop();return a.join("");};
 
-  // 1文字先読み・禁則対応の折返し
   function wrapLineSmart(ctx, text, maxW, font){
     ctx.save(); ctx.font=font;
     const out=[]; let run="";
@@ -432,21 +429,17 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       const next=arr[i+1];
 
       if (KINSOKU_HEAD.has(ch)){
-        // 句読点が次行頭になりそう → 直前の1文字とセットで次行へ
         const last=lastChar(run), left=dropLast(run);
         if(left!=="") out.push(left); else out.push("");
-        run = last + ch; // 次ループで続行
+        run = last + ch;
       }else if (next && KINSOKU_HEAD.has(next)){
-        // ch の直後が句読点 → ch+句読点をセットで次行へ（=「定。」を次行へ）
-        let pair = ch + next; i++; // 句読点も消費
-        // ペアが列幅より大きい場合、前行末から1文字ずつこちらへ寄せる
+        let pair = ch + next; i++;
         while(textW(ctx,pair)>maxW && run.length){
           const last=lastChar(run); run=dropLast(run); pair = last + pair;
         }
         out.push(run===""?"":run);
         run = pair;
       }else{
-        // 通常の改行
         out.push(run); run = ch;
       }
     }
@@ -454,13 +447,17 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     ctx.restore();
     return out.length?out:[""];
   }
+
+  // ★ 改行しても「空行」を挿入しない（従来の1行空きは廃止）
   function wrapText(ctx, text, maxW, font){
     const paras=String(text||"").split(/\r\n|\r|\n/);
     const lines=[];
-    paras.forEach((p,i)=>{
+    paras.forEach((p)=>{
+      // 空行（ユーザーが連続改行した場合）はそのまま1行の空行として保持
+      if(p===""){ lines.push(""); return; }
       const ls=wrapLineSmart(ctx,p,maxW,font);
       lines.push(...ls);
-      if(i<paras.length-1) lines.push("");
+      // ここで余計な空行は追加しない
     });
     return lines.length?lines:[""];
   }
