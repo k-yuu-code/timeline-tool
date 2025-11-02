@@ -12,8 +12,7 @@
   --bg:#f7f8fb; --txt:#111; --muted:#666; --bd:#dcdfea; --bd-strong:#9aa4c8;
   --accent:#0a58cc; --th:#eef2fb; --td:#fff; --grid:#000;
   --ctl-h:42px; --radius:10px; --pad:12px; --line:1.4px; --gap:10px;
-  /* PDFボタンと一覧（らせん）の確実な間隔 */
-  --head-gap:16px;
+  --head-gap:16px; /* PDFボタンと表らせんの距離（確実に空ける） */
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
@@ -68,7 +67,7 @@ select.arrow{
 /* 一覧：ヘッダーと表の距離を“確実に”空ける */
 .tableWrap{position:relative;overflow-x:hidden;padding-top:var(--head-gap) !important;}
 .head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.card > .head{margin-bottom:0 !important;} /* マージン依存を避ける */
+.card > .head{margin-bottom:0 !important;}
 
 /* らせん（SVGレイヤ）を表と同じだけ下げる */
 .gridlayer{position:absolute;left:0;top:var(--head-gap) !important;height:calc(100% - var(--head-gap)) !important;width:100%;pointer-events:none}
@@ -425,15 +424,61 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ===== PDF（進捗表示・多重クリック防止・デリゲート） ===== */
+  /* ===== PDF（禁則処理つきの折り返し） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
 
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
   const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
-  const wrapLine=(ctx,t,maxW,font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of String(t||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
-  const wrapText=(ctx,t,maxW,font)=>{ const ps=String(t||"").split(/\r\n|\r|\n/); const out=[]; ps.forEach((p,i)=>{ out.push(...wrapLine(ctx,p,maxW,font)); if(i<ps.length-1) out.push(""); }); return out.length?out:[""]; };
+  /* --- 行頭禁則：句読点などは次行頭に来させない --- */
+  const KINSOKU_HEAD = new Set(Array.from("、。，．，・!！?？：；)]］）｝〉》」』】〕"));
+  const textW = (ctx, s)=>ctx.measureText(s).width;
+
+  function wrapLineKinsoku(ctx, text, maxW, font){
+    ctx.save(); ctx.font=font;
+    const lines=[]; let line="";
+    for(const ch of String(text||"")){
+      const test = line + ch;
+      if (textW(ctx,test) <= maxW || line===""){
+        line = test;
+      } else {
+        if (KINSOKU_HEAD.has(ch)){
+          // 句読点 ch を前行の末尾に残すため、line の末尾から1文字ずつ次行に回しながら調整
+          let move = 1;
+          while (move <= line.length && textW(ctx, line.slice(0,-move) + ch) > maxW){
+            move++;
+          }
+          if (move > line.length){
+            // 異常に狭い場合のフォールバック：通常改行
+            lines.push(line);
+            line = ch;
+          } else {
+            const prev = line.slice(0,-move) + ch; // ← 句読点は前行へ
+            const next = line.slice(-move);        // ← 末尾の数文字を次行の先頭へ
+            lines.push(prev);
+            line = next;
+          }
+        } else {
+          lines.push(line);
+          line = ch;
+        }
+      }
+    }
+    if (line!=="") lines.push(line);
+    ctx.restore();
+    return lines.length ? lines : [""];
+  }
+  function wrapText(ctx, text, maxW, font){
+    const paras=String(text||"").split(/\r\n|\r|\n/);
+    const out=[];
+    paras.forEach((p,i)=>{
+      const ls = wrapLineKinsoku(ctx, p, maxW, font);
+      out.push(...ls);
+      if(i<paras.length-1) out.push("");
+    });
+    return out.length?out:[""];
+  }
 
   function pdfCols(){
     const ths=[...document.querySelectorAll('#listTable thead th')];
@@ -530,7 +575,6 @@ Q`;
       const pdf=pdfFrom(imgs);
       const url=URL.createObjectURL(pdf);
       const name="timeline_"+nowStr()+".pdf";
-      // 自動ダウンロード + 手動保存リンク（60秒有効）
       const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a); a.click();
       const s=$("pdfStatus");
       if(s){ s.innerHTML="PDFを作成し、ダウンロードを開始しました。"; const link=document.createElement("a"); link.href=url; link.download=name; link.textContent="こちらをタップして保存"; link.style.marginLeft="6px"; s.appendChild(link); s.appendChild(document.createTextNode("（60秒以内）")); }
