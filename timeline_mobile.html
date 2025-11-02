@@ -406,41 +406,36 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（禁則＋改行の余白なし） ====== */
+  /* ====== PDF（禁則＋“改行＝次行”・空行ゼロ） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
   const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
-  const KINSOKU_HEAD = new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】〕"));
+  /* 行頭禁則（句読点など） */
+  const KINSOKU_HEAD=new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】〔〕】"));
   const textW=(ctx,s)=>ctx.measureText(s).width;
   const lastChar=s=>{const a=Array.from(s);return a.length?a[a.length-1]:"";};
   const dropLast=s=>{const a=Array.from(s);a.pop();return a.join("");};
 
   function wrapLineSmart(ctx, text, maxW, font){
     ctx.save(); ctx.font=font;
-    const out=[]; let run="";
-    const arr=Array.from(String(text||""));
+    const out=[]; let run=""; const arr=Array.from(String(text||""));
     for(let i=0;i<arr.length;i++){
-      const ch=arr[i];
-      const test=run + ch;
+      const ch=arr[i], test=run+ch;
       if(textW(ctx,test)<=maxW || run===""){ run=test; continue; }
-
       const next=arr[i+1];
-
-      if (KINSOKU_HEAD.has(ch)){
+      if(KINSOKU_HEAD.has(ch)){
         const last=lastChar(run), left=dropLast(run);
         if(left!=="") out.push(left); else out.push("");
-        run = last + ch;
-      }else if (next && KINSOKU_HEAD.has(next)){
-        let pair = ch + next; i++;
-        while(textW(ctx,pair)>maxW && run.length){
-          const last=lastChar(run); run=dropLast(run); pair = last + pair;
-        }
-        out.push(run===""?"":run);
-        run = pair;
+        run=last+ch;
+      }else if(next && KINSOKU_HEAD.has(next)){
+        let pair=ch+next; i++;
+        while(textW(ctx,pair)>maxW && run.length){ const last=lastChar(run); run=dropLast(run); pair=last+pair; }
+        if(run!=="") out.push(run);
+        run=pair;
       }else{
-        out.push(run); run = ch;
+        out.push(run); run=ch;
       }
     }
     if(run!=="") out.push(run);
@@ -448,18 +443,15 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     return out.length?out:[""];
   }
 
-  // ★ 改行しても「空行」を挿入しない（従来の1行空きは廃止）
+  /* ★空行ゼロ：改行しても“次の行”に詰める（空文字行は作らない） */
   function wrapText(ctx, text, maxW, font){
-    const paras=String(text||"").split(/\r\n|\r|\n/);
-    const lines=[];
-    paras.forEach((p)=>{
-      // 空行（ユーザーが連続改行した場合）はそのまま1行の空行として保持
-      if(p===""){ lines.push(""); return; }
+    const out=[];
+    String(text||"").split(/\r\n|\r|\n/).forEach(p=>{
+      if(p==="" ) return;                     // 空段落は捨てる（連続改行も圧縮）
       const ls=wrapLineSmart(ctx,p,maxW,font);
-      lines.push(...ls);
-      // ここで余計な空行は追加しない
+      for(const l of ls){ if(l!=="") out.push(l); }
     });
-    return lines.length?lines:[""];
+    return out.length?out:[""];
   }
 
   function pdfCols(){
@@ -474,13 +466,22 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     const idxs=cols.map(c=>{ const th=thAll.find(h=>(h.dataset.field||h.textContent.trim())===c.key); return th? th.cellIndex : -1; });
     const rows=[]; [...tb.rows].forEach(tr=>{
       if(tr.cells.length===1 && tr.cells[0].classList.contains('muted')) return;
-      const o={}; idxs.forEach((i,ci)=>{ if(i<0) return; const td=tr.cells[i]; const txt=(td? (td.innerText||td.textContent) : "").replace(/\s+\n/g,"\n").trim(); o[cols[ci].key]=txt; });
+      const o={}; idxs.forEach((i,ci)=>{ if(i<0) return; const td=tr.cells[i];
+        const txt=(td? (td.innerText||td.textContent) : "")
+          .replace(/\r/g,"")
+          .replace(/\u00a0/g," ")
+          .replace(/\s+\n/g,"\n")       // 末尾スペース→改行を正規化
+          .trim();
+        o[cols[ci].key]=txt;
+      });
       rows.push(o);
     }); return rows;
   }
+
   function pagesFrom(list, cols){
-    const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
-    const SCALE=2, marginPx=Math.floor(PDF_MARGIN_PT/PX2PT), innerW=pageWpx-marginPx*2, innerH=pageHpx-marginPx*2;
+    const PDF_W=595.28, PDF_H=841.89, PDF_M=24;
+    const pageWpx=Math.ceil(PDF_W/PX2PT), pageHpx=Math.ceil(PDF_H/PX2PT);
+    const SCALE=2, marginPx=Math.floor(PDF_M/PX2PT), innerW=pageWpx-marginPx*2, innerH=pageHpx-marginPx*2;
     let cw=cols.map(c=>Math.round(c.w*innerW)); const diff=innerW-cw.reduce((a,b)=>a+b,0); cw[cw.length-1]+=diff;
     const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
@@ -496,7 +497,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
     const pages=[]; let idx=0;
     while(idx<rows.length){
-      const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
+      const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H/PX2PT*SCALE);
       const ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false;
       ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
 
