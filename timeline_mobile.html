@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信されません）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -23,7 +23,6 @@ body.noscroll{overflow:hidden}
 .container{max-width:960px;margin:12px auto 60px;padding:0 12px}
 .card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02)}
 .muted{color:var(--muted)}
-.ver{font-size:12px;color:#666;margin-left:6px}
 h1,h2{margin:0 0 8px}h1{font-size:18px}h2{font-size:16px}
 
 /* ラベル/入力 */
@@ -257,7 +256,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   const KEY_MAIN="KAWAI_TIMELINE_CASESAFE_V1", KEY_BACKUP=KEY_MAIN+"_BACKUP", KEY_SNAP=KEY_MAIN+"_SNAPSHOTS";
   const SNAP_MAX=5, SNAP_MINT=60*1000;
   let storeOK=false; try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){}
-  const S={cases:{},order:[],current:"",meta:{v:"r54",updatedAt:Date.now()}};
+  const S={cases:{},order:[],current:"",meta:{updatedAt:Date.now()}};
   const today=()=>new Date().toISOString().slice(0,10);
   const nowStr=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes());};
   const parse=s=>{try{return JSON.parse(s);}catch(_){return null;}};
@@ -267,7 +266,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta={v:"r54",updatedAt:Date.now(),total:total(S)};
+      S.meta={updatedAt:Date.now(),total:total(S)};
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN,str);
       localStorage.setItem(KEY_BACKUP,str);
@@ -426,7 +425,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ===== PDF（堅牢化：進捗表示・多重クリック防止・デリゲート） ===== */
+  /* ===== PDF（進捗表示・多重クリック防止・デリゲート） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
 
