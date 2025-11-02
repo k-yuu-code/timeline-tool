@@ -12,7 +12,7 @@
   --bg:#f7f8fb; --txt:#111; --muted:#666; --bd:#dcdfea; --bd-strong:#9aa4c8;
   --accent:#0a58cc; --th:#eef2fb; --td:#fff; --grid:#000;
   --ctl-h:42px; --radius:10px; --pad:12px; --line:1.4px; --gap:10px;
-  --head-gap:16px;
+  --head-gap:18px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
@@ -66,7 +66,7 @@ select.arrow{
 
 /* 一覧 */
 .tableWrap{position:relative;overflow-x:hidden;padding-top:var(--head-gap)!important}
-.head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .card>.head{margin-bottom:0!important}
 .gridlayer{position:absolute;left:0;top:var(--head-gap)!important;height:calc(100% - var(--head-gap))!important;width:100%;pointer-events:none}
 .gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
@@ -406,51 +406,52 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（禁則＋“改行＝次行”・空行ゼロ） ====== */
+  /* ====== PDF（改行＝“次行”・空行ゼロ／句読点禁則） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
   const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
   /* 行頭禁則（句読点など） */
-  const KINSOKU_HEAD=new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】〔〕】"));
-  const textW=(ctx,s)=>ctx.measureText(s).width;
-  const lastChar=s=>{const a=Array.from(s);return a.length?a[a.length-1]:"";};
-  const dropLast=s=>{const a=Array.from(s);a.pop();return a.join("");};
+  const KINSOKU_HEAD=new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】％｡､．") );
 
-  function wrapLineSmart(ctx, text, maxW, font){
+  const textW=(ctx,s)=>ctx.measureText(s).width;
+
+  // 1段落を幅で折り返す（行頭禁則・空行を作らない）
+  function wrapParagraph(ctx, str, maxW, font){
     ctx.save(); ctx.font=font;
-    const out=[]; let run=""; const arr=Array.from(String(text||""));
-    for(let i=0;i<arr.length;i++){
-      const ch=arr[i], test=run+ch;
+    const src=Array.from(str||"");
+    const out=[];
+    let run="";
+    for(let i=0;i<src.length;i++){
+      const ch=src[i];
+      const test=run+ch;
       if(textW(ctx,test)<=maxW || run===""){ run=test; continue; }
-      const next=arr[i+1];
-      if(KINSOKU_HEAD.has(ch)){
-        const last=lastChar(run), left=dropLast(run);
-        if(left!=="") out.push(left); else out.push("");
-        run=last+ch;
-      }else if(next && KINSOKU_HEAD.has(next)){
-        let pair=ch+next; i++;
-        while(textW(ctx,pair)>maxW && run.length){ const last=lastChar(run); run=dropLast(run); pair=last+pair; }
-        if(run!=="") out.push(run);
-        run=pair;
-      }else{
-        out.push(run); run=ch;
+      // 折り返し必要：次行先頭が句読点にならないよう調整
+      if(KINSOKU_HEAD.has(ch) && run.length>=1){
+        const prev=run.slice(0,-1); const carry=run.slice(-1); // carry+ch を次行へ
+        if(prev!=="") out.push(prev);
+        run=carry+ch; continue;
       }
+      out.push(run);
+      run=ch;
     }
     if(run!=="") out.push(run);
+    if(!out.length) out.push("");
     ctx.restore();
-    return out.length?out:[""];
+    return out;
   }
 
-  /* ★空行ゼロ：改行しても“次の行”に詰める（空文字行は作らない） */
-  function wrapText(ctx, text, maxW, font){
+  // 改行を“そのまま次行”に詰める（空行を生成しない）
+  function wrapTextTight(ctx, text, maxW, font){
+    const norm=(text||"").replace(/\r\n|\r/g,"\n");
+    const paras=norm.split("\n");
     const out=[];
-    String(text||"").split(/\r\n|\r|\n/).forEach(p=>{
-      if(p==="" ) return;                     // 空段落は捨てる（連続改行も圧縮）
-      const ls=wrapLineSmart(ctx,p,maxW,font);
-      for(const l of ls){ if(l!=="") out.push(l); }
-    });
+    for(const p of paras){
+      if(p==="") continue;                 // 空段落は捨てる → 空行は作らない
+      const lines=wrapParagraph(ctx,p,maxW,font);
+      for(const ln of lines){ if(ln!=="") out.push(ln); }
+    }
     return out.length?out:[""];
   }
 
@@ -470,7 +471,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
         const txt=(td? (td.innerText||td.textContent) : "")
           .replace(/\r/g,"")
           .replace(/\u00a0/g," ")
-          .replace(/\s+\n/g,"\n")       // 末尾スペース→改行を正規化
+          .replace(/[ \t]+\n/g,"\n")   // 行末スペース除去
           .trim();
         o[cols[ci].key]=txt;
       });
@@ -479,9 +480,8 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   }
 
   function pagesFrom(list, cols){
-    const PDF_W=595.28, PDF_H=841.89, PDF_M=24;
-    const pageWpx=Math.ceil(PDF_W/PX2PT), pageHpx=Math.ceil(PDF_H/PX2PT);
-    const SCALE=2, marginPx=Math.floor(PDF_M/PX2PT), innerW=pageWpx-marginPx*2, innerH=pageHpx-marginPx*2;
+    const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
+    const SCALE=2, marginPx=Math.floor(PDF_MARGIN_PT/PX2PT), innerW=pageWpx-marginPx*2, innerH=pageHpx-marginPx*2;
     let cw=cols.map(c=>Math.round(c.w*innerW)); const diff=innerW-cw.reduce((a,b)=>a+b,0); cw[cw.length-1]+=diff;
     const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
     const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
@@ -489,7 +489,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
     const rows=list.map((e,i)=>{
       const vals=cols.map(c=> c.key==='index'? String(i+1):(e[c.key]||""));
-      const lines=vals.map((v,ci)=>{ const avail=Math.max(12,cw[ci]-padX*2-2); return cols[ci].nowrap?[v||""]:wrapText(mctx,v,avail,cellFont); });
+      const lines=vals.map((v,ci)=>{ const avail=Math.max(12,cw[ci]-padX*2-2); return cols[ci].nowrap?[v||""]:wrapTextTight(mctx,v,avail,cellFont); });
       const blockHs=lines.map(ls=>Math.max(lineH,ls.length*lineH));
       const h=Math.max(lineH+padY*2, Math.max(...blockHs)+padY*2);
       return {vals,lines,blockHs,h};
@@ -497,7 +497,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
     const pages=[]; let idx=0;
     while(idx<rows.length){
-      const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H/PX2PT*SCALE);
+      const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
       const ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false;
       ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
 
@@ -575,7 +575,7 @@ Q`;
       setPdfBusy(true); setPdfStatus("PDFを作成中…", false);
       const cols=pdfCols(); const list=rowsForPdf(cols);
       if(!list.length){ setPdfStatus("",false); setPdfBusy(false); alert("PDFに出力できる行がありません。"); return false; }
-      let pages=pagesFrom(list,cols);
+      const pages=pagesFrom(list,cols);
       const imgs=pages.map(p=>({bytes:jpeg(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
       const pdf=pdfFrom(imgs);
       const url=URL.createObjectURL(pdf), name="timeline_"+nowStr()+".pdf";
