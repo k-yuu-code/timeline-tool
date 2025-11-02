@@ -12,7 +12,7 @@
   --bg:#f7f8fb; --txt:#111; --muted:#666; --bd:#dcdfea; --bd-strong:#9aa4c8;
   --accent:#0a58cc; --th:#eef2fb; --td:#fff; --grid:#000;
   --ctl-h:42px; --radius:10px; --pad:12px; --line:1.4px; --gap:10px;
-  --head-gap:18px;
+  --head-gap:22px;         /* ← 一覧ヘッダとPDFボタンの距離を確保 */
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
@@ -148,6 +148,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       <div class="gridlayer"><svg></svg></div>
       <table class="list" id="listTable">
         <colgroup>
+          <!-- # / 日付 / 時刻 / 種別 / 関与者 / 場所 / 内容 / 証拠 / 操作 -->
           <col style="width:5%"><col style="width:18%"><col style="width:9%"><col style="width:10%">
           <col style="width:11%"><col style="width:11%"><col style="width:23%"><col style="width:7%"><col style="width:6%">
         </colgroup>
@@ -252,12 +253,12 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       const str=JSON.stringify(S);
       localStorage.setItem(KEY_MAIN,str);
       localStorage.setItem(KEY_BACKUP,str);
-      const now=Date.now(), tKey=KEY_SNAP+"_t";
-      const last=Number(localStorage.getItem(tKey))||0;
+      const last=Number(localStorage.getItem(KEY_SNAP+"_t"))||0, now=Date.now();
       if(now-last>=SNAP_MINT && str.length<400000){
         const snaps=parse(localStorage.getItem(KEY_SNAP))||[];
         snaps.push({t:now,d:str}); while(snaps.length>SNAP_MAX) snaps.shift();
-        localStorage.setItem(KEY_SNAP,JSON.stringify(snaps)); localStorage.setItem(tKey,String(now));
+        localStorage.setItem(KEY_SNAP,JSON.stringify(snaps));
+        localStorage.setItem(KEY_SNAP+"_t",String(now));
       }
     }catch(e){}
   }
@@ -406,7 +407,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（空行は“意図した1行だけ”／句読点禁則） ====== */
+  /* ====== PDF（段落の空行を 1 行に統一／句読点禁則） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
@@ -427,7 +428,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       const ch=src[i];
       const test=run+ch;
       if(textW(ctx,test)<=maxW || run===""){ run=test; continue; }
-      // 折返し：次行頭が句読点なら直前1文字を巻き戻して一緒に送る
+      // 次行が句読点なら前行末の1文字を巻き戻して次行へ
       if(KINSOKU_HEAD.has(ch) && run.length>=1){
         const prev=run.slice(0,-1); const carry=run.slice(-1);
         if(prev!=="") out.push(prev);
@@ -442,19 +443,20 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     return out;
   }
 
-  // ★改良：改行は“次行へ詰める”、連続した空行は「ちょうど1行の空き」にする
+  // ★改良：保存データのテキストから取得し、連続改行は 1 行の空きとして反映
   function wrapTextTight(ctx, text, maxW, font){
     const norm=(text||"").replace(/\r\n|\r/g,"\n");
     const paras=norm.split("\n");
     const out=[];
     let pendingEmpty=0;
-    for(const p of paras){
-      if(p===""){ pendingEmpty++; continue; }        // 空行は溜める
-      if(pendingEmpty>0){ out.push(""); pendingEmpty=0; }  // 何個連続でも空きは1行だけ
+    for(const raw of paras){
+      const p=(raw||"").replace(/[ \t]+$/,"");             // 行末スペース除去
+      if(p.trim()===""){ pendingEmpty++; continue; }       // 空白のみの行も空行扱い
+      if(pendingEmpty>0){ out.push(""); pendingEmpty=0; }  // 何行空けても 1 行だけ空ける
       const lines=wrapParagraph(ctx,p,maxW,font);
       for(const ln of lines){ out.push(ln); }
     }
-    // 文末の空行は無視（セル末尾の余白は不要）
+    // 末尾の連続空行は無視
     return out.length?out:[""];
   }
 
@@ -464,22 +466,28 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     const sum=ok.reduce((s,th)=>s+th.offsetWidth,0)||1;
     return ok.map(th=>{ const key=th.dataset.field||th.textContent.trim(); const cfg={key,t:th.textContent.trim(),w:th.offsetWidth/sum,align:null,nowrap:false,vcenter:false}; if(key==='index'){cfg.align='center';cfg.vcenter=true;} if(['date','time','type'].includes(key)) cfg.align='center'; if(key==='time') cfg.nowrap=true; return cfg; });
   }
-  function rowsForPdf(cols){
-    const tb=document.querySelector('#listTable tbody'); if(!tb) return [];
-    const thAll=[...document.querySelectorAll('#listTable thead th')];
-    const idxs=cols.map(c=>{ const th=thAll.find(h=>(h.dataset.field||h.textContent.trim())===c.key); return th? th.cellIndex : -1; });
-    const rows=[]; [...tb.rows].forEach(tr=>{
-      if(tr.cells.length===1 && tr.cells[0].classList.contains('muted')) return;
-      const o={}; idxs.forEach((i,ci)=>{ if(i<0) return; const td=tr.cells[i];
-        const txt=(td? (td.innerText||td.textContent) : "")
-          .replace(/\r/g,"")
-          .replace(/\u00a0/g," ")
-          .replace(/[ \t]+\n/g,"\n")   // 行末スペース除去
-          .trimEnd();
-        o[cols[ci].key]=txt;
-      });
+
+  // ★変更：DOM ではなく保存データから行を生成（改行をそのまま保持）
+  function rowsFromStore(cols){
+    const sorted=evts().map((e,i)=>({e,i}))
+      .sort((a,b)=>((a.e.date||"")+(a.e.time||"")).localeCompare((b.e.date||"")+(b.e.time||"")));
+    const rows=[];
+    sorted.forEach((it,idx)=>{
+      const e=it.e||{};
+      const rec={
+        index:String(idx+1),
+        date:e.date||"",
+        time:e.time||"",
+        type:e.type||"",
+        actor:e.actor||"",
+        place:e.place||"",
+        fact: (e.fact||""),
+        evidence:e.evidence||""
+      };
+      const o={}; cols.forEach(c=>{ o[c.key]=rec[c.key]??""; });
       rows.push(o);
-    }); return rows;
+    });
+    return rows;
   }
 
   function pagesFrom(list, cols){
@@ -491,7 +499,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     const lineH=19, padY=8, padX=12, headH=32;
 
     const rows=list.map((e,i)=>{
-      const vals=cols.map(c=> c.key==='index'? String(i+1):(e[c.key]||""));
+      const vals=cols.map(c=> e[c.key]|| (c.key==='index'? String(i+1):""));
       const lines=vals.map((v,ci)=>{ const avail=Math.max(12,cw[ci]-padX*2-2); return cols[ci].nowrap?[v||""]:wrapTextTight(mctx,v,avail,cellFont); });
       const blockHs=lines.map(ls=>Math.max(lineH,ls.length*lineH));
       const h=Math.max(lineH+padY*2, Math.max(...blockHs)+padY*2);
@@ -576,7 +584,8 @@ Q`;
   function makePDF(){
     try{
       setPdfBusy(true); setPdfStatus("PDFを作成中…", false);
-      const cols=pdfCols(); const list=rowsForPdf(cols);
+      const cols=pdfCols();
+      const list=rowsFromStore(cols);                 // ← 保存データから生成（改行保持）
       if(!list.length){ setPdfStatus("",false); setPdfBusy(false); alert("PDFに出力できる行がありません。"); return false; }
       const pages=pagesFrom(list,cols);
       const imgs=pages.map(p=>({bytes:jpeg(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
