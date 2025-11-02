@@ -2,13 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（デスクトップ版｜送信しません）</title>
+<title>【テスト専用】時系列メモ（デスクトップ版｜送信しません）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="法律相談の準備に使える時系列メモ（デスクトップ版）。入力は端末のブラウザにのみ保存され、外部へは送信されません。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>
-/* ===== 色・基本 ===== */
 :root{
   --bg:#f7f8fb; --b:#111; --m:#666; --bd:#dcdfea; --acc:#0a58cc;
   --th:#eef2fb; --td:#fff; --field:#cfd3e2;
@@ -19,6 +17,9 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin:12px 0;box-shadow:0 1px 0 rgba(10,10,20,.02)}
 .ktl-muted{color:var(--m)}
 .ktl-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* テスト用バナー */
+.ktl-testbar{background:#fff6f6;border:1px solid #f2c5c5;color:#b11;padding:10px 12px;border-radius:10px;margin-bottom:10px;font-weight:700}
 
 /* ラベルと入力 */
 #ktl-app label{display:block;margin:6px 0 4px;font-weight:600}
@@ -49,7 +50,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 .ktl-caseRow1 > label{margin:0; font-weight:700; white-space:nowrap;}
 .ktl-caseRow2{ gap:8px; margin-top:12px; }
 
-/* セレクトの矢印（見た目統一） */
+/* セレクト矢印 */
 select{
   -webkit-appearance:none; appearance:none;
   background-image:url("data:image/svg+xml;utf8,\
@@ -57,7 +58,7 @@ select{
   background-repeat:no-repeat; background-position:right 12px center; background-size:18px 18px; padding-right:42px;
 }
 
-/* ===== 一覧（画面） ===== */
+/* 一覧（画面） */
 .ktl-tableWrap{position:relative;overflow-x:auto}
 table.ktl-list{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);margin:0}
 table.ktl-list thead th{text-align:left;padding:8px 8px;font-weight:700;background:var(--th);border:0}
@@ -85,14 +86,10 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
 
 /* ====== 印刷スタイル ====== */
 @media print{
-  /* 画面側は完全に消す（←重複の原因を根本解消） */
-  #ktl-app{ display:none !important; }
-  /* 印刷用シートのみ表示 */
+  #ktl-app{ display:none !important; }     /* 画面側を完全に隠す＝重複防止 */
   #PRINT_SHEET{ display:block !important; }
   body{ background:#fff; }
-  /* 余白（ブラウザ既定に準拠。必要なら @page で調整可） */
   @page{ margin:14mm; }
-  /* 印刷テーブル体裁 */
   #PRINT_SHEET table{ width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; }
   #PRINT_SHEET th,#PRINT_SHEET td{ border:1px solid #000; padding:6px 6px; vertical-align:top; }
   #PRINT_SHEET th{ background:#e9f2ff; font-weight:700; }
@@ -104,12 +101,19 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
 <body>
 <div id="ktl-app">
 
+  <!-- テスト用バナー -->
+  <div class="ktl-testbar">
+    これは<strong>テスト専用</strong>ページです（本番データとは別に保存されます）。  
+    <button id="seedBtn" class="ktl-btn ktl-btn-primary" style="margin-left:8px">テストデータ再投入（上書き）</button>
+    <button id="clearTest" class="ktl-btn ktl-btn-warn" style="margin-left:8px">テスト用データ削除</button>
+  </div>
+
   <!-- 説明 -->
   <div class="ktl-card">
     <h1 style="margin:0 0 6px;font-size:20px">相談準備用・時系列メモ（送信されません）</h1>
     <div class="ktl-toolbar" style="gap:12px">
       <div class="ktl-checkRow">
-        <input type="checkbox" id="autoSave">
+        <input type="checkbox" id="autoSave" checked>
         <label for="autoSave">変更のたびに自動保存</label>
       </div>
       <button id="wipeAll" class="ktl-btn ktl-btn-warn" style="margin-left:auto">全データ削除（この端末）</button>
@@ -145,15 +149,8 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
     <div class="ktl-tableWrap">
       <table id="listTable" class="ktl-list">
         <colgroup>
-          <col style="width:5%"><!-- # -->
-          <col style="width:13%"><!-- 日付 -->
-          <col style="width:10%"><!-- 時刻 -->
-          <col style="width:12%"><!-- 種別 -->
-          <col style="width:12%"><!-- 関与者 -->
-          <col style="width:12%"><!-- 場所 -->
-          <col style="width:24%"><!-- 内容 -->
-          <col style="width:12%"><!-- 証拠 -->
-          <col style="width:10%"><!-- 操作 -->
+          <col style="width:5%"><col style="width:13%"><col style="width:10%"><col style="width:12%">
+          <col style="width:12%"><col style="width:12%"><col style="width:24%"><col style="width:12%"><col style="width:10%">
         </colgroup>
         <thead><tr>
           <th>#</th><th>日付</th><th>時刻</th><th>種別</th><th>関与者</th><th>場所</th><th>内容（事実）</th><th>証拠</th><th>操作</th>
@@ -190,7 +187,7 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
 
 </div>
 
-<!-- 印刷用シート（@media print でのみ表示。二重出力防止済み） -->
+<!-- 印刷用シート（@media print でのみ表示。重複出力なし） -->
 <div id="PRINT_SHEET"></div>
 
 <!-- 編集ダイアログ -->
@@ -223,13 +220,12 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
   "use strict";
   const $=id=>document.getElementById(id);
 
-  /* ====== 保存キー ====== */
-  const KEY_MAIN="KAWAI_TIMELINE_CASESAFE_DESKTOP_V1";
+  /* ====== テスト用：保存キーは本番と分離 ====== */
+  const KEY_MAIN="KAWAI_TIMELINE_CASESAFE_DESKTOP_TEST_V1";
   const KEY_BACKUP=KEY_MAIN+"_BACKUP";
   const S={cases:{},order:[],current:"",meta:{updatedAt:Date.now()}};
   let storeOK=false, DIRTY=false;
 
-  /* ====== util ====== */
   try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){ storeOK=false; }
   const safeParse=s=>{ try{return JSON.parse(s);}catch(_){return null;} };
   const today=()=> new Date().toISOString().slice(0,10);
@@ -256,7 +252,7 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
     return true;
   }
   function ensureDefault(){
-    if(!S.order.length){ const n="案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; }
+    if(!S.order.length){ const n="テスト案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; }
   }
   function fillCaseSelect(){
     const sel=$("caseSelect"); sel.innerHTML="";
@@ -339,34 +335,24 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
 
   /* ====== 印刷（重複防止仕様） ====== */
   $("printBtn").onclick=()=>{
-    // 1) 印刷用シートを都度クリアして、単一の印刷テーブルのみ生成
     const ps=$("PRINT_SHEET"); ps.innerHTML="";
-    // 2) 現在の並び順でデータ収集（画面と同一ロジック）
     const list=events().slice().sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
     if(!list.length){ alert("印刷できる行がありません。"); return; }
 
-    // 3) 印刷用の見出し＋案件名＋日付
     const wrap=document.createElement("div");
     wrap.innerHTML = `
       <div style="margin:0 0 8px 0">
         <div style="font-weight:700;font-size:16px">時系列一覧</div>
         <div style="font-size:12px;color:#333">案件：<span id="p-case"></span>　作成：${new Date().toLocaleString()}</div>
-      </div>
-    `;
+      </div>`;
     wrap.querySelector("#p-case").textContent = S.current || "";
 
-    // 4) 印刷テーブルを構築（操作列は含めない）
     const table=document.createElement("table");
     const thead=document.createElement("thead");
     thead.innerHTML = `<tr>
-      <th style="width:5%">#</th>
-      <th style="width:13%">日付</th>
-      <th style="width:10%">時刻</th>
-      <th style="width:12%">種別</th>
-      <th style="width:12%">関与者</th>
-      <th style="width:12%">場所</th>
-      <th style="width:24%">内容（事実）</th>
-      <th style="width:12%">証拠</th>
+      <th style="width:5%">#</th><th style="width:13%">日付</th><th style="width:10%">時刻</th>
+      <th style="width:12%">種別</th><th style="width:12%">関与者</th><th style="width:12%">場所</th>
+      <th style="width:24%">内容（事実）</th><th style="width:12%">証拠</th>
     </tr>`;
     table.appendChild(thead);
 
@@ -377,27 +363,36 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
       const tdPre=(t)=>{ const d=document.createElement("td"); d.className="pre"; d.textContent=t||""; return d; };
       tr.append(
         td(String(i+1)),
-        td(e.date||""),
-        td(e.time||""),
-        td(e.type||""),
-        td(e.actor||""),
-        td(e.place||""),
-        tdPre(e.fact||""),
-        td(e.evidence||"")
+        td(e.date||""), td(e.time||""), td(e.type||""),
+        td(e.actor||""), td(e.place||""),
+        tdPre(e.fact||""), td(e.evidence||"")
       );
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
     wrap.appendChild(table);
-
-    // 5) シートに挿入（@media print で #ktl-app は非表示になるため二重には出ません）
     ps.appendChild(wrap);
 
-    // 6) 印刷ダイアログ
     window.print();
+  };
 
-    // 7) 後片付け（任意）：印刷後も画面側を復元するだけ
-    // ps.innerHTML = ""; ←残しておいても印刷時以外は display:none のため画面には出ません
+  /* ====== テスト用：データ投入・削除 ====== */
+  function seedTestData(){
+    const n = "テスト案件A_"+today();
+    S.cases={};
+    S.cases[n]=[
+      {date:today(), time:"10:00", type:"連絡", actor:"相手方", place:"LINE",
+       fact:"支払い期日の確認を依頼。既読あり。", evidence:"LINEスクショ（本日）"}
+    ];
+    S.order=[n]; S.current=n;
+    persist(); fillCaseSelect(); render();
+    alert("テストデータを投入しました。印刷プレビューで“1行のみ・重複なし”をご確認ください。");
+  }
+  $("seedBtn").onclick=seedTestData;
+  $("clearTest").onclick=()=>{ if(!confirm("テスト用の保存データを削除します。よろしいですか？")) return;
+    try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); }catch(e){}
+    S.cases={}; S.order=[]; S.current=""; ensureDefault(); persist(); fillCaseSelect(); render();
+    alert("テスト用データを削除しました。");
   };
 
   /* ====== 初期化 ====== */
@@ -405,11 +400,9 @@ table.ktl-list tbody td{padding:8px 8px;vertical-align:top;border:0}
     if(!load()) ensureDefault();
     fillCaseSelect(); render();
     $("evDate").value=today();
-    $("autoSave").checked = (localStorage.getItem("__autosave__") === "1");
-    $("autoSave").addEventListener("change",()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
   })();
 
-  /* ====== エラー表示（開発用軽メッセージ） ====== */
+  /* ====== 軽いエラーハンドリング ====== */
   window.addEventListener("error", e=>{
     if(!e || e.message==="Script error." || !e.error) return;
     const el=$("inlineError"); if(el){ el.textContent="エラー: " + (e.error?.message || e.message); el.style.display="block"; }
