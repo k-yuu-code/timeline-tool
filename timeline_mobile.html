@@ -2,778 +2,588 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 安定版）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>
-/* ===== 基本トークン ===== */
-#ktl-app{ --bg:#f7f8fb; --b:#111; --m:#666; --bd:#dcdfea; --acc:#0a58cc;
-          --th:#eef2fb; --td:#fff; --grid-color:#000; --field:#cfd3e2; }
-#ktl-app, #ktl-app *{ box-sizing:border-box; }
-html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;}
-.ktl-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02);overflow:hidden}
-.ktl-muted{color:var(--m)}
-#ktl-app .ver{font-size:12px;color:#666;margin-left:8px}
-
-/* ラベル（checkbox 除く） */
-#ktl-app label{display:block;margin:6px 0 4px;font-weight:600}
-#ktl-app label > input:not([type="checkbox"]),#ktl-app label > select,#ktl-app label > textarea{ display:block; margin-top:6px; width:100%; }
-
-/* 自動保存（チェックと文言を横並び） */
-.ktl-checkRow{ display:flex; align-items:center; gap:8px; margin:2px 0 0; }
-.ktl-checkRow input[type="checkbox"]{ width:20px; height:20px; margin:0; }
-.ktl-checkRow label{ margin:0; font-weight:700; }
-
-/* 入力コントロール（共通） */
-#ktl-app input[type="text"], #ktl-app input[type="date"], #ktl-app input[type="time"], #ktl-app select{
-  width:100%; max-width:100%; font-size:16px; line-height:1.25;
-  padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
-  min-height:44px; height:44px; -webkit-appearance:none; appearance:none;
+/* ===================== 共通トークン ===================== */
+:root{
+  --bg:#f7f8fb; --txt:#111; --muted:#666; --bd:#dcdfea; --bd-strong:#9aa4c8;
+  --accent:#0a58cc; --th:#eef2fb; --td:#fff; --grid:#000;
+  --ctl-h:42px; --radius:10px; --pad:12px; --line:1.4px; --gap:10px;
 }
-#ktl-app textarea{
-  width:100%; max-width:100%; font-size:16px; line-height:1.5;
-  padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff; min-height:120px; resize:vertical;
-}
-/* フォーム側：関与者／場所／証拠 */
-#evActor,#evPlace,#evEvidence{ font-size:16px; min-height:44px; height:44px; }
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; background:var(--bg); color:var(--txt);
+  -webkit-text-size-adjust:100%;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif; }
+.container{ max-width:960px; margin:12px auto 60px; padding:0 12px; }
+.card{ background:#fff; border:1px solid var(--bd); border-radius:12px; padding:12px 14px; margin:10px 0; box-shadow:0 1px 0 rgba(10,10,20,.02); }
+.muted{ color:var(--muted); }
+.ver{ font-size:12px; color:#666; margin-left:6px; }
 
-/* カレンダー/時計アイコン（線画） */
-.ktl-dateWrap,.ktl-timeWrap{ position:relative; }
-.ktl-dateWrap input,.ktl-timeWrap input{ padding-right:38px; }
-.ktl-dateWrap::after,.ktl-timeWrap::after{
-  content:""; position:absolute; right:10px; top:52%; transform:translateY(-50%);
-  width:16px; height:16px; pointer-events:none; opacity:.9; background-repeat:no-repeat; background-position:center; background-size:16px 16px;
+/* 見出し */
+h1,h2{ margin:0 0 8px; }
+h1{ font-size:18px; }
+h2{ font-size:16px; }
+
+/* ラベルとコントロール（統一） */
+label{ display:block; margin:6px 0 4px; font-weight:600; }
+input[type="text"], input[type="date"], input[type="time"], select{
+  width:100%; height:var(--ctl-h); font-size:16px; line-height:1.25;
+  padding:0 var(--pad); color:var(--txt); background:#fff;
+  border:var(--line) solid var(--bd-strong); border-radius:var(--radius);
+  -webkit-appearance:none; appearance:none;
 }
-.ktl-dateWrap::after{
-  background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>");
-}
-.ktl-timeWrap::after{
-  background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
+textarea{
+  width:100%; min-height:120px; font-size:16px; line-height:1.45;
+  padding:var(--pad); color:var(--txt); background:#fff;
+  border:var(--line) solid var(--bd-strong); border-radius:var(--radius);
+  resize:vertical;
 }
 
-/* ▼ 案件（ラベル＋セレクト横並び） */
-.ktl-caseRow1{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; }
-.ktl-caseRow1 > label{ margin:0; font-weight:700; white-space:nowrap; }
-.ktl-combo{ position:relative; width:100%; max-width:100%; }
-#caseSelect{
-  width:100%; padding-right:40px !important; -webkit-appearance:none !important; appearance:none !important;
-  background-color:#fff !important;
-  background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") !important;
-  background-repeat:no-repeat !important; background-position:right 10px center !important; background-size:16px 16px !important;
+/* 日付/時刻のアイコン（線画） */
+.wrap-date, .wrap-time{ position:relative; }
+.wrap-date input, .wrap-time input{ padding-right:40px; }
+.wrap-date::after, .wrap-time::after{
+  content:""; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  width:16px; height:16px; opacity:.9; pointer-events:none; background-repeat:no-repeat; background-position:center; background-size:16px;
+}
+.wrap-date::after{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>"); }
+.wrap-time::after{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>"); }
+
+/* セレクトの矢印（案件・種別 共通） */
+select.arrow{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat:no-repeat; background-position:right 10px center; background-size:16px;
+  padding-right:40px;
 }
 
-/* ▼ 2行目（案件ボタン群） */
-.ktl-caseRow2{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
-
-/* ▼ 種別セレクト矢印（フォーム＆編集） */
-.ktl-selectWrap select{
-  -webkit-appearance:none !important; appearance:none !important; padding-right:36px !important;
-  background-color:#fff !important;
-  background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") !important;
-  background-repeat:no-repeat !important; background-position:right 10px center !important; background-size:16px 16px !important;
-}
+/* チェック＋文言 横並び */
+.checkRow{ display:flex; align-items:center; gap:8px; }
+.checkRow input{ width:20px; height:20px; }
 
 /* ボタン */
-.ktl-btn{padding:9px 12px;border:1px solid #333;border-radius:10px;background:#fff;cursor:pointer;font-size:15px;white-space:nowrap}
-.ktl-btn-plain{border:1px solid #999}
-.ktl-btn-warn{border-color:#b11;color:#b11}
-.ktl-btn-primary{border-color:var(--acc);color:var(--acc);font-weight:700}
+.btn{ height:var(--ctl-h); padding:0 12px; border:1px solid #333; background:#fff; border-radius:var(--radius); font-size:15px; cursor:pointer; }
+.btn-plain{ border-color:#999; }
+.btn-warn{ border-color:#b11; color:#b11; }
+.btn-primary{ border-color:var(--accent); color:var(--accent); font-weight:700; }
 
-/* ===== 一覧（画面） ===== */
-.ktl-tableWrap{position:relative;padding:0;margin:0;overflow-x:hidden}
-table.ktl-list{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td);position:relative;z-index:1;margin:0;border:0}
-table.ktl-list thead th{text-align:left;padding:6px 6px;font-weight:700;border:0;background:var(--th)}
-table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
-#ktl-app table.ktl-list th,#ktl-app table.ktl-list td{
-  white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto; line-height:1.28 !important; font-size:11px !important; min-width:0;max-width:100%;
-}
-.ktl-2lines{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal !important; line-height:1.28 !important; overflow-wrap:anywhere; word-break:break-word; }
-.ktl-list td:nth-child(8){ word-break:break-all; }
-.ktl-list th:nth-child(1), .ktl-list td:nth-child(1){ text-align:center }
-.ktl-list tbody td:nth-child(1){ vertical-align:middle }
-table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
-.ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
-.ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
+/* 案件 行 */
+.caseRow1{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; }
+.caseRow1 > label{ margin:0; white-space:nowrap; }
+.caseRow2{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
 
-/* 操作ボタン（さらに小型） */
-.ktl-list td:last-child{ padding:3px; overflow:hidden; text-align:center; }
-.ktl-actions{ display:flex; flex-direction:column; gap:3px; align-items:center; justify-content:center; min-width:0; }
-.ktl-actions .ktl-btn{
-  writing-mode: vertical-rl; text-orientation: upright;
-  display:inline-flex; align-items:center; justify-content:center;
-  min-height:40px; min-width:14px; padding:2px 1px;
-  font-size:8px; line-height:1; letter-spacing:.06em; border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip; transform:translateZ(0);
-}
+/* 一覧 */
+.tableWrap{ position:relative; overflow-x:hidden; }
+table.list{ width:100%; border-collapse:collapse; table-layout:fixed; background:var(--td); }
+table.list thead th{ background:var(--th); padding:6px; font-weight:700; }
+table.list tbody td{ padding:6px; vertical-align:top; }
+table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break-word; overflow-wrap:anywhere; }
+.list th:nth-child(1), .list td:nth-child(1){ text-align:center; }
+.list td:nth-child(1){ vertical-align:middle; }
+.pre{ white-space:pre-wrap !important; }
+
+/* 日付は2行クランプ */
+.clamp2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+/* 操作列（小型の縦書きボタン） */
+.list td:last-child{ padding:3px; text-align:center; }
+.actions{ display:flex; flex-direction:column; gap:4px; align-items:center; }
+.actions .btn{ writing-mode:vertical-rl; text-orientation:upright; min-width:14px; min-height:40px; padding:2px 1px; font-size:8px; letter-spacing:.06em; }
 
 /* 見出しとPDFボタン */
-.ktl-cardHead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
 
 /* 2列グリッド（フォーム） */
-.ktl-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
-.ktl-grid .ktl-col2{grid-column:1 / -1}
+.grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--gap); }
+.grid .span2{ grid-column:1 / -1; }
 
-/* カウンタ（内容の直下） */
-.ktl-counter{display:block;margin:6px 0 0 2px;font-size:13px;color:#666}
-#pdfStatus{margin-top:6px;font-size:13px;color:#333;line-height:1.4}
-#pdfStatus a{color:#0a58cc;text-decoration:underline}
-#PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
+/* 文字カウンタ */
+.counter{ display:block; margin:6px 0 0 2px; font-size:13px; color:#666; }
 
-/* メモ枠：削除ボタンを右寄せ */
-#memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:10px; }
+/* PDFメッセージ */
+#pdfStatus{ margin-top:6px; font-size:13px; color:#333; }
 
-/* ===== 編集ダイアログ（無スクロール・自動縮小） ===== */
-#editDlg{
+/* 罫線レイヤ */
+.gridlayer{ position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }
+.gridlayer svg{ width:100%; height:100%; display:block; shape-rendering:crispEdges; }
+
+/* メモ枠：削除ボタンは右端へ */
+.rightEnd{ display:flex; justify-content:flex-end; margin-top:8px; }
+
+/* ============ 編集ダイアログ（安定版） ============ */
+dialog#editDlg{
   padding:0; border:0; border-radius:14px;
-  inset:auto;                               /* 既定位置に任せる */
-  width:auto; max-width:92dvw;              /* 動的vw */
-  max-height:90dvh;                         /* 動的vh */
-  overflow:hidden;                          /* 中で隠す */
+  width:min(92vw, 520px); max-height:90dvh; overflow:hidden;
 }
-#editDlg::backdrop{ background:rgba(0,0,0,.35); }
-#editDlg .ktl-dlgHead{ padding:8px 12px; border-bottom:1px solid #eee; font-weight:700; font-size:16px; }
-#editDlg .ktl-dlgBody{ padding:8px 10px; }
-#editDlg .ktl-dlgFoot{ padding:8px 10px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
+dialog#editDlg::backdrop{ background:rgba(0,0,0,.35); }
+#edHead{ padding:10px 12px; border-bottom:1px solid #eee; font-weight:700; font-size:16px; }
+#edBody{ padding:10px 12px; max-height:calc(90dvh - 96px); overflow:auto; }
+#edFoot{ padding:10px 12px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
 
-/* 実際に縮小する要素（本文全体をラップ） */
-#editDlg .ktl-dlgScale{ transform-origin: top center; }
-#editDlg .ktl-dlgScale .ktl-grid{ grid-template-columns:1fr 1fr; gap:8px; }
+/* 編集フォームは1カラム（崩れない・はみ出さない） */
+#edBody .grid{ grid-template-columns:1fr; gap:8px; }
+#edBody input[type="text"], #edBody input[type="date"], #edBody input[type="time"], #edBody select{
+  height:var(--ctl-h); border:var(--line) solid var(--bd-strong); border-radius:var(--radius); padding:0 var(--pad);
+}
+#edBody textarea{ min-height:96px; max-height:140px; border:var(--line) solid var(--bd-strong); }
 
-/* フィールドの枠線を見やすく */
-#editDlg input[type="text"], #editDlg input[type="date"], #editDlg input[type="time"], #editDlg select{
-  width:100%; font-size:16px; line-height:1.2;
-  padding:8px 10px; background:#fff; color:#111;
-  border:1.5px solid #9aa4c8; border-radius:10px; min-height:36px; height:36px; -webkit-appearance:none; appearance:none;
+/* 小画面での安全マージン */
+@media (max-width:360px){
+  :root{ --ctl-h:40px; }
 }
-#editDlg textarea{
-  width:100%; font-size:16px; line-height:1.35;
-  padding:8px 10px; background:#fff; border:1.5px solid #9aa4c8; border-radius:10px; min-height:68px; max-height:84px; resize:vertical;
-}
+
+/* PDF/印刷レイヤ */
+#PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
 </style>
 </head>
 
 <body>
-<div id="ktl-app" style="max-width:960px;margin:12px auto 60px;padding:0 12px;">
+<div class="container" id="app">
 
   <!-- ▼ 時系列メモ -->
-  <div class="ktl-card" id="memoCard">
-    <h1 style="margin:0 0 6px;font-size:18px">相談準備用・時系列メモ（送信されません）
-      <span class="ver">V10 r54</span>
-    </h1>
-    <div class="ktl-checkRow">
-      <input type="checkbox" id="autoSave">
-      <label for="autoSave">変更のたびに自動保存</label>
+  <div class="card">
+    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54</span></h1>
+    <div class="checkRow">
+      <input id="autoSave" type="checkbox"><label for="autoSave">変更のたびに自動保存</label>
     </div>
-    <p class="ktl-muted" style="line-height:1.6;font-size:14px;margin-top:8px">
+    <p class="muted" style="line-height:1.6;font-size:14px;margin-top:8px">
       入力は<strong>この端末のブラウザにのみ保存</strong>され、<strong>外部には送信されません</strong>。
     </p>
-    <div class="ktl-bottomRight">
-      <button id="wipeAll" class="ktl-btn ktl-btn-warn">全データ削除（この端末）</button>
+    <div class="rightEnd">
+      <button id="wipeAll" class="btn btn-warn">全データ削除（この端末）</button>
     </div>
   </div>
 
   <!-- ▼ 案件 -->
-  <div class="ktl-card">
-    <div class="ktl-caseRow1">
+  <div class="card">
+    <div class="caseRow1">
       <label for="caseSelect">案件：</label>
-      <div class="ktl-combo"><select id="caseSelect"></select></div>
+      <div><select id="caseSelect" class="arrow"></select></div>
     </div>
-    <div class="ktl-caseRow2">
-      <button id="newCase" class="ktl-btn ktl-btn-plain">新規案件</button>
-      <button id="renameCase" class="ktl-btn ktl-btn-plain">名前変更</button>
-      <button id="dupCase"   class="ktl-btn ktl-btn-plain">複製</button>
-      <button id="deleteCase" class="ktl-btn ktl-btn-warn">案件削除</button>
+    <div class="caseRow2">
+      <button id="newCase" class="btn btn-plain">新規案件</button>
+      <button id="renameCase" class="btn btn-plain">名前変更</button>
+      <button id="dupCase"   class="btn btn-plain">複製</button>
+      <button id="deleteCase" class="btn btn-warn">案件削除</button>
     </div>
   </div>
 
   <!-- ▼ 一覧 -->
-  <div class="ktl-card">
-    <div class="ktl-cardHead">
-      <h2 style="margin:0;font-size:16px">時系列一覧</h2>
+  <div class="card">
+    <div class="head">
+      <h2>時系列一覧</h2>
       <div>
-        <button id="pdfBtn" class="ktl-btn ktl-btn-primary">PDF</button>
+        <button id="pdfBtn" class="btn btn-primary">PDF</button>
         <div id="pdfStatus"></div>
       </div>
     </div>
-    <div class="ktl-tableWrap" id="tableWrap">
-      <div class="ktl-gridlayer" id="gridlayer"><svg></svg></div>
-      <table id="listTable" class="ktl-list">
+
+    <div class="tableWrap" id="tableWrap">
+      <div class="gridlayer"><svg></svg></div>
+      <table class="list" id="listTable">
         <colgroup>
           <!-- #5 / 日付17 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作8 -->
           <col style="width:5%"><col style="width:17%"><col style="width:9%"><col style="width:11%">
           <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:8%">
         </colgroup>
         <thead><tr>
-          <th data-field="index">#</th><th data-field="date">日付</th><th data-field="time">時刻</th><th data-field="type">種別</th>
-          <th data-field="actor">関与者</th><th data-field="place">場所</th><th data-field="fact">内容（事実）</th>
-          <th data-field="evidence">証拠</th><th data-field="actions" data-pdf="0">操作</th>
+          <th data-field="index">#</th>
+          <th data-field="date">日付</th>
+          <th data-field="time">時刻</th>
+          <th data-field="type">種別</th>
+          <th data-field="actor">関与者</th>
+          <th data-field="place">場所</th>
+          <th data-field="fact">内容（事実）</th>
+          <th data-field="evidence">証拠</th>
+          <th data-field="actions" data-pdf="0">操作</th>
         </tr></thead>
-        <tbody id="listBody"><tr><td colspan="9" class="ktl-muted">まだ追加がありません</td></tr></tbody>
+        <tbody id="listBody"><tr><td colspan="9" class="muted">まだ追加がありません</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <!-- ▼ 追加フォーム -->
-  <div class="ktl-card">
-    <h2 style="font-size:16px">出来事の追加</h2>
-    <div class="ktl-grid">
-      <div><label class="ktl-dateWrap">発生日（開始）<input id="evDate" type="date" placeholder="yyyy/mm/dd"></label></div>
-      <div><label class="ktl-timeWrap">発生時刻（任意）<input id="evTime" type="time"></label></div>
-      <div><label class="ktl-selectWrap">種別
-        <select id="evType">
+  <div class="card">
+    <h2>出来事の追加</h2>
+    <div class="grid">
+      <div><label class="wrap-date">発生日（開始）<input id="evDate" type="date" placeholder="yyyy/mm/dd"></label></div>
+      <div><label class="wrap-time">発生時刻（任意）<input id="evTime" type="time"></label></div>
+      <div><label>種別
+        <select id="evType" class="arrow">
           <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
           <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
         </select>
       </label></div>
-      <div><label>関与者（誰が）<input id="evActor" placeholder="例：相手方／自分／子"></label></div>
-      <div><label>場所（任意）<input id="evPlace" placeholder="例：自宅／職場／LINE"></label></div>
-      <div><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" placeholder="例：スクショ（2025-05-10）"></label></div>
-      <div class="ktl-col2">
+      <div><label>関与者（誰が）<input id="evActor" type="text" placeholder="例：相手方／自分／子"></label></div>
+      <div><label>場所（任意）<input id="evPlace" type="text" placeholder="例：自宅／職場／LINE"></label></div>
+      <div><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" type="text" placeholder="例：スクショ（2025-05-10）"></label></div>
+      <div class="span2">
         <label>内容（事実ベース・140字まで）<textarea id="evFact" maxlength="140"></textarea></label>
-        <small id="counter" class="ktl-counter">0/140</small>
+        <small id="counter" class="counter">0/140</small>
       </div>
-      <div class="ktl-col2" style="margin-top:6px; display:flex; gap:8px; align-items:center; justify-content:flex-end;">
-        <button id="addBtn" class="ktl-btn ktl-btn-primary">＋ この内容を追加</button>
+      <div class="span2" style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="addBtn" class="btn btn-primary">＋ この内容を追加</button>
       </div>
-      <div class="ktl-col2" style="margin-top:4px; display:flex; gap:8px; align-items:center; justify-content:flex-end;">
-        <button id="saveNow" class="ktl-btn ktl-btn-primary">保存（この端末）</button>
-        <span id="unsaved" class="ktl-muted" style="display:none;">● 未保存あり</span>
+      <div class="span2" style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="saveNow" class="btn btn-primary">保存（この端末）</button>
+        <span id="unsaved" class="muted" style="display:none;">● 未保存あり</span>
       </div>
     </div>
-    <div id="inlineError" class="ktl-muted" style="color:#b11;margin-top:6px;"></div>
+    <div id="inlineError" class="muted" style="color:#b11;margin-top:6px;"></div>
   </div>
+
 </div>
 
+<!-- 印刷レイヤ -->
 <div id="PRINT_SHEET"></div>
 
-<!-- ▼ 編集ダイアログ（本文を .ktl-dlgScale で縮小） -->
+<!-- 編集ダイアログ（はみ出し無し・1カラム） -->
 <dialog id="editDlg">
-  <div class="ktl-dlgHead">編集</div>
-  <div class="ktl-dlgBody">
-    <div class="ktl-dlgScale">
-      <div class="ktl-grid">
-        <div><label class="ktl-dateWrap">発生日<input id="edDate" type="date"></label></div>
-        <div><label class="ktl-timeWrap">時刻<input id="edTime" type="time"></label></div>
-        <div><label class="ktl-selectWrap">種別
-          <select id="edType">
-            <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
-            <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
-          </select>
-        </label></div>
-        <div><label>関与者<input id="edActor"></label></div>
-        <div><label>場所<input id="edPlace"></label></div>
-        <div><label>証拠<input id="edEvidence"></label></div>
-        <div class="ktl-col2"><label>内容<textarea id="edFact" maxlength="140"></textarea></label></div>
-      </div>
+  <div id="edHead">編集</div>
+  <div id="edBody">
+    <div class="grid">
+      <div><label class="wrap-date">発生日<input id="edDate" type="date"></label></div>
+      <div><label class="wrap-time">時刻<input id="edTime" type="time"></label></div>
+      <div><label>種別
+        <select id="edType" class="arrow">
+          <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
+          <option>滞納</option><option>登記</option><option>DV</option><option>その他</option>
+        </select>
+      </label></div>
+      <div><label>関与者<input id="edActor" type="text"></label></div>
+      <div><label>場所<input id="edPlace" type="text"></label></div>
+      <div><label>証拠<input id="edEvidence" type="text"></label></div>
+      <div class="span2"><label>内容<textarea id="edFact" maxlength="140"></textarea></label></div>
     </div>
   </div>
-  <div class="ktl-dlgFoot">
-    <button id="editSave" class="ktl-btn ktl-btn-primary">保存</button>
-    <button id="editCancel" class="ktl-btn ktl-btn-plain">キャンセル</button>
+  <div id="edFoot">
+    <button id="editSave" class="btn btn-primary">保存</button>
+    <button id="editCancel" class="btn btn-plain">キャンセル</button>
   </div>
 </dialog>
 
 <script>
 (function(){
   "use strict";
-  var $=function(id){ return document.getElementById(id); };
+  const $ = (id)=>document.getElementById(id);
 
-  /* ====== 保存キー & 状態 ====== */
-  var KEY_MAIN   ="KAWAI_TIMELINE_CASESAFE_V1";
-  var KEY_BACKUP = KEY_MAIN + "_BACKUP";
-  var KEY_SNAP   = KEY_MAIN + "_SNAPSHOTS";
-  var SNAP_MAX   = 5;
-  var SNAP_MINT  = 60*1000;
+  /* ============== ストア ============== */
+  const KEY_MAIN   ="KAWAI_TIMELINE_CASESAFE_V1";
+  const KEY_BACKUP = KEY_MAIN + "_BACKUP";
+  const KEY_SNAP   = KEY_MAIN + "_SNAPSHOTS";
+  const SNAP_MAX=5, SNAP_MINT=60*1000;
+  let storeOK=false; try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){}
 
-  var S={cases:{},order:[],current:"",meta:{v:"r54",updatedAt:Date.now()}};
-  var storeOK=false, LAST_SNAP_AT=0;
+  const S={cases:{},order:[],current:"",meta:{v:"r54",updatedAt:Date.now()}};
+  const today = ()=> new Date().toISOString().slice(0,10);
+  const nowStr=()=>{ const d=new Date(),p=n=>String(n).padStart(2,'0'); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes()); };
 
-  var today = function(){ return new Date().toISOString().slice(0,10); };
-  var nowStr=function(){ var d=new Date(),p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes()); };
+  const parse=(s)=>{ try{return JSON.parse(s);}catch(_){return null;} };
+  const valid=(o)=> o && typeof o==="object" && o.cases && typeof o.cases==="object";
 
-  try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){ storeOK=false; }
-
-  var safeParse=function(str){ try{ return JSON.parse(str); }catch(_){ return null; } };
-  var isValidStore=function(o){
-    if(!o || typeof o!=="object" || !o.cases || typeof o.cases!=="object") return false;
-    if(!Array.isArray(o.order)) o.order=Object.keys(o.cases);
-    return true;
-  };
-  var eventsTotal=function(o){
-    try{
-      var n=0, k, a;
-      for(k in (o.cases||{})){ a=o.cases[k]; if(Array.isArray(a)) n+=a.length; }
-      return n;
-    }catch(_){ return 0; }
-  };
+  const total=(o)=>{ try{ let n=0; for(const k of Object.keys(o.cases||{})){ const a=o.cases[k]; if(Array.isArray(a)) n+=a.length; } return n; }catch(_){ return 0; } };
 
   function persist(){
     if(!storeOK) return;
     try{
-      S.meta = {v:"r54", updatedAt: Date.now(), total: eventsTotal(S)};
-      var str=JSON.stringify(S);
-      localStorage.setItem(KEY_MAIN, str);
-      localStorage.setItem(KEY_BACKUP, str);
-      if(Date.now()-LAST_SNAP_AT >= SNAP_MINT){
-        LAST_SNAP_AT=Date.now();
-        var snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
-        if(str.length < 400000){
-          snaps.push({t: Date.now(), d: str});
-          while(snaps.length > SNAP_MAX) snaps.shift();
-          localStorage.setItem(KEY_SNAP, JSON.stringify(snaps));
-        }
+      S.meta={v:"r54",updatedAt:Date.now(),total:total(S)};
+      const str=JSON.stringify(S);
+      localStorage.setItem(KEY_MAIN,str);
+      localStorage.setItem(KEY_BACKUP,str);
+      const last=parse(localStorage.getItem(KEY_SNAP))||[];
+      const now=Date.now(); const prev=Number(localStorage.getItem(KEY_SNAP+"_t"))||0;
+      if(now-prev>=SNAP_MINT && str.length<400000){
+        last.push({t:now,d:str}); while(last.length>SNAP_MAX) last.shift();
+        localStorage.setItem(KEY_SNAP,JSON.stringify(last)); localStorage.setItem(KEY_SNAP+"_t",String(now));
       }
     }catch(e){}
   }
-
-  function loadFromStr(str){
-    var o=safeParse(str); if(!isValidStore(o)) return false;
-    S.cases=o.cases; S.order=o.order||Object.keys(o.cases);
-    S.current=(o.current&&o.cases[o.current])?o.current:(S.order[0]||"");
-    S.meta=o.meta||{v:"r54",updatedAt:Date.now()};
-    normalizeOrder(); return true;
+  function loadAll(){
+    const m=parse(localStorage.getItem(KEY_MAIN));
+    if(valid(m)){ Object.assign(S,m); norm(); return true; }
+    const b=parse(localStorage.getItem(KEY_BACKUP));
+    if(valid(b)){ Object.assign(S,b); norm(); return true; }
+    const sn=parse(localStorage.getItem(KEY_SNAP))||[]; if(sn.length){ const last=parse(sn[sn.length-1].d); if(valid(last)){ Object.assign(S,last); norm(); return true; } }
+    return false;
   }
-
-  function tryLoadAll(){
-    if(storeOK){
-      var mainStr=localStorage.getItem(KEY_MAIN);
-      if(mainStr && loadFromStr(mainStr)) return "main";
-      var bkStr=localStorage.getItem(KEY_BACKUP);
-      if(bkStr && loadFromStr(bkStr)) return "backup";
-      var snaps = safeParse(localStorage.getItem(KEY_SNAP)) || [];
-      if(snaps.length){
-        var last=snaps[snaps.length-1];
-        if(last && last.d && loadFromStr(last.d)) return "snapshot";
-      }
-    }
-    return "";
+  function norm(){
+    const names=Object.keys(S.cases||{});
+    const seen=new Set(); const out=[];
+    (S.order||[]).forEach(n=>{ if(names.includes(n)&&!seen.has(n)){ out.push(n); seen.add(n);} });
+    names.forEach(n=>{ if(!seen.has(n)) out.push(n); });
+    S.order=out; if(!S.current || !S.cases[S.current]) S.current=out[0]||"";
   }
-
-  function normalizeOrder(){
-    var names=Object.keys(S.cases);
-    var seen={}, i, out=[];
-    for(i=0;i<(S.order||[]).length;i++){
-      var n=S.order[i];
-      if(names.indexOf(n)!==-1 && !seen[n]){ out.push(n); seen[n]=true; }
-    }
-    for(i=0;i<names.length;i++){
-      var nm=names[i];
-      if(!seen[nm]){ out.push(nm); seen[nm]=true; }
-    }
-    S.order=out;
-  }
-
   function ensureDefault(){
-    if(!S.order.length){
-      var n="案件A_"+today();
-      S.cases[n]=[]; S.order=[n]; S.current=n;
-    }
+    if(!S.order.length){ const n="案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; }
   }
+  const evts=()=> S.cases[S.current]||(S.cases[S.current]=[]);
 
-  function events(){ return S.cases[S.current]||(S.cases[S.current]=[]); }
-
-  function fillCaseSelect(){
-    var sel=$("caseSelect"); if(!sel) return;
-    sel.innerHTML="";
-    for(var i=0;i<S.order.length;i++){
-      var n=S.order[i];
-      var op=document.createElement("option"); op.value=n; op.textContent=n;
-      if(n===S.current) op.selected=true;
-      sel.appendChild(op);
-    }
+  /* ============== UI バインド ============== */
+  function fillCases(){
+    const sel=$("caseSelect"); sel.innerHTML="";
+    S.order.forEach(n=>{ const op=document.createElement("option"); op.value=n; op.textContent=n; if(n===S.current) op.selected=true; sel.appendChild(op); });
   }
+  $("caseSelect").addEventListener("change",e=>{ const v=e.target.value; if(S.cases[v]){ S.current=v; persist(); render(); } });
 
-  function cellText(t,cls){ var x=document.createElement("td"); if(cls) x.className=cls; x.textContent=t||""; return x; }
-  function cell2lines(t){ var td=document.createElement("td"); var sp=document.createElement("span"); sp.className="ktl-2lines"; sp.textContent=t||""; td.appendChild(sp); return td; }
+  function trCell(txt,cls){ const td=document.createElement("td"); if(cls) td.className=cls; td.textContent=txt||""; return td; }
+  function trDate(txt){ const td=document.createElement("td"); const span=document.createElement("span"); span.className="clamp2"; span.textContent=txt||""; td.appendChild(span); return td; }
 
   function render(){
-    var tbody=$("listBody"); if(!tbody) return;
-    tbody.innerHTML="";
-    var arr=events().slice().map(function(ev,idx){return {ev:ev, idx:idx};})
-      .sort(function(a,b){ return ((a.ev.date||"")+(a.ev.time||"")).localeCompare((b.ev.date||"")+(b.ev.time||"")); });
-    if(!arr.length){
-      var tr=document.createElement("tr"); var td=document.createElement("td");
-      td.colSpan=9; td.className="ktl-muted"; td.textContent="まだ追加がありません";
-      tr.appendChild(td); tbody.appendChild(tr); drawGrid(); return;
-    }
-    arr.forEach(function(item,i){
-      var e=item.ev; var tr=document.createElement("tr");
-      tr.appendChild(cellText(i+1));
-      tr.appendChild(cell2lines(e.date));
-      tr.appendChild(cellText(e.time,"ktl-nowrap"));
-      tr.appendChild(cellText(e.type));
-      tr.appendChild(cellText(e.actor));
-      tr.appendChild(cellText(e.place));
-      tr.appendChild(cellText(e.fact,"ktl-pre"));
-      tr.appendChild(cellText(e.evidence));
-      var tdAct=document.createElement("td"); tdAct.className="ktl-actions";
-      var bE=document.createElement("button"); bE.textContent="編集"; bE.className="ktl-btn ktl-btn-plain";
-      var bD=document.createElement("button"); bD.textContent="削除"; bD.className="ktl-btn ktl-btn-warn";
-      bE.onclick=function(){ openEdit(item.idx); };
-      bD.onclick=function(){ if(confirm("この行を削除します。よろしいですか？")){ events().splice(item.idx,1); saveMaybe(); render(); } };
-      tdAct.appendChild(bE); tdAct.appendChild(bD); tr.appendChild(tdAct);
+    const tbody=$("listBody"); tbody.innerHTML="";
+    const list=evts().map((e,i)=>({e,i})).sort((a,b)=>((a.e.date||"")+(a.e.time||"")).localeCompare((b.e.date||"")+(b.e.time||"")));
+    if(!list.length){ const tr=document.createElement("tr"); const td=document.createElement("td"); td.colSpan=9; td.className="muted"; td.textContent="まだ追加がありません"; tr.appendChild(td); tbody.appendChild(tr); drawGrid(); return; }
+    list.forEach((it,idx)=>{
+      const e=it.e; const tr=document.createElement("tr");
+      tr.appendChild(trCell(idx+1));
+      tr.appendChild(trDate(e.date));
+      tr.appendChild(trCell(e.time,"nowrap"));
+      tr.appendChild(trCell(e.type));
+      tr.appendChild(trCell(e.actor));
+      tr.appendChild(trCell(e.place));
+      tr.appendChild(trCell(e.fact,"pre"));
+      tr.appendChild(trCell(e.evidence));
+      const act=document.createElement("td"); act.className="actions";
+      const bE=document.createElement("button"); bE.className="btn btn-plain"; bE.textContent="編集";
+      const bD=document.createElement("button"); bD.className="btn btn-warn"; bD.textContent="削除";
+      bE.onclick=()=>openEdit(it.i);
+      bD.onclick=()=>{ if(confirm("この行を削除します。よろしいですか？")){ evts().splice(it.i,1); saveMaybe(); render(); } };
+      act.append(bE,bD); tr.appendChild(act);
       tbody.appendChild(tr);
     });
     drawGrid(); setTimeout(drawGrid,50); setTimeout(drawGrid,300);
   }
 
-  /* ====== 罫線（SVG） ====== */
+  /* ============== 罫線（SVG） ============== */
   function drawGrid(){
-    var wrap=$("tableWrap"); if(!wrap) return;
-    var table=wrap.querySelector("table"); var svg=wrap.querySelector(".ktl-gridlayer svg"); if(!table||!svg) return;
+    const wrap=$("tableWrap"); const table=$("listTable"); const svg=wrap.querySelector("svg"); if(!table||!svg) return;
     svg.innerHTML="";
-    var stroke=getComputedStyle(document.documentElement).getPropertyValue('--grid-color')||"#000";
-    var sw=1, W=Math.round(table.offsetWidth), H=Math.round(table.offsetHeight);
+    const stroke=getComputedStyle(document.documentElement).getPropertyValue('--grid')||"#000";
+    const sw=1, W=Math.round(table.offsetWidth), H=Math.round(table.offsetHeight);
     svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("preserveAspectRatio","none");
-    var th=table.tHead && table.tHead.rows[0]; if(!th) return;
-    var rectT=table.getBoundingClientRect();
-    var xs=[0]; var acc=0; Array.prototype.forEach.call(th.cells, function(c){ acc+=c.offsetWidth; xs.push(acc); });
-    var ys=[0]; if(table.tBodies && table.tBodies.length){ Array.prototype.forEach.call(table.tBodies[0].rows, function(tr){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); }); }
-    var rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
-    rect.setAttribute("x",0.5); rect.setAttribute("y",0.5); rect.setAttribute("width",Math.max(0,W-1)); rect.setAttribute("height",Math.max(0,H-1));
-    rect.setAttribute("fill","none"); rect.setAttribute("stroke",stroke.trim()||"#000"); rect.setAttribute("stroke-width",sw); rect.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(rect);
-    xs.forEach(function(x,i){ if(i===0||i===xs.length-1) return; var cx=Math.floor(x)+0.5;
-      var ln=document.createElementNS("http://www.w3.org/2000/svg","line");
-      ln.setAttribute("x1",cx); ln.setAttribute("y1",0); ln.setAttribute("x2",cx); ln.setAttribute("y2",H);
-      ln.setAttribute("stroke",stroke.trim()||"#000"); ln.setAttribute("stroke-width",sw); ln.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(ln); });
-    ys.forEach(function(y,i){ if(i===0||i===ys.length-1) return; var cy=Math.floor(y)+0.5;
-      var ln2=document.createElementNS("http://www.w3.org/2000/svg","line");
-      ln2.setAttribute("x1",0); ln2.setAttribute("y1",cy); ln2.setAttribute("x2",W); ln2.setAttribute("y2",cy);
-      ln2.setAttribute("stroke",stroke.trim()||"#000"); ln2.setAttribute("stroke-width",sw); ln2.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(ln2); });
+    const th=table.tHead.rows[0]; if(!th) return;
+    const rectT=table.getBoundingClientRect();
+    const xs=[0]; let acc=0; [...th.cells].forEach(c=>{ acc+=c.offsetWidth; xs.push(acc); });
+    const ys=[0]; if(table.tBodies[0]){ for(const tr of table.tBodies[0].rows){ ys.push(Math.round(tr.getBoundingClientRect().bottom-rectT.top)); } }
+    const mkRect=(x,y,w,h)=>{ const r=document.createElementNS("http://www.w3.org/2000/svg","rect"); r.setAttribute("x",x+0.5); r.setAttribute("y",y+0.5); r.setAttribute("width",Math.max(0,w-1)); r.setAttribute("height",Math.max(0,h-1)); r.setAttribute("fill","none"); r.setAttribute("stroke",stroke.trim()); r.setAttribute("stroke-width",sw); r.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(r); };
+    const mkV=(x,y1,y2)=>{ const l=document.createElementNS("http://www.w3.org/2000/svg","line"); l.setAttribute("x1",Math.floor(x)+0.5); l.setAttribute("y1",Math.floor(y1)+0.5); l.setAttribute("x2",Math.floor(x)+0.5); l.setAttribute("y2",Math.floor(y2)+0.5); l.setAttribute("stroke",stroke.trim()); l.setAttribute("stroke-width",sw); l.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(l); };
+    const mkH=(y,x1,x2)=>{ const l=document.createElementNS("http://www.w3.org/2000/svg","line"); l.setAttribute("x1",Math.floor(x1)+0.5); l.setAttribute("y1",Math.floor(y)+0.5); l.setAttribute("x2",Math.floor(x2)+0.5); l.setAttribute("y2",Math.floor(y)+0.5); l.setAttribute("stroke",stroke.trim()); l.setAttribute("stroke-width",sw); l.setAttribute("vector-effect","non-scaling-stroke"); svg.appendChild(l); };
+    mkRect(0,0,W,H);
+    xs.forEach((x,i)=>{ if(i===0||i===xs.length-1) return; mkV(x,0,H); });
+    ys.forEach((y,i)=>{ if(i===0||i===ys.length-1) return; mkH(y,0,W); });
   }
-  window.addEventListener("resize", drawGrid);
-  window.addEventListener("orientationchange", drawGrid);
+  addEventListener("resize",drawGrid); addEventListener("orientationchange",drawGrid);
 
-  /* ====== 追加 ====== */
-  function bindAdd(){
-    $("evFact").addEventListener("input",function(){ $("counter").textContent=(($("evFact").value)||"").length+"/140"; });
-    $("addBtn").onclick=function(){
-      var e={date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"",
-             actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(),
-             fact:($("evFact").value)||"", evidence:($("evEvidence").value||"").trim()};
-      if(!e.date||!e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; } $("inlineError").textContent="";
-      events().push(e); saveMaybe(); render();
-    };
-  }
+  /* ============== 追加 & カウンタ ============== */
+  $("evFact").addEventListener("input",()=>{ $("counter").textContent=(($("evFact").value)||"").length+"/140"; });
+  $("addBtn").addEventListener("click",()=>{
+    const e={ date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"",
+              actor:($("evActor").value||"").trim(), place:($("evPlace").value||"").trim(),
+              fact:($("evFact").value||""), evidence:($("evEvidence").value||"").trim() };
+    if(!e.date || !e.fact){ $("inlineError").textContent="日付 と 内容 は必須です"; return; }
+    $("inlineError").textContent=""; evts().push(e); saveMaybe(); render();
+  });
 
-  /* ====== 編集ダイアログ ====== */
-  var editingIndex=-1; var dlg=$("editDlg");
-  function visualW(){ return (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : window.innerWidth; }
-  function visualH(){ return (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight; }
-
-  function fitEditDialog(){
-    if(!(dlg && dlg.open)) return;
-    var head = dlg.querySelector('.ktl-dlgHead');
-    var body = dlg.querySelector('.ktl-dlgBody');
-    var scaleBox = dlg.querySelector('.ktl-dlgScale');
-    var foot = dlg.querySelector('.ktl-dlgFoot');
-    if(!scaleBox) return;
-
-    // 一旦リセット
-    scaleBox.style.transform='none';
-
-    // 可視領域（iOS対策で visualViewport を優先）
-    var availW = Math.max(280, Math.floor(visualW() * 0.92));
-    var availH = Math.max(220, Math.floor(visualH() * 0.90));
-
-    // 自然サイズを取得
-    var needW = Math.ceil(scaleBox.scrollWidth) + 20;     // 余白考慮
-    var needH = Math.ceil((head?head.offsetHeight:0) + scaleBox.scrollHeight + (foot?foot.offsetHeight:0)) + 16;
-
-    // 幅・高さの両方から縮小率を算出
-    var sW = availW / needW;
-    var sH = availH / needH;
-    var scale = Math.min(sW, sH, 1);
-
-    // 下限を 0.55 まで許容（小さな画面でも確実に収める）
-    if(scale < 0.55) scale = 0.55;
-
-    // 適用
-    if(scale < 1){
-      scaleBox.style.transform = 'scale('+scale.toFixed(3)+')';
-    } else {
-      scaleBox.style.transform = 'none';
-    }
-  }
-
+  /* ============== 編集ダイアログ（安定版） ============== */
+  let editing=-1; const dlg=$("editDlg");
   function openEdit(i){
-    editingIndex=i; var ev=events()[i]; if(!ev) return;
-    if(!(dlg && dlg.showModal)){  /* 旧ブラウザfallback */
-      var nd=prompt("発生日 (YYYY-MM-DD)", ev.date||""); if(nd===null) return;
-      var nt=prompt("時刻 (HH:MM)", ev.time||""); if(nt===null) return;
-      var ty=prompt("種別", ev.type||""); if(ty===null) return;
-      var ac=prompt("関与者", ev.actor||""); if(ac===null) return;
-      var pl=prompt("場所", ev.place||""); if(pl===null) return;
-      var fa=prompt("内容", ev.fact||""); if(fa===null) return;
-      var evd=prompt("証拠", ev.evidence||""); if(evd===null) return;
-      var nv={date:nd,time:nt,type:ty,actor:ac,place:pl,fact:fa,evidence:evd};
+    editing=i; const e=evts()[i]; if(!e) return;
+    if(!(dlg && dlg.showModal)){ // 古いブラウザfallback
+      const nd=prompt("発生日", e.date||""); if(nd===null) return;
+      const nt=prompt("時刻", e.time||""); if(nt===null) return;
+      const ty=prompt("種別", e.type||""); if(ty===null) return;
+      const ac=prompt("関与者", e.actor||""); if(ac===null) return;
+      const pl=prompt("場所", e.place||""); if(pl===null) return;
+      const fa=prompt("内容", e.fact||""); if(fa===null) return;
+      const evd=prompt("証拠", e.evidence||""); if(evd===null) return;
+      const nv={date:nd,time:nt,type:ty,actor:ac,place:pl,fact:fa,evidence:evd};
       if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-      events()[i]=nv; saveMaybe(); render(); return;
+      evts()[i]=nv; saveMaybe(); render(); return;
     }
-    $("edDate").value=ev.date||""; $("edTime").value=ev.time||""; $("edType").value=ev.type||"その他";
-    $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edEvidence").value=ev.evidence||""; $("edFact").value=ev.fact||"";
-    dlg.showModal();
-    // 表示直後と少し後にフィット（描画確定後も）
-    setTimeout(fitEditDialog, 0);
-    setTimeout(fitEditDialog, 50);
+    $("edDate").value=e.date||""; $("edTime").value=e.time||""; $("edType").value=e.type||"その他";
+    $("edActor").value=e.actor||""; $("edPlace").value=e.place||""; $("edEvidence").value=e.evidence||"";
+    $("edFact").value=e.fact||"";
+    dlg.showModal(); // すべて1カラム＋内部スクロールなので重ならない
   }
   window.openEdit=openEdit;
 
-  function bindEditDialog(){
-    if(!$("editCancel")||!$("editSave")) return;
-    $("editCancel").onclick=function(){ dlg.close(); };
-    $("editSave").onclick=function(){
-      var i=editingIndex; if(i<0){ dlg.close(); return; }
-      var nv={date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
-              actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(),
-              fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim()};
-      if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
-      events()[i]=nv; saveMaybe(); render(); dlg.close();
-    };
-    window.addEventListener('resize', function(){ setTimeout(fitEditDialog, 100); });
-    window.addEventListener('orientationchange', function(){ setTimeout(fitEditDialog, 300); });
-  }
+  $("editCancel").addEventListener("click",()=>dlg.close());
+  $("editSave").addEventListener("click",()=>{
+    const i=editing; if(i<0){ dlg.close(); return; }
+    const nv={ date:$("edDate").value||"", time:$("edTime").value||"", type:$("edType").value||"",
+               actor:($("edActor").value||"").trim(), place:($("edPlace").value||"").trim(),
+               fact:($("edFact").value||"").trim(), evidence:($("edEvidence").value||"").trim() };
+    if(!nv.date || !nv.fact){ alert("日付 と 内容 は必須です"); return; }
+    evts()[i]=nv; saveMaybe(); render(); dlg.close();
+  });
 
-  /* ====== 保存UI ====== */
-  var DIRTY=false;
-  function showUnsaved(on){ var u=$("unsaved"); if(u) u.style.display=on?"inline":"none"; }
-  function persistAndMark(){ persist(); DIRTY=false; showUnsaved(false); }
-  function saveMaybe(){ if($("autoSave").checked){ persistAndMark(); }else{ DIRTY=true; showUnsaved(true); } }
-  function bindSave(){
-    $("saveNow").onclick=function(){ persistAndMark(); alert("この端末のブラウザに保存しました。"); };
-    window.addEventListener("beforeunload", function(e){ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
-  }
+  /* ============== 保存UI ============== */
+  let DIRTY=false;
+  const mark=()=>{ DIRTY=false; $("unsaved").style.display="none"; };
+  const saveMaybe=()=>{ if($("autoSave").checked){ persist(); mark(); } else { DIRTY=true; $("unsaved").style.display="inline"; } };
+  $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
+  addEventListener("beforeunload",(e)=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== 案件操作 ====== */
-  function ensureUniqueName(base){ var name=base||"案件", i=2; while(S.cases[name]){ name=base+" ("+(i++)+")"; } return name; }
-  function defaultCaseName(){ var len=(S.order && S.order.length) ? S.order.length : 0; return "案件"+(len+1)+"_"+today(); }
-  function addCaseFlow(){
-    var input = prompt("新しい案件名を入力してください", defaultCaseName());
-    if(input===null) return;
-    var base=(input||"").trim(); if(!base) return;
-    var name=ensureUniqueName(base);
-    S.cases[name]=[];
-    if(S.order.indexOf(name)===-1) S.order.push(name);
-    S.current=name;
-    persistAndMark(); fillCaseSelect(); render();
-    alert("案件を作成しました："+name);
-  }
-  function renameCaseFlow(){
-    var old=S.current; if(!old){ alert("案件が選択されていません。"); return; }
-    var input = prompt("案件名を変更します", old);
-    if(input===null) return;
-    var name=(input||"").trim(); if(!name || name===old) return;
-    if(S.cases[name] && name!==old){ alert("同名の案件が既にあります。別の名前にしてください。"); return; }
+  /* ============== 案件操作（動作保証） ============== */
+  const uniq=(base)=>{ let n=base||"案件",i=2; while(S.cases[n]) n=base+" ("+(i++)+")"; return n; };
+  const nextName=()=> "案件"+((S.order?.length||0)+1)+"_"+today();
+  $("newCase").addEventListener("click",()=>{
+    const input=prompt("新しい案件名を入力してください", nextName()); if(input===null) return;
+    const name=uniq((input||"").trim()); if(!name) return;
+    S.cases[name]=[]; if(!S.order.includes(name)) S.order.push(name); S.current=name;
+    persist(); fillCases(); render(); alert("案件を作成しました："+name);
+  });
+  $("renameCase").addEventListener("click",()=>{
+    const old=S.current; if(!old){ alert("案件が選択されていません。"); return; }
+    const input=prompt("案件名を変更します", old); if(input===null) return;
+    const name=(input||"").trim(); if(!name || name===old) return;
+    if(S.cases[name] && name!==old){ alert("同名の案件が既にあります。"); return; }
     S.cases[name]=S.cases[old]; delete S.cases[old];
-    S.order=S.order.map(function(n){ return n===old? name : n; });
-    S.current=name;
-    persistAndMark(); fillCaseSelect(); render();
-  }
-  function duplicateCaseFlow(){
-    var src=S.current; if(!src){ alert("案件が選択されていません。"); return; }
-    var name=ensureUniqueName(src+"（複製）");
-    S.cases[name]=JSON.parse(JSON.stringify(S.cases[src]||[]));
-    if(S.order.indexOf(name)===-1) S.order.push(name);
-    S.current=name;
-    persistAndMark(); fillCaseSelect(); render();
-    alert("案件を複製しました："+name);
-  }
-  function deleteCaseFlow(){
-    var cur=S.current; if(!cur){ alert("案件が選択されていません。"); return; }
-    var cnt=(S.cases[cur]||[]).length;
+    S.order=S.order.map(n=>n===old?name:n); S.current=name;
+    persist(); fillCases(); render();
+  });
+  $("dupCase").addEventListener("click",()=>{
+    const src=S.current; if(!src){ alert("案件が選択されていません。"); return; }
+    const name=uniq(src+"（複製）"); S.cases[name]=JSON.parse(JSON.stringify(S.cases[src]||[]));
+    if(!S.order.includes(name)) S.order.push(name); S.current=name;
+    persist(); fillCases(); render(); alert("案件を複製しました："+name);
+  });
+  $("deleteCase").addEventListener("click",()=>{
+    const cur=S.current; if(!cur){ alert("案件が選択されていません。"); return; }
+    const cnt=(S.cases[cur]||[]).length;
     if(!confirm("案件「"+cur+"」を削除します（行数："+cnt+"）。よろしいですか？")) return;
-    delete S.cases[cur];
-    S.order=S.order.filter(function(n){ return n!==cur; });
-    S.current=S.order[0]||"";
-    if(!S.current){ ensureDefault(); }
-    persistAndMark(); fillCaseSelect(); render();
-  }
-  function bindCaseButtons(){
-    var b1=$("newCase"), b2=$("renameCase"), b3=$("dupCase"), b4=$("deleteCase");
-    if(b1) b1.addEventListener("click", addCaseFlow);
-    if(b2) b2.addEventListener("click", renameCaseFlow);
-    if(b3) b3.addEventListener("click", duplicateCaseFlow);
-    if(b4) b4.addEventListener("click", deleteCaseFlow);
-    var sel=$("caseSelect");
-    if(sel) sel.addEventListener("change", function(e){
-      var v=e.target.value; if(S.cases[v]){ S.current=v; persist(); render(); }
-    });
-  }
+    delete S.cases[cur]; S.order=S.order.filter(n=>n!==cur); S.current=S.order[0]||"";
+    if(!S.current){ const n="案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; }
+    persist(); fillCases(); render();
+  });
 
-  /* ====== PDF ====== */
-  var PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
-  var measureCtx=(function(){ var c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
-  function wrapLine(ctx, text, maxW, font){ ctx.save(); ctx.font=font; var lines=[], line="", i, ch, test; text=String(text||""); for(i=0;i<text.length;i++){ ch=text.charAt(i); test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { lines.push(line); line=ch; } } if(line!=="") lines.push(line); ctx.restore(); return lines.length?lines:[""]; }
-  function wrapText(ctx, text, maxW, font){ var paras=String(text||"").split(/\r\n|\r|\n/), out=[], i, chunk; for(i=0;i<paras.length;i++){ chunk=wrapLine(ctx,paras[i],maxW,font); Array.prototype.push.apply(out,chunk); if(i<paras.length-1) out.push(""); } return out.length?out:[""]; }
-  function getPdfColumnsFromDom(){
-    var ths=[].slice.call(document.querySelectorAll('#listTable thead th'));
-    var incl=ths.filter(function(th){ return th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0; });
-    var sumW = incl.reduce(function(s,th){return s+th.offsetWidth;},0)||1;
-    return incl.map(function(th){
-      var key = th.getAttribute('data-field') || th.textContent.replace(/\s+/g," ").trim();
-      var w=(th.offsetWidth/sumW);
-      var cfg={ key:key, t: th.textContent.trim(), w:w, align:null, nowrap:false, vcenter:false };
+  /* ============== PDF（従来ロジック・セル中央寄せ） ============== */
+  const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
+  const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
+  const wrapLine=(ctx, t, maxW, font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of String(t||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
+  const wrapText=(ctx, t, maxW, font)=>{ const ps=String(t||"").split(/\r\n|\r|\n/); const out=[]; ps.forEach((p,i)=>{ out.push(...wrapLine(ctx,p,maxW,font)); if(i<ps.length-1) out.push(""); }); return out.length?out:[""]; };
+  function pdfCols(){
+    const ths=[...document.querySelectorAll('#listTable thead th')];
+    const incl=ths.filter(th=> th.getAttribute('data-pdf')!=='0' && th.offsetWidth>0);
+    const sum=incl.reduce((s,th)=>s+th.offsetWidth,0)||1;
+    return incl.map(th=>{
+      const key=th.dataset.field || th.textContent.trim();
+      const cfg={ key, t:th.textContent.trim(), w:th.offsetWidth/sum, align:null, nowrap:false, vcenter:false };
       if(key==='index'){ cfg.align='center'; cfg.vcenter=true; }
-      if(key==='date'||key==='time'||key==='type'){ cfg.align='center'; }
-      if(key==='time'){ cfg.nowrap=true; }
+      if(['date','time','type'].includes(key)){ cfg.align='center'; }
+      if(key==='time') cfg.nowrap=true;
       return cfg;
     });
   }
-  function collectRowsFromDom(cols){
-    var tbody=document.querySelector('#listTable tbody'); if(!tbody) return [];
-    var thAll=[].slice.call(document.querySelectorAll('#listTable thead th'));
-    var targets=cols.map(function(c){
-      var th=(thAll.find)? thAll.find(function(h){return ((h.getAttribute('data-field')||h.textContent.trim())===c.key);}) : null;
-      return th ? th.cellIndex : -1;
-    });
-    var rows=[];
-    [].slice.call(tbody.rows).forEach(function(tr){
-      if(tr.cells.length===1 && tr.cells[0].classList.contains('ktl-muted')) return;
-      var obj={}, i, tdIdx, td, text;
-      for(i=0;i<targets.length;i++){
-        tdIdx=targets[i]; if(tdIdx<0) continue;
-        td=tr.cells[tdIdx];
-        text=(td? (td.innerText || td.textContent) : "");
-        text=(text||"").replace(/\s+\n/g,"\n").trim();
-        obj[cols[i].key]=text;
-      }
-      rows.push(obj);
-    });
-    return rows;
+  function rowsForPdf(cols){
+    const tb=document.querySelector('#listTable tbody'); if(!tb) return [];
+    const thAll=[...document.querySelectorAll('#listTable thead th')];
+    const mapIdx=cols.map(c=>{ const th=thAll.find(h=>(h.dataset.field||h.textContent.trim())===c.key); return th? th.cellIndex : -1; });
+    const rows=[];
+    [...tb.rows].forEach(tr=>{
+      if(tr.cells.length===1 && tr.cells[0].classList.contains('muted')) return;
+      const obj={}; mapIdx.forEach((idx,i)=>{ if(idx<0) return; const td=tr.cells[idx]; const txt=(td? (td.innerText||td.textContent) : "").replace(/\s+\n/g,"\n").trim(); obj[cols[i].key]=txt; }); rows.push(obj);
+    }); return rows;
   }
-  function buildPageCanvases(list, cols){
-    var pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
-    var SCALE=2; var marginPx=Math.floor(PDF_MARGIN_PT/PX2PT); var innerW=pageWpx - marginPx*2; var innerH=pageHpx - marginPx*2;
-    var colW=cols.map(function(c){return Math.round(c.w*innerW);}); var diff=innerW - colW.reduce(function(a,b){return a+b;},0); colW[colW.length-1]+=diff;
-    var headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    var cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
-    var lineH=19, padY=8, padX=12, headH=32;
-    var rows=list.map(function(e,i){
-      var vals=cols.map(function(c){ return c.key==='index' ? String(i+1) : (e[c.key]||""); });
-      var lines=vals.map(function(v,ci){ var w=Math.max(12,colW[ci]-padX*2-2); return cols[ci].nowrap ? [ (v||"") ] : wrapText(measureCtx,v,w,cellFont); });
-      var blockHs=lines.map(function(ls){ return Math.max(lineH, ls.length*lineH); });
-      var h=Math.max(lineH + padY*2, Math.max.apply(null, blockHs) + padY*2);
-      return {vals:vals,lines:lines,blockHs:blockHs,h:h};
+  function pagesFrom(list, cols){
+    const pageWpx=Math.ceil(PDF_W_PT/PX2PT), pageHpx=Math.ceil(PDF_H_PT/PX2PT);
+    const SCALE=2; const marginPx=Math.floor(PDF_MARGIN_PT/PX2PT); const innerW=pageWpx-marginPx*2; const innerH=pageHpx-marginPx*2;
+    let cw=cols.map(c=>Math.round(c.w*innerW)); const diff=innerW-cw.reduce((a,b)=>a+b,0); cw[cw.length-1]+=diff;
+    const headFont="bold 15px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
+    const cellFont="13px -apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP','Yu Gothic',Meiryo,sans-serif";
+    const lineH=19, padY=8, padX=12, headH=32;
+    const rows=list.map((e,i)=>{
+      const vals=cols.map(c=> c.key==='index'? String(i+1) : (e[c.key]||""));
+      const lines=vals.map((v,ci)=>{ const avail=Math.max(12,cw[ci]-padX*2-2); return cols[ci].nowrap? [v||""] : wrapText(mctx,v,avail,cellFont); });
+      const blockHs=lines.map(ls=>Math.max(lineH, ls.length*lineH));
+      const h=Math.max(lineH+padY*2, Math.max(...blockHs)+padY*2);
+      return {vals,lines,blockHs,h};
     });
-    var pages=[], idx=0;
+    const pages=[]; let idx=0;
     while(idx<rows.length){
-      var c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
-      var ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false; ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
-      var line={ rect:function(x,y,w,h){ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h));},
-                 v:function(x,y1,y2){x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();},
-                 h:function(y,x1,x2){y=Math.floor(y)+0.5;x1=Math.floor(x1)+0.5;x2=Math.floor(x2)+0.5;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();} };
-      var x0=marginPx,y0=marginPx;
+      const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
+      const ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false; ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
+      const L={ rect:(x,y,w,h)=>ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h)),
+                v:(x,y1,y2)=>{x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();} };
+      let x0=marginPx,y0=marginPx;
       ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
       ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
-      var cx=x0; cols.forEach(function(cdef,i){ var tx=cdef.t; var txX=cx+padX; var wtx=measureCtx.measureText(tx).width; if(cdef.align==="center"){ txX=cx+(colW[i]-wtx)/2; } ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=colW[i]; });
-      line.rect(x0,y0,innerW,headH); cx=x0; cols.forEach(function(cdef,i){ if(i>0) line.v(cx,y0,y0+headH); cx+=colW[i]; });
-      var y=y0+headH; ctx.font=cellFont; ctx.textBaseline="top";
+      let cx=x0; cols.forEach((cdef,i)=>{ const tx=cdef.t, wtx=mctx.measureText(tx).width; let txX=cx+padX; if(cdef.align==="center") txX=cx+(cw[i]-wtx)/2; ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=cw[i]; });
+      L.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((_,i)=>{ if(i>0) L.v(cx,y0,y0+headH); cx+=cw[i]; });
+
+      let y=y0+headH; ctx.font=cellFont; ctx.textBaseline="top";
       for(; idx<rows.length; idx++){
-        var r=rows[idx]; if(y + r.h > marginPx + innerH){ break; }
-        line.rect(x0,y,innerW,r.h); var cx2=x0; cols.forEach(function(cdef,i){ if(i>0) line.v(cx2,y,y+r.h); cx2+=colW[i]; });
-        var xx=x0;
-        r.lines.forEach(function(ls,i){
-          var colWidth=colW[i]; var blockH=r.blockHs[i]; var top = y + Math.max(padY, Math.floor((r.h - blockH)/2));
-          ctx.save(); ctx.beginPath(); ctx.rect(Math.floor(xx)+1, Math.floor(y)+1, Math.floor(colWidth)-2, Math.floor(r.h)-2); ctx.clip();
+        const r=rows[idx]; if(y + r.h > marginPx + innerH) break;
+        L.rect(x0,y,innerW,r.h); let cx2=x0; cols.forEach((_,i)=>{ if(i>0) L.v(cx2,y,y+r.h); cx2+=cw[i]; });
+        let xx=x0;
+        r.lines.forEach((ls,i)=>{
+          const colW=cw[i]; const blockH=r.blockHs[i]; const top=y + Math.max(padY, Math.floor((r.h-blockH)/2));
+          ctx.save(); ctx.beginPath(); ctx.rect(Math.floor(xx)+1,Math.floor(y)+1,Math.floor(colW)-2,Math.floor(r.h)-2); ctx.clip();
           if(cols[i].vcenter){
-            ctx.textBaseline="middle"; var tx=r.vals[i]||""; var tw=measureCtx.measureText(tx).width; var txX=xx + (colWidth - tw)/2; var txY=y + r.h/2 + 0.5; ctx.fillText(tx, txX, txY); ctx.textBaseline="top";
+            ctx.textBaseline="middle"; const tx=r.vals[i]||""; const tw=mctx.measureText(tx).width; const txX=xx+(colW-tw)/2; const txY=y+r.h/2+0.5; ctx.fillText(tx,txX,txY); ctx.textBaseline="top";
           }else{
-            ls.forEach(function(ln,li){ var txX=xx + padX; if(cols[i].align==="center"){ var tw2=measureCtx.measureText(ln).width; txX=xx + (colWidth - tw2)/2; } ctx.fillText(ln, txX, top + li*lineH); });
+            ls.forEach((ln,li)=>{ let txX=xx+padX; if(cols[i].align==="center"){ const tw=mctx.measureText(ln).width; txX=xx+(colW-tw)/2; } ctx.fillText(ln,txX,top+li*lineH); });
           }
-          ctx.restore(); xx+=colWidth;
+          ctx.restore(); xx+=colW;
         });
         y+=r.h;
       }
+      // フッターマーカー
       ctx.fillStyle="#000"; ctx.fillRect(c.width-4, c.height-4, 1, 1);
       pages.push({canvas:c});
     }
     return pages;
   }
-  function canvasToJpegBytes(canvas){
-    var b64, binStr, bin;
-    try{ b64=canvas.toDataURL("image/jpeg",0.92); } catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); }
-    binStr=b64.split(",").pop()||""; bin=atob(binStr); var u8=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i); return u8;
-  }
-  function pdfFromImages(imgs, pageW, pageH, margin){
-    pageW=pageW||595.28; pageH=pageH||841.89; margin=margin||24;
-    var enc=new TextEncoder(); var parts=[]; var off=0; var xref=[0];
-    var add=function(b){ parts.push(b); off+=b.length; }; var addS=function(s){ add(enc.encode(s)); };
-    var obj=function(n,bufs){ xref[n]=off; addS(n+" 0 obj\n"); if(Array.isArray(bufs)){ for(var i=0;i<bufs.length;i++) add(bufs[i]); } else { addS(bufs); } addS("\nendobj\n"); };
-    var W=pageW, H=pageH, N=imgs.length;
-    var imgObj=function(i){return 3 + i*3;}, cntObj=function(i){return 3 + i*3 + 1;}, pagObj=function(i){return 3 + i*3 + 2;};
+  const jpegBytes=(canvas)=>{ let b64; try{ b64=canvas.toDataURL("image/jpeg",0.92); }catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); } const bin=atob(b64.split(",").pop()||""); const u8=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i]=bin.charCodeAt(i); return u8; };
+  function pdfFrom(imgs, W=595.28, H=841.89, M=24){
+    const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0]; const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
+    const obj=(n,buf)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(buf)?buf.forEach(add):addS(buf); addS(`\nendobj\n`); };
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-    for(var i=0;i<N;i++){
-      var it=imgs[i]; var bytes=it.bytes, wpx=it.wpx, hpx=it.hpx;
-      var px2pt=72/96, wpt=wpx*px2pt/2, hpt=hpx*px2pt/2;
-      var maxW=W-margin*2, maxH=H-margin*2; var sc=Math.min(maxW/wpt, maxH/hpt, 1);
-      var dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2); var x=((W - wpt*sc)/2).toFixed(2), y=((H - hpt*sc)/2).toFixed(2);
-      obj(imgObj(i),[ enc.encode("<< /Type /XObject /Subtype /Image /Width "+wpx+" /Height "+hpx+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+bytes.length+" >>\nstream\n"), bytes, enc.encode("\nendstream\n") ]);
-      var content="q\n"+dw+" 0 0 "+dh+" "+x+" "+y+" cm\n/Im"+i+" Do\nQ";
-      obj(cntObj(i),"<< /Length "+enc.encode(content).length+" >>\nstream\n"+content+"\nendstream");
-      obj(pagObj(i),"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+W+" "+H+"] /Resources << /XObject << /Im"+i+" "+imgObj(i)+" 0 R >> >> /Contents "+cntObj(i)+" 0 R >>");
+    const N=imgs.length, img=(i)=>3+i*3, cnt=(i)=>4+i*3, page=(i)=>5+i*3;
+    for(let i=0;i<N;i++){
+      const it=imgs[i], px2pt=72/96, wpt=it.wpx*px2pt/2, hpt=it.hpx*px2pt/2;
+      const sc=Math.min((W-M*2)/wpt, (H-M*2)/hpt, 1), dw=(wpt*sc).toFixed(2), dh=(hpt*sc).toFixed(2), x=((W-wpt*sc)/2).toFixed(2), y=((H-hpt*sc)/2).toFixed(2);
+      obj(img(i),[ enc.encode(`<< /Type /XObject /Subtype /Image /Width ${it.wpx} /Height ${it.hpx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${it.bytes.length} >>\nstream\n`), it.bytes, enc.encode("\nendstream\n") ]);
+      const c=`q\n${dw} 0 0 ${dh} ${x} ${y} cm\n/Im${i} Do\nQ`; obj(cnt(i),`<< /Length ${enc.encode(c).length} >>\nstream\n${c}\nendstream`);
+      obj(page(i),`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /XObject << /Im${i} ${img(i)} 0 R >> >> /Contents ${cnt(i)} 0 R >>`);
     }
-    var kids=[], i; for(i=0;i<N;i++){ kids.push(pagObj(i)+" 0 R"); }
-    obj(2,"<< /Type /Pages /Count "+N+" /Kids [ "+kids.join(" ")+" ] >>");
-    obj(1,"<< /Type /Catalog /Pages 2 0 R >>");
-    var maxId=(N>0)?pagObj(N-1):2; var start=off; var xS="xref\n0 "+(maxId+1)+"\n0000000000 65535 f \n"; for(i=1;i<=maxId;i++){ var pos=(typeof xref[i]==="number")?xref[i]:0; xS+=String(pos).padStart(10,"0")+" 00000 "+(pos? "n":"f")+" \n"; } xS+="trailer << /Size "+(maxId+1)+" /Root 1 0 R >>\nstartxref\n"+start+"\n%%EOF";
-    addS(xS); return new Blob(parts,{type:"application/pdf"});
+    const kids = Array.from({length:N},(_,i)=>`${page(i)} 0 R`).join(" "); obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`); obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
+    const max=(N>0)?page(N-1):2; const start=off; let x="xref\n0 "+(max+1)+"\n0000000000 65535 f \n"; for(let i=1;i<=max;i++){ const p=(typeof xref[i]==="number")?xref[i]:0; x+=String(p).padStart(10,"0")+" 00000 "+(p?"n":"f")+" \n"; } x+=`trailer << /Size ${max+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`; addS(x);
+    return new Blob(parts,{type:"application/pdf"});
   }
-  function makePDF(){
-    var thCols=getPdfColumnsFromDom(); var list=collectRowsFromDom(thCols);
-    if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
-    var pages; try{ pages=buildPageCanvases(list, thCols); } catch(e){ alert("PDF作成で内部エラーが発生しました。もう一度お試しください。"); return; }
-    var imgs=pages.map(function(p){return {bytes:canvasToJpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height};});
-    var pdf=pdfFromImages(imgs); var url=URL.createObjectURL(pdf); var name="timeline_"+nowStr()+".pdf";
-    var a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener noreferrer"; document.body.appendChild(a); a.click();
-    var s=$("pdfStatus"); if(s){ s.innerHTML='PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="'+url+'" download="'+name+'">ここをタップして保存</a>（60秒以内）。<br><span class="ver">V10 r54</span>'; }
-    setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} try{ a.remove(); }catch(e){} if(s) s.textContent=""; }, 60000);
-  }
+  $("pdfBtn").addEventListener("click",()=>{
+    const cols=pdfCols(); const list=rowsForPdf(cols); if(!list.length){ alert("PDFに出力できる行がありません。"); return; }
+    let pages; try{ pages=pagesFrom(list, cols); }catch(e){ alert("PDF作成で内部エラーが発生しました。"); return; }
+    const imgs=pages.map(p=>({bytes:jpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
+    const pdf=pdfFrom(imgs); const url=URL.createObjectURL(pdf); const name="timeline_"+nowStr()+".pdf";
+    const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a); a.click();
+    const s=$("pdfStatus"); if(s){ s.innerHTML=`PDFを作成し、ダウンロードを開始しました。保存できない場合は <a href="${url}" download="${name}">ここをタップして保存</a>（60秒以内）。`; }
+    setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(e){} try{a.remove();}catch(e){} if(s) s.textContent=""; }, 60000);
+  });
 
-  /* ====== 初期化 ====== */
-  function initAfterDom(){
-    var mode=tryLoadAll(); if(!mode){ ensureDefault(); }
-    normalizeOrder(); ensureDefault(); persist(); fillCaseSelect(); render();
+  /* ============== 初期化 ============== */
+  (function init(){
+    if(!loadAll()) ensureDefault();
+    persist(); fillCases(); render();
+    $("evDate").value=today(); $("counter").textContent="0/140";
+    const savedAuto=localStorage.getItem("__autosave__")==="1"; $("autoSave").checked=!!savedAuto;
+    $("autoSave").addEventListener("change",()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
+  })();
 
-    if($("evDate")) $("evDate").value=today();
-    if($("counter")) $("counter").textContent="0/140";
-
-    var savedAuto=(localStorage.getItem("__autosave__")==="1");
-    var as=$("autoSave"); if(as){ as.checked=!!savedAuto; as.addEventListener("change", function(){ localStorage.setItem("__autosave__", as.checked?"1":"0"); }); }
-
-    bindAdd(); bindEditDialog(); bindSave(); bindCaseButtons();
-
-    var pb=$("pdfBtn"); if(pb) pb.addEventListener("click", makePDF);
-  }
-  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", initAfterDom); } else { initAfterDom(); }
-
-  /* ====== 全削除 ====== */
-  function wipeAllHandler(){
+  /* ============== 全削除 ============== */
+  $("wipeAll").addEventListener("click",()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
-    try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); }catch(e){}
-    S.cases={}; S.order=[]; S.current=""; S.meta={v:"r54",updatedAt:Date.now()};
-    ensureDefault(); persist(); fillCaseSelect(); render();
+    try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); localStorage.removeItem(KEY_SNAP+"_t"); }catch(e){}
+    S.cases={}; S.order=[]; S.current=""; ensureDefault(); persist(); fillCases(); render();
     alert("この端末の保存データを削除しました。");
-  }
-  var w=$("wipeAll"); if(w){ if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", function(){ $("wipeAll").onclick=wipeAllHandler; }); } else { w.onclick=wipeAllHandler; } }
+  });
 
-  /* ====== エラー表示（一般的な "Script error." は非表示） ====== */
-  function showError(msg){ var el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; }
-  window.addEventListener("error", function(e){
-    if(!e) return;
-    var m = (e.error && e.error.message) || e.message || "";
-    if(m && m!=="Script error.") showError("エラー: "+m);
-  });
-  window.addEventListener("unhandledrejection", function(e){
-    if(!e || !e.reason) return;
-    var m = (typeof e.reason==="string")? e.reason : (e.reason.message || "");
-    if(m) showError("エラー: " + m);
-  });
+  /* ============== エラー表示（一般的な Script error は抑制） ============== */
+  const showErr=(msg)=>{ const el=$("inlineError"); if(!el) return; el.textContent=msg||""; el.style.display=msg?"block":"none"; };
+  addEventListener("error",(e)=>{ if(!e) return; const m=(e.error&&e.error.message)||e.message||""; if(m && m!=="Script error.") showErr("エラー: "+m); });
+  addEventListener("unhandledrejection",(e)=>{ if(!e||!e.reason) return; const m=(typeof e.reason==="string")?e.reason:(e.reason.message||""); if(m) showErr("エラー: "+m); });
 })();
 </script>
 </body>
