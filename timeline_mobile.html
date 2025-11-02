@@ -2,131 +2,119 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 modal-fix）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-02）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <style>
-/* ============ 共通トークン ============ */
 :root{
   --bg:#f7f8fb; --txt:#111; --muted:#666; --bd:#dcdfea; --bd-strong:#9aa4c8;
   --accent:#0a58cc; --th:#eef2fb; --td:#fff; --grid:#000;
   --ctl-h:42px; --radius:10px; --pad:12px; --line:1.4px; --gap:10px;
 }
-*{ box-sizing:border-box; }
-html,body{ margin:0; padding:0; background:var(--bg); color:var(--txt);
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
   -webkit-text-size-adjust:100%;
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif; }
-body.noscroll{ overflow:hidden; }
-.container{ max-width:960px; margin:12px auto 60px; padding:0 12px; }
-.card{ background:#fff; border:1px solid var(--bd); border-radius:12px; padding:12px 14px; margin:10px 0; box-shadow:0 1px 0 rgba(10,10,20,.02); }
-.muted{ color:var(--muted); }
-.ver{ font-size:12px; color:#666; margin-left:6px; }
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif}
+body.noscroll{overflow:hidden}
+.container{max-width:960px;margin:12px auto 60px;padding:0 12px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 0 rgba(10,10,20,.02)}
+.muted{color:var(--muted)}
+.ver{font-size:12px;color:#666;margin-left:6px}
+h1,h2{margin:0 0 8px}h1{font-size:18px}h2{font-size:16px}
 
-h1,h2{ margin:0 0 8px; } h1{ font-size:18px; } h2{ font-size:16px; }
-
-/* ラベル & 入力 */
-label{ display:block; margin:6px 0 4px; font-weight:600; }
-input[type="text"], input[type="date"], input[type="time"], select{
-  width:100%; height:var(--ctl-h); font-size:16px; line-height:1.25;
-  padding:0 var(--pad); color:var(--txt); background:#fff;
-  border:var(--line) solid var(--bd-strong); border-radius:var(--radius);
-  -webkit-appearance:none; appearance:none;
-}
-textarea{
-  width:100%; min-height:120px; font-size:16px; line-height:1.45;
-  padding:var(--pad); color:var(--txt);
-  border:var(--line) solid var(--bd-strong); border-radius:var(--radius);
-  resize:vertical;
-}
+/* ラベル/入力 */
+label{display:block;margin:6px 0 4px;font-weight:600}
+input[type="text"],input[type="date"],input[type="time"],select{
+  width:100%;height:var(--ctl-h);font-size:16px;line-height:1.25;
+  padding:0 var(--pad);color:var(--txt);background:#fff;
+  border:var(--line) solid var(--bd-strong);border-radius:var(--radius);
+  -webkit-appearance:none;appearance:none}
+textarea{width:100%;min-height:120px;font-size:16px;line-height:1.45;padding:var(--pad);
+  color:var(--txt);border:var(--line) solid var(--bd-strong);border-radius:var(--radius);resize:vertical}
 
 /* 日付/時刻アイコン（線画） */
-.wrap-date, .wrap-time{ position:relative; }
-.wrap-date input, .wrap-time input{ padding-right:40px; }
-.wrap-date::after, .wrap-time::after{
-  content:""; position:absolute; right:10px; top:50%; transform:translateY(-50%);
-  width:16px; height:16px; opacity:.9; pointer-events:none; background-repeat:no-repeat; background-position:center; background-size:16px;
-}
-.wrap-date::after{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>"); }
-.wrap-time::after{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>"); }
+.wrap-date,.wrap-time{position:relative}
+.wrap-date input,.wrap-time input{padding-right:40px}
+.wrap-date::after,.wrap-time::after{
+  content:"";position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  width:16px;height:16px;opacity:.9;pointer-events:none;background-repeat:no-repeat;background-position:center;background-size:16px}
+.wrap-date::after{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>")}
+.wrap-time::after{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>")}
 
 /* セレクトの矢印（案件・種別） */
 select.arrow{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat:no-repeat; background-position:right 10px center; background-size:16px; padding-right:40px;
-}
+  background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:40px}
 
 /* チェック＋文言 横並び */
-.checkRow{ display:flex; align-items:center; gap:8px; }
-.checkRow input{ width:20px; height:20px; }
+.checkRow{display:flex;align-items:center;gap:8px}
+.checkRow input{width:20px;height:20px}
+
+/* 削除ボタン行：距離を明確に離す（区切り線＋余白） */
+.memoActions{display:flex;justify-content:flex-end;margin-top:20px;padding-top:12px;border-top:1px dashed #e7eaf4}
 
 /* ボタン */
-.btn{ height:var(--ctl-h); padding:0 12px; border:1px solid #333; background:#fff; border-radius:var(--radius); font-size:15px; cursor:pointer; }
-.btn-plain{ border-color:#999; }
-.btn-warn{ border-color:#b11; color:#b11; }
-.btn-primary{ border-color:var(--accent); color:var(--accent); font-weight:700; }
+.btn{height:var(--ctl-h);padding:0 12px;border:1px solid #333;background:#fff;border-radius:var(--radius);font-size:15px;cursor:pointer}
+.btn-plain{border-color:#999}.btn-warn{border-color:#b11;color:#b11}.btn-primary{border-color:var(--accent);color:var(--accent);font-weight:700}
 
-/* 時系列メモ内：削除ボタンは右端 */
-.rightEnd{ display:flex; justify-content:flex-end; margin-top:8px; }
+/* 案件 */
+.caseRow1{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center}
+.caseRow1>label{margin:0;white-space:nowrap}
+.caseRow2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 
-/* 案件行：ラベル横並び→次行に4ボタン */
-.caseRow1{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; }
-.caseRow1 > label{ margin:0; white-space:nowrap; }
-.caseRow2{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; } /* ← 間隔を広めに復元 */
+/* 一覧 */
+.tableWrap{position:relative;overflow-x:hidden}
+table.list{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td)}
+table.list thead th{background:var(--th);padding:6px;font-weight:700}
+table.list tbody td{padding:6px;vertical-align:top}
+table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-word;overflow-wrap:anywhere}
+.list th:nth-child(1),.list td:nth-child(1){text-align:center}
+.list td:nth-child(1){vertical-align:middle}
+.pre{white-space:pre-wrap!important}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-/* 一覧テーブル（前回確定レイアウト） */
-.tableWrap{ position:relative; overflow-x:hidden; }
-table.list{ width:100%; border-collapse:collapse; table-layout:fixed; background:var(--td); }
-table.list thead th{ background:var(--th); padding:6px; font-weight:700; }
-table.list tbody td{ padding:6px; vertical-align:top; }
-table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break-word; overflow-wrap:anywhere; }
-.list th:nth-child(1), .list td:nth-child(1){ text-align:center; }
-.list td:nth-child(1){ vertical-align:middle; }
-.pre{ white-space:pre-wrap !important; }
-.clamp2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+/* 操作列：さらに小型化（列幅縮小に対応） */
+.list td:last-child{padding:3px;text-align:center}
+.actions{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}
+.actions .btn{
+  writing-mode:vertical-rl;text-orientation:upright;
+  min-width:12px;min-height:36px;padding:2px 0;
+  font-size:7.5px;letter-spacing:.05em;border-radius:9px}
 
-/* 操作列（細めの縦ボタンに復元） */
-.list td:last-child{ padding:3px; text-align:center; }
-.actions{ display:flex; flex-direction:column; gap:4px; align-items:center; }
-.actions .btn{ writing-mode:vertical-rl; text-orientation:upright; min-width:14px; min-height:40px; padding:2px 1px; font-size:8px; letter-spacing:.06em; }
+/* PDFヘッダ */
+.head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 
-/* PDFボタン行 */
-.head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+/* 追加フォーム（確定順） */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap)}
+.grid .span2{grid-column:1 / -1}
 
-/* 追加フォーム：既定の並び（復元） */
-.grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--gap); }
-.grid .span2{ grid-column:1 / -1; }
-
-/* カウンタ */
-.counter{ display:block; margin:6px 0 0 2px; font-size:13px; color:#666; }
+/* 文字数カウンタ */
+.counter{display:block;margin:6px 0 0 2px;font-size:13px;color:#666}
 
 /* 罫線レイヤ */
-.gridlayer{ position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }
-.gridlayer svg{ width:100%; height:100%; display:block; shape-rendering:crispEdges; }
+.gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* ====== 自前モーダル（dialog代替） ====== */
-.modal{ position:fixed; inset:0; display:none; z-index:10000; }
-.modal.open{ display:block; }
-.modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
-.modal .panel{
-  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-  width:min(92vw,520px); max-height:90dvh; background:#fff; border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,.2); display:flex; flex-direction:column; overflow:hidden;
-}
-.modal .head{ padding:10px 12px; border-bottom:1px solid #eee; font-weight:700; font-size:16px; }
-.modal .body{ padding:10px 12px; max-height:calc(90dvh - 96px); overflow:auto; }
-.modal .foot{ padding:10px 12px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
+/* ===== モーダル（自前） ===== */
+.modal{position:fixed;inset:0;display:none;z-index:10000}
+.modal.open{display:block}
+.modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.modal .panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(92vw,520px);max-height:90dvh;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2);
+  display:flex;flex-direction:column;overflow:hidden}
+.modal .head{padding:10px 12px;border-bottom:1px solid #eee;font-weight:700;font-size:16px}
+.modal .body{padding:10px 12px;max-height:calc(90dvh - 96px);overflow:auto}
+.modal .foot{padding:10px 12px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end}
 
-/* 編集フォームは1カラム固定（崩れ防止） */
-#edForm .grid{ grid-template-columns:1fr; gap:8px; }
-#edForm input[type="text"], #edForm input[type="date"], #edForm input[type="time"], #edForm select{
-  height:var(--ctl-h); border:var(--line) solid var(--bd-strong); border-radius:var(--radius); padding:0 var(--pad);
-}
-#edForm textarea{ min-height:96px; max-height:140px; }
+/* 編集フォーム：1カラム固定 */
+#edForm .grid{grid-template-columns:1fr;gap:8px}
+#edForm input[type="text"],#edForm input[type="date"],#edForm input[type="time"],#edForm select{
+  height:var(--ctl-h);border:var(--line) solid var(--bd-strong);border-radius:var(--radius);padding:0 var(--pad)}
+#edForm textarea{min-height:96px;max-height:140px}
 
-/* 超小画面 */
-@media (max-width:360px){ :root{ --ctl-h:40px; } }
+@media (max-width:360px){:root{--ctl-h:40px}}
 </style>
 </head>
 
@@ -135,19 +123,19 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
 
   <!-- ▼ 時系列メモ -->
   <div class="card">
-    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54</span></h1>
+    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-02</span></h1>
     <div class="checkRow">
       <input id="autoSave" type="checkbox"><label for="autoSave">変更のたびに自動保存</label>
     </div>
     <p class="muted" style="line-height:1.6;font-size:14px;margin-top:8px">
       入力は<strong>この端末のブラウザにのみ保存</strong>され、<strong>外部には送信されません</strong>。
     </p>
-    <div class="rightEnd">
+    <div class="memoActions">
       <button id="wipeAll" class="btn btn-warn">全データ削除（この端末）</button>
     </div>
   </div>
 
-  <!-- ▼ 案件（ラベル横並び→次行に4ボタン） -->
+  <!-- ▼ 案件 -->
   <div class="card">
     <div class="caseRow1">
       <label for="caseSelect">案件：</label>
@@ -174,9 +162,9 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
       <div class="gridlayer"><svg></svg></div>
       <table class="list" id="listTable">
         <colgroup>
-          <!-- 列幅：#5 / 日付16 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容22 / 証拠7 / 操作8（確定仕様へ復元） -->
-          <col style="width:5%"><col style="width:16%"><col style="width:9%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:22%"><col style="width:7%"><col style="width:8%">
+          <!-- 列幅：#5 / 日付18 / 時刻9 / 種別10 / 関与者11 / 場所11 / 内容23 / 証拠7 / 操作6 -->
+          <col style="width:5%"><col style="width:18%"><col style="width:9%"><col style="width:10%">
+          <col style="width:11%"><col style="width:11%"><col style="width:23%"><col style="width:7%"><col style="width:6%">
         </colgroup>
         <thead><tr>
           <th data-field="index">#</th>
@@ -194,13 +182,12 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     </div>
   </div>
 
-  <!-- ▼ 追加フォーム（既定の順序に復元） -->
+  <!-- ▼ 追加フォーム -->
   <div class="card">
     <h2>出来事の追加</h2>
     <div class="grid">
       <div><label class="wrap-date">発生日（開始）<input id="evDate" type="date" placeholder="yyyy/mm/dd"></label></div>
       <div><label class="wrap-time">発生時刻（任意）<input id="evTime" type="time"></label></div>
-
       <div><label>種別
         <select id="evType" class="arrow">
           <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
@@ -208,16 +195,12 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
         </select>
       </label></div>
       <div><label>関与者（誰が）<input id="evActor" type="text" placeholder="例：相手方／自分／子"></label></div>
-
       <div class="span2"><label>場所（任意）<input id="evPlace" type="text" placeholder="例：自宅／職場／LINE"></label></div>
-
       <div class="span2">
         <label>内容（事実ベース・140字まで）<textarea id="evFact" maxlength="140"></textarea></label>
         <small id="counter" class="counter">0/140</small>
       </div>
-
       <div class="span2"><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" type="text" placeholder="例：スクショ（2025-05-10）"></label></div>
-
       <div class="span2" style="display:flex;gap:8px;justify-content:flex-end">
         <button id="addBtn" class="btn btn-primary">＋ この内容を追加</button>
       </div>
@@ -230,7 +213,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   </div>
 </div>
 
-<!-- =========== 自前モーダル（編集画面） =========== -->
+<!-- ▼ 編集モーダル（自前） -->
 <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
   <div class="backdrop"></div>
   <div class="panel" id="edPanel">
@@ -260,7 +243,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   </div>
 </div>
 
-<!-- 印刷レイヤ（PDF生成の内部利用） -->
+<!-- 印刷レイヤ（PDF生成内部） -->
 <div id="PRINT_SHEET" style="visibility:hidden;pointer-events:none;"></div>
 
 <script>
@@ -268,11 +251,10 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   "use strict";
   const $=id=>document.getElementById(id);
 
-  /* ====== ストア ====== */
+  /* ===== ストア ===== */
   const KEY_MAIN="KAWAI_TIMELINE_CASESAFE_V1", KEY_BACKUP=KEY_MAIN+"_BACKUP", KEY_SNAP=KEY_MAIN+"_SNAPSHOTS";
   const SNAP_MAX=5, SNAP_MINT=60*1000;
   let storeOK=false; try{ localStorage.setItem("__t","1"); localStorage.removeItem("__t"); storeOK=true; }catch(e){}
-
   const S={cases:{},order:[],current:"",meta:{v:"r54",updatedAt:Date.now()}};
   const today=()=>new Date().toISOString().slice(0,10);
   const nowStr=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes());};
@@ -289,7 +271,8 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
       localStorage.setItem(KEY_BACKUP,str);
       const now=Date.now(), lastT=Number(localStorage.getItem(KEY_SNAP+"_t"))||0;
       if(now-lastT>=SNAP_MINT && str.length<400000){
-        const snaps=parse(localStorage.getItem(KEY_SNAP))||[]; snaps.push({t:now,d:str}); while(snaps.length>SNAP_MAX) snaps.shift();
+        const snaps=parse(localStorage.getItem(KEY_SNAP))||[];
+        snaps.push({t:now,d:str}); while(snaps.length>SNAP_MAX) snaps.shift();
         localStorage.setItem(KEY_SNAP,JSON.stringify(snaps)); localStorage.setItem(KEY_SNAP+"_t",String(now));
       }
     }catch(e){}
@@ -309,7 +292,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   function ensureDefault(){ if(!S.order.length){ const n="案件A_"+today(); S.cases[n]=[]; S.order=[n]; S.current=n; } }
   const evts=()=>S.cases[S.current]||(S.cases[S.current]=[]);
 
-  /* ====== UI（案件） ====== */
+  /* ===== 案件UI ===== */
   function fillCases(){
     const sel=$("caseSelect"); sel.innerHTML="";
     S.order.forEach(n=>{ const op=document.createElement("option"); op.value=n; op.textContent=n; if(n===S.current) op.selected=true; sel.appendChild(op); });
@@ -347,7 +330,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     persist(); fillCases(); render();
   });
 
-  /* ====== 一覧描画 ====== */
+  /* ===== 一覧描画 ===== */
   function td(txt,cls){ const x=document.createElement("td"); if(cls) x.className=cls; x.textContent=txt||""; return x; }
   function tdDate(txt){ const td=document.createElement("td"); const sp=document.createElement("span"); sp.className="clamp2"; sp.textContent=txt||""; td.appendChild(sp); return td; }
 
@@ -367,7 +350,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
       tr.appendChild(td(e.evidence));
       const act=document.createElement("td"); act.className="actions";
       const bE=document.createElement("button"); bE.className="btn btn-plain"; bE.textContent="編集";
-      const bD=document.createElement("button"); bD.className="btn btn-warn"; bD.textContent="削除";
+      const bD=document.createElement("button"); bD.className="btn btn-warn";  bD.textContent="削除";
       bE.onclick=()=>openEdit(it.i);
       bD.onclick=()=>{ if(confirm("この行を削除します。よろしいですか？")){ evts().splice(it.i,1); saveMaybe(); render(); } };
       act.append(bE,bD); tr.appendChild(act);
@@ -376,7 +359,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     drawGrid(); setTimeout(drawGrid,50); setTimeout(drawGrid,300);
   }
 
-  /* ====== 罫線SVG ====== */
+  /* ===== 罫線SVG ===== */
   function drawGrid(){
     const wrap=$("tableWrap"); const table=$("listTable"); const svg=wrap.querySelector("svg"); if(!table||!svg) return;
     svg.innerHTML="";
@@ -394,7 +377,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   }
   addEventListener("resize",drawGrid); addEventListener("orientationchange",drawGrid);
 
-  /* ====== 追加 & カウンタ ====== */
+  /* ===== 追加 & カウンタ ===== */
   $("evFact").addEventListener("input",()=>{ $("counter").textContent=(($("evFact").value)||"").length+"/140"; });
   $("addBtn").addEventListener("click",()=>{
     const e={ date:$("evDate").value||"", time:$("evTime").value||"", type:$("evType").value||"",
@@ -404,7 +387,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     $("inlineError").textContent=""; evts().push(e); saveMaybe(); render();
   });
 
-  /* ====== 編集モーダル（自前） ====== */
+  /* ===== 編集モーダル ===== */
   let editing=-1; const modal=$("editModal");
   function openEdit(i){
     editing=i; const e=evts()[i]; if(!e) return;
@@ -428,14 +411,14 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     evts()[i]=nv; saveMaybe(); render(); closeEdit();
   });
 
-  /* ====== 保存UI ====== */
+  /* ===== 保存UI ===== */
   let DIRTY=false;
   const mark=()=>{ DIRTY=false; $("unsaved").style.display="none"; };
   const saveMaybe=()=>{ if($("autoSave").checked){ persist(); mark(); } else { DIRTY=true; $("unsaved").style.display="inline"; } };
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF ====== */
+  /* ===== PDF ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const wrapLine=(ctx,t,maxW,font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of String(t||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
@@ -464,13 +447,12 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     while(idx<rows.length){
       const c=document.createElement("canvas"); c.width=Math.floor(pageWpx*SCALE); c.height=Math.floor(PDF_H_PT/PX2PT*SCALE);
       const ctx=c.getContext("2d"); ctx.scale(SCALE,SCALE); ctx.imageSmoothingEnabled=false; ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height); ctx.strokeStyle="#000"; ctx.lineWidth=1;
-      const L={ rect:(x,y,w,h)=>ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h)), v:(x,y1,y2)=>{x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();} };
+      const L={rect:(x,y,w,h)=>ctx.strokeRect(Math.floor(x)+0.5,Math.floor(y)+0.5,Math.floor(w),Math.floor(h)),v:(x,y1,y2)=>{x=Math.floor(x)+0.5;y1=Math.floor(y1)+0.5;y2=Math.floor(y2)+0.5;ctx.beginPath();ctx.moveTo(x,y1);ctx.lineTo(x,y2);ctx.stroke();}};
       let x0=marginPx, y0=marginPx;
       ctx.fillStyle="#dbe8ff"; ctx.fillRect(x0,y0,innerW,headH);
       ctx.fillStyle="#000"; ctx.font=headFont; ctx.textBaseline="middle";
       let cx=x0; cols.forEach((cdef,i)=>{ const tx=cdef.t, wtx=mctx.measureText(tx).width; let txX=cx+padX; if(cdef.align==="center") txX=cx+(cw[i]-wtx)/2; ctx.fillText(tx,Math.max(cx+padX,txX),y0+headH/2); cx+=cw[i]; });
       L.rect(x0,y0,innerW,headH); cx=x0; cols.forEach((_,i)=>{ if(i>0) L.v(cx,y0,y0+headH); cx+=cw[i]; });
-
       let y=y0+headH; ctx.font=cellFont; ctx.textBaseline="top";
       for(; idx<rows.length; idx++){
         const r=rows[idx]; if(y+r.h>marginPx+innerH) break;
@@ -517,7 +499,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(_){ } try{a.remove();}catch(_){ } if(s) s.textContent=""; },60000);
   });
 
-  /* ====== 初期化 ====== */
+  /* ===== 初期化 ===== */
   (function init(){
     if(!loadAll()) ensureDefault();
     persist(); fillCases(); render();
@@ -526,7 +508,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     $("autoSave").addEventListener("change",()=>localStorage.setItem("__autosave__", $("autoSave").checked?"1":"0"));
   })();
 
-  /* ====== 全削除 ====== */
+  /* ===== 全削除 ===== */
   $("wipeAll").addEventListener("click",()=>{
     if(!confirm("この端末に保存された全案件・全入力を完全に削除します。よろしいですか？")) return;
     try{ localStorage.removeItem(KEY_MAIN); localStorage.removeItem(KEY_BACKUP); localStorage.removeItem(KEY_SNAP); localStorage.removeItem(KEY_SNAP+"_t"); }catch(e){}
@@ -534,7 +516,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     alert("この端末の保存データを削除しました。");
   });
 
-  /* ====== エラー表示（Script error は抑制） ====== */
+  /* ===== エラー表示（Script error は抑制） ===== */
   const showErr=(m)=>{ const el=$("inlineError"); if(!el) return; el.textContent=m||""; el.style.display=m?"block":"none"; };
   addEventListener("error",e=>{ if(!e) return; const m=(e.error&&e.error.message)||e.message||""; if(m && m!=="Script error.") showErr("エラー: "+m); });
   addEventListener("unhandledrejection",e=>{ if(!e||!e.reason) return; const m=(typeof e.reason==="string")?e.reason:(e.reason.message||""); if(m) showErr("エラー: "+m); });
