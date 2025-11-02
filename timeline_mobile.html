@@ -406,18 +406,18 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（改行＝“次行”・空行ゼロ／句読点禁則） ====== */
+  /* ====== PDF（空行は“意図した1行だけ”／句読点禁則） ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
   const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
   /* 行頭禁則（句読点など） */
-  const KINSOKU_HEAD=new Set(Array.from("、。，．・!！?？：；)]］）｝〉》」』】％｡､．") );
+  const KINSOKU_HEAD=new Set(Array.from("、。，．・!！?？：；)]］）｝〉《》」』】％｡､．"));
 
   const textW=(ctx,s)=>ctx.measureText(s).width;
 
-  // 1段落を幅で折り返す（行頭禁則・空行を作らない）
+  // 1段落を幅で折り返し（行頭禁則・空行ゼロ）
   function wrapParagraph(ctx, str, maxW, font){
     ctx.save(); ctx.font=font;
     const src=Array.from(str||"");
@@ -427,9 +427,9 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       const ch=src[i];
       const test=run+ch;
       if(textW(ctx,test)<=maxW || run===""){ run=test; continue; }
-      // 折り返し必要：次行先頭が句読点にならないよう調整
+      // 折返し：次行頭が句読点なら直前1文字を巻き戻して一緒に送る
       if(KINSOKU_HEAD.has(ch) && run.length>=1){
-        const prev=run.slice(0,-1); const carry=run.slice(-1); // carry+ch を次行へ
+        const prev=run.slice(0,-1); const carry=run.slice(-1);
         if(prev!=="") out.push(prev);
         run=carry+ch; continue;
       }
@@ -442,16 +442,19 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     return out;
   }
 
-  // 改行を“そのまま次行”に詰める（空行を生成しない）
+  // ★改良：改行は“次行へ詰める”、連続した空行は「ちょうど1行の空き」にする
   function wrapTextTight(ctx, text, maxW, font){
     const norm=(text||"").replace(/\r\n|\r/g,"\n");
     const paras=norm.split("\n");
     const out=[];
+    let pendingEmpty=0;
     for(const p of paras){
-      if(p==="") continue;                 // 空段落は捨てる → 空行は作らない
+      if(p===""){ pendingEmpty++; continue; }        // 空行は溜める
+      if(pendingEmpty>0){ out.push(""); pendingEmpty=0; }  // 何個連続でも空きは1行だけ
       const lines=wrapParagraph(ctx,p,maxW,font);
-      for(const ln of lines){ if(ln!=="") out.push(ln); }
+      for(const ln of lines){ out.push(ln); }
     }
+    // 文末の空行は無視（セル末尾の余白は不要）
     return out.length?out:[""];
   }
 
@@ -472,7 +475,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
           .replace(/\r/g,"")
           .replace(/\u00a0/g," ")
           .replace(/[ \t]+\n/g,"\n")   // 行末スペース除去
-          .trim();
+          .trimEnd();
         o[cols[ci].key]=txt;
       });
       rows.push(o);
@@ -616,7 +619,7 @@ Q`;
     alert("この端末の保存データを削除しました。");
   });
 
-  /* ====== エラー表示（一般的な Script error. は抑制） ====== */
+  /* ====== エラー表示 ====== */
   const showErr=m=>{ const el=$("inlineError"); if(!el) return; el.textContent=m||""; el.style.display=m?"block":"none"; };
   addEventListener("error",e=>{ if(!e) return; const m=(e.error&&e.error.message)||e.message||""; if(m && m!=="Script error.") showErr("エラー: "+m); });
   addEventListener("unhandledrejection",e=>{ if(!e||!e.reason) return; const m=(typeof e.reason==="string")?e.reason:(e.reason.message||""); if(m) showErr("エラー: "+m); });
