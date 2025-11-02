@@ -98,9 +98,9 @@
       <label style="display:inline-flex;gap:6px;align-items:center">
         <input type="checkbox" id="autoSave"> 変更のたびに自動保存
       </label>
-      <button id="wipeAll" class="btn btn-warn">全データ削除（この端末）</button>
       <span class="spacer"></span>
-      <!-- ご要望により、右下の小タグ3つは削除 -->
+      <!-- ▼ ご要望：右端に配置 -->
+      <button id="wipeAll" class="btn btn-warn" style="margin-left:auto">全データ削除（この端末）</button>
     </div>
   </div>
 
@@ -151,12 +151,12 @@
       <div class="col3"><label>内容（事実ベース・140字まで）<textarea id="evFact" maxlength="140" style="height:100px"></textarea></label></div>
       <div><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" placeholder="例：スクショ（2025-05-10）"></label></div>
 
-      <!-- 1行目：カウンタ & 追加 -->
+      <!-- 1行目：カウンタ & 追加（ご要望：追加ボタンをプライマリ色に） -->
       <div class="col4 toolbar" style="justify-content:space-between">
         <span id="counter" class="muted">0/140</span>
-        <button id="addBtn" class="btn btn-plain">＋ この内容を追加</button>
+        <button id="addBtn" class="btn btn-primary">＋ この内容を追加</button>
       </div>
-      <!-- 2行目：未保存表示 & 手動保存（復元） -->
+      <!-- 2行目：未保存表示 & 手動保存 -->
       <div class="col4 toolbar" style="justify-content:flex-end;gap:10px">
         <span id="unsaved" class="muted" style="display:none">● 未保存あり</span>
         <button id="saveNow" class="btn btn-primary">保存（この端末）</button>
