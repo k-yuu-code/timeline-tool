@@ -2,46 +2,55 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>時系列整理ツール（端末にあわせて自動）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- 検索に載せない／参照元を外へ出さない -->
-<meta name="robots" content="noindex, nofollow, noarchive">
+<title>時系列整理ツール｜入口</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Referrer-Policy" content="no-referrer">
-<!-- 外部通信なしのCSP（単一HTML、外部読み込みや送信を禁止） -->
 <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data:;
-               style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';
-               connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+      content="default-src 'self';
+               img-src 'self' data:;
+               style-src 'self' 'unsafe-inline';
+               script-src 'self' 'unsafe-inline';
+               connect-src 'none';
+               object-src 'none';
+               base-uri 'none';
+               form-action 'none';
+               frame-ancestors 'self'">
 <style>
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP","Yu Gothic",Meiryo,sans-serif;margin:0;padding:24px}
-h1{font-size:18px;margin:0 0 10px} p{margin:6px 0} a{color:#0a58cc}
+  html,body{height:100%;margin:0;
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans JP','Yu Gothic',Meiryo,sans-serif;
+    display:flex;align-items:center;justify-content:center;background:#f7f8fb;color:#111}
+  .box{padding:20px;border:1px solid #dcdfea;background:#fff;border-radius:12px;
+    box-shadow:0 1px 0 rgba(10,10,20,.03)}
+  .muted{color:#666;font-size:14px;margin-top:8px}
 </style>
-</head>
-<body>
-<h1>時系列整理ツールを開いています…</h1>
-<p>数秒で自動的に移動します。移動しない場合は下のリンクをご利用ください。</p>
-<ul>
-  <li><a id="toMobile" href="./timeline_mobile.html">スマホ版を開く</a></li>
-  <li><a id="toDesktop" href="./timeline_desktop.html">PC/タブレット版を開く</a></li>
-</ul>
-
 <script>
 (function(){
-  try{
-    // 画面幅で簡易判定（CSSピクセル）。767px以下をスマホ扱い。
-    var isMobile = false;
-    if (window.matchMedia) {
-      isMobile = window.matchMedia('(max-width: 767px)').matches;
-    } else {
-      var w = Math.min(screen.width, screen.height);
-      isMobile = w <= 767;
-    }
-    var target = isMobile ? './timeline_mobile.html' : './timeline_desktop.html';
-    // 戻るでこの中継に戻らないよう replace
-    location.replace(target);
-  }catch(e){}
+  // 1) クエリとハッシュをそのまま引き継ぐ（?v=… を含む）
+  var qs   = location.search || ""; // 例: ?v=20251102a
+  var hash = location.hash   || "";
+
+  // 2) 端末判定：スマホのみモバイル版、タブレットはデスクトップ版へ
+  var ua = navigator.userAgent || "";
+  var isAndroid  = /Android/i.test(ua);
+  var isPhone    = /iPhone|iPod|Windows Phone|BlackBerry/i.test(ua) || (isAndroid && /Mobile/i.test(ua));
+  // iPadOSがMacと名乗るケースを除外（タブレット=デスクトップ扱い）
+  // var isIpadOS = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isMobile = isPhone;
+
+  var target = isMobile ? "timeline_mobile.html" : "timeline_desktop.html";
+
+  // 3) 履歴を汚さずに遷移（?v=… を確実に保持）
+  location.replace(target + qs + hash);
 })();
 </script>
-</body>
+<noscript>
+  <div class="box">
+    <p>自動転送できませんでした（JavaScriptが無効）。</p>
+    <p><a href="timeline_desktop.html">PC/タブレット版へ</a> ／ <a href="timeline_mobile.html">スマホ版へ</a></p>
+    <p class="muted">※ このツールはJavaScriptを使用します。ブラウザ設定で有効にしてください。</p>
+  </div>
+</noscript>
+</head>
+<body></body>
 </html>
