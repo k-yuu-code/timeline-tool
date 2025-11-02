@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-06）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-07）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -125,7 +125,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
   <!-- ▼ 時系列メモ -->
   <div class="card">
-    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-06</span></h1>
+    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-07</span></h1>
     <div class="checkRow">
       <input id="autoSave" type="checkbox"><label for="autoSave">変更のたびに自動保存</label>
     </div>
@@ -133,7 +133,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       入力は<strong>この端末のブラウザにのみ保存</strong>され、<strong>外部には送信されません</strong>。
     </p>
     <div class="memoActions">
-      <button id="wipeAll" class="btn btn-warn">全データ削除（この端末）</button>
+      <button id="wipeAll" class="btn btn-warn" type="button">全データ削除（この端末）</button>
     </div>
   </div>
 
@@ -144,10 +144,10 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       <div><select id="caseSelect" class="arrow"></select></div>
     </div>
     <div class="caseRow2">
-      <button id="newCase" class="btn btn-plain">新規案件</button>
-      <button id="renameCase" class="btn btn-plain">名前変更</button>
-      <button id="dupCase"   class="btn btn-plain">複製</button>
-      <button id="deleteCase" class="btn btn-warn">案件削除</button>
+      <button id="newCase" class="btn btn-plain" type="button">新規案件</button>
+      <button id="renameCase" class="btn btn-plain" type="button">名前変更</button>
+      <button id="dupCase"   class="btn btn-plain" type="button">複製</button>
+      <button id="deleteCase" class="btn btn-warn" type="button">案件削除</button>
     </div>
   </div>
 
@@ -156,7 +156,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
     <div class="head">
       <h2>時系列一覧</h2>
       <div>
-        <button id="pdfBtn" class="btn btn-primary" aria-busy="false">PDF</button>
+        <button id="pdfBtn" class="btn btn-primary" type="button" aria-busy="false">PDF</button>
         <div id="pdfStatus" class="muted" style="min-height:1.2em;"></div>
       </div>
     </div>
@@ -204,10 +204,10 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       </div>
       <div class="span2"><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" type="text" placeholder="例：スクショ（2025-05-10）"></label></div>
       <div class="span2" style="display:flex;gap:8px;justify-content:flex-end">
-        <button id="addBtn" class="btn btn-primary">＋ この内容を追加</button>
+        <button id="addBtn" class="btn btn-primary" type="button">＋ この内容を追加</button>
       </div>
       <div class="span2" style="display:flex;gap:8px;justify-content:flex-end">
-        <button id="saveNow" class="btn btn-primary">保存（この端末）</button>
+        <button id="saveNow" class="btn btn-primary" type="button">保存（この端末）</button>
         <span id="unsaved" class="muted" style="display:none;">● 未保存あり</span>
       </div>
     </div>
@@ -239,8 +239,8 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       </form>
     </div>
     <div class="foot">
-      <button id="editSave"   class="btn btn-primary">保存</button>
-      <button id="editCancel" class="btn btn-plain">キャンセル</button>
+      <button id="editSave"   class="btn btn-primary" type="button">保存</button>
+      <button id="editCancel" class="btn btn-plain" type="button">キャンセル</button>
     </div>
   </div>
 </div>
@@ -351,8 +351,8 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       tr.appendChild(td(e.fact,"pre"));
       tr.appendChild(td(e.evidence));
       const act=document.createElement("td"); act.className="actions";
-      const bE=document.createElement("button"); bE.className="btn btn-plain"; bE.textContent="編集";
-      const bD=document.createElement("button"); bD.className="btn btn-warn";  bD.textContent="削除";
+      const bE=document.createElement("button"); bE.className="btn btn-plain"; bE.textContent="編集"; bE.type="button";
+      const bD=document.createElement("button"); bD.className="btn btn-warn";  bD.textContent="削除"; bD.type="button";
       bE.onclick=()=>openEdit(it.i);
       bD.onclick=()=>{ if(confirm("この行を削除します。よろしいですか？")){ evts().splice(it.i,1); saveMaybe(); render(); } };
       act.append(bE,bD); tr.appendChild(act);
@@ -426,12 +426,12 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ===== PDF（堅牢化：進捗表示・多重クリック防止・例外捕捉） ===== */
+  /* ===== PDF（堅牢化：進捗表示・多重クリック防止・デリゲート） ===== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
 
   const setPdfStatus=(msg,err)=>{ const s=$("pdfStatus"); if(!s) return; s.style.color=err?'#b11':'#333'; s.textContent=msg||""; };
-  const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
+  const setPdfBusy=(busy)=>{ const b=$("pdfBtn"); if(!b) return; b.disabled=!!busy; b.setAttribute('aria-busy',busy?'true':'false'); };
 
   const wrapLine=(ctx,t,maxW,font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of String(t||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
   const wrapText=(ctx,t,maxW,font)=>{ const ps=String(t||"").split(/\r\n|\r|\n/); const out=[]; ps.forEach((p,i)=>{ out.push(...wrapLine(ctx,p,maxW,font)); if(i<ps.length-1) out.push(""); }); return out.length?out:[""]; };
@@ -491,16 +491,8 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   function pdfFrom(imgs,W=595.28,H=841.89,M=24){
     const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0];
     const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
-
-    // ★修正：配列/単体を正しく処理（以前の bufs 参照ミスを修正）
-    const obj=(n,buf)=>{
-      xref[n]=off; addS(`${n} 0 obj\n`);
-      if(Array.isArray(buf)){ buf.forEach(add); } else { addS(buf); }
-      addS("\nendobj\n");
-    };
-
+    const obj=(n,buf)=>{ xref[n]=off; addS(`${n} 0 obj\n`); if(Array.isArray(buf)){ buf.forEach(add); } else { addS(buf); } addS("\nendobj\n"); };
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
-
     const N=imgs.length, img=i=>3+i*3, cnt=i=>4+i*3, page=i=>5+i*3;
     for(let i=0;i<N;i++){
       const it=imgs[i], px2pt=72/96, wpt=it.wpx*px2pt/2, hpt=it.hpx*px2pt/2;
@@ -520,7 +512,6 @@ Q`;
     const kids=Array.from({length:N},(_,i)=>`${page(i)} 0 R`).join(" ");
     obj(2,`<< /Type /Pages /Count ${N} /Kids [ ${kids} ] >>`);
     obj(1,`<< /Type /Catalog /Pages 2 0 R >>`);
-
     const max=(N>0)?page(N-1):2; const start=off;
     let x="xref\n0 "+(max+1)+"\n0000000000 65535 f \n";
     for(let i=1;i<=max;i++){ const p=(typeof xref[i]==="number")?xref[i]:0; x+=String(p).padStart(10,"0")+" 00000 "+(p?"n":"f")+" \n"; }
@@ -529,37 +520,48 @@ Q`;
     return new Blob(parts,{type:"application/pdf"});
   }
 
-  $("pdfBtn").addEventListener("click",()=>{
+  function makePDF(){
     try{
       setPdfBusy(true); setPdfStatus("PDFを作成中…", false);
-
       const cols=pdfCols(); const list=rowsForPdf(cols);
-      if(!list.length){ setPdfStatus("",false); setPdfBusy(false); alert("PDFに出力できる行がありません。"); return; }
-
+      if(!list.length){ setPdfStatus("",false); setPdfBusy(false); alert("PDFに出力できる行がありません。"); return false; }
       let pages;
       try{ pages=pagesFrom(list,cols); }catch(e){ throw new Error("PDFページ生成でエラー: "+(e.message||e)); }
-
       const imgs=pages.map(p=>({bytes:jpegBytes(p.canvas), wpx:p.canvas.width, hpx:p.canvas.height}));
       const pdf=pdfFrom(imgs);
       const url=URL.createObjectURL(pdf);
       const name="timeline_"+nowStr()+".pdf";
-
-      const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a);
-      a.click();
-
-      setPdfStatus(`PDFを作成し、ダウンロードを開始しました。保存できない場合は こちらをタップして保存（60秒以内）。`, false);
+      // 自動ダウンロード + 手動保存リンク
+      const a=document.createElement("a"); a.href=url; a.download=name; a.rel="noopener"; document.body.appendChild(a); a.click();
       const s=$("pdfStatus");
-      if(s){ const link=document.createElement("a"); link.href=url; link.download=name; link.textContent="こちらをタップして保存"; link.style.marginLeft="4px"; s.innerHTML="PDFを作成し、ダウンロードを開始しました。"; s.appendChild(link); s.appendChild(document.createTextNode("（60秒以内）")); }
-
+      if(s){ s.innerHTML="PDFを作成し、ダウンロードを開始しました。"; const link=document.createElement("a"); link.href=url; link.download=name; link.textContent="こちらをタップして保存"; link.style.marginLeft="6px"; s.appendChild(link); s.appendChild(document.createTextNode("（60秒以内）")); }
       setTimeout(()=>{ try{URL.revokeObjectURL(url);}catch(_){ } try{a.remove();}catch(_){ } setPdfStatus("",false); },60000);
+      return false;
     }catch(err){
       console.error(err);
       setPdfStatus("PDF作成でエラー: " + (err && err.message ? err.message : err), true);
       alert("PDF作成でエラーが発生しました。\n" + (err && err.message ? err.message : err));
+      return false;
     }finally{
       setPdfBusy(false);
     }
-  });
+  }
+  window.makePDF = makePDF;
+
+  // 1) 直接バインド
+  if ($("pdfBtn")) $("pdfBtn").addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); makePDF(); }, {passive:false});
+
+  // 2) デリゲート（テーマがDOMを再描画しても拾える）
+  document.addEventListener("click", (e)=>{
+    const btn = e.target && (e.target.id==="pdfBtn" ? e.target : e.target.closest && e.target.closest("#pdfBtn"));
+    if(btn){ e.preventDefault(); makePDF(); }
+  }, {capture:true});
+
+  // 3) タッチ端末フォールバック
+  document.addEventListener("touchend", (e)=>{
+    const btn = e.target && (e.target.id==="pdfBtn" ? e.target : e.target.closest && e.target.closest("#pdfBtn"));
+    if(btn){ e.preventDefault(); makePDF(); }
+  }, {passive:false});
 
   /* ===== 初期化 ===== */
   (function init(){
