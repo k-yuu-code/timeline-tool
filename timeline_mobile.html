@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-03）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-04）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -64,9 +64,13 @@ select.arrow{
 .caseRow1>label{margin:0;white-space:nowrap}
 .caseRow2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 
-/* 一覧（PDFボタンと表の間に余白を追加） */
+/* 一覧（ヘッダーと表の距離を明確化） */
 .tableWrap{position:relative;overflow-x:hidden}
-.card > .head{ margin-bottom: 10px; }  /* ← 追加：PDFボタンと表（らせん）の距離を確保 */
+.head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+/* ← ここが今回の主修正：確実に距離が空くよう二段構え */
+.card > .head{ margin-bottom:16px !important; }
+.card .head + .tableWrap{ margin-top:6px; }
+
 table.list{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td)}
 table.list thead th{background:var(--th);padding:6px;font-weight:700}
 table.list tbody td{padding:6px;vertical-align:top}
@@ -83,9 +87,6 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   writing-mode:vertical-rl;text-orientation:upright;
   min-width:12px;min-height:36px;padding:2px 0;
   font-size:7.5px;letter-spacing:.05em;border-radius:9px}
-
-/* PDFヘッダ */
-.head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 
 /* 追加フォーム（確定順） */
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--gap)}
@@ -124,7 +125,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
   <!-- ▼ 時系列メモ -->
   <div class="card">
-    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-03</span></h1>
+    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-04</span></h1>
     <div class="checkRow">
       <input id="autoSave" type="checkbox"><label for="autoSave">変更のたびに自動保存</label>
     </div>
@@ -164,8 +165,8 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
       <table class="list" id="listTable">
         <colgroup>
           <!-- 列幅：#5 / 日付18 / 時刻9 / 種別10 / 関与者11 / 場所11 / 内容23 / 証拠7 / 操作6 -->
-          <col style="width:5%"><col style="width:18%"><col style="width:9%"><col style="width:10%">
-          <col style="width:11%"><col style="width:11%"><col style="width:23%"><col style="width:7%"><col style="width:6%">
+        <col style="width:5%"><col style="width:18%"><col style="width:9%"><col style="width:10%">
+        <col style="width:11%"><col style="width:11%"><col style="width:23%"><col style="width:7%"><col style="width:6%">
         </colgroup>
         <thead><tr>
           <th data-field="index">#</th>
@@ -476,7 +477,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
   const jpegBytes=(canvas)=>{ let b64; try{ b64=canvas.toDataURL("image/jpeg",0.92); }catch(e){ b64=canvas.toDataURL("image/jpeg",0.88); } const b=atob(b64.split(",").pop()||""); const u8=new Uint8Array(b.length); for(let i=0;i<b.length;i++) u8[i]=b.charCodeAt(i); return u8; };
   function pdfFrom(imgs,W=595.28,H=841.89,M=24){
     const enc=new TextEncoder(); const parts=[]; let off=0; const xref=[0]; const add=b=>{parts.push(b); off+=b.length;}, addS=s=>add(enc.encode(s));
-    const obj=(n,buf)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(buf)?buf.forEach(add):addS(buf); addS("\nendobj\n"); };
+    const obj=(n,buf)=>{ xref[n]=off; addS(`${n} 0 obj\n`); Array.isArray(buf)?bufs.forEach(add):addS(buf); addS("\nendobj\n"); };
     addS("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
     const N=imgs.length, img=i=>3+i*3, cnt=i=>4+i*3, page=i=>5+i*3;
     for(let i=0;i<N;i++){
