@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-02）</title>
+<title>相談準備用：時系列メモ（モバイル版｜送信しません｜V10 r54 fix-03）</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="法律相談の準備に使える時系列メモ。入力は端末のブラウザにのみ保存され、外部へは送信されません。スマートフォン向け。">
 <meta name="referrer" content="no-referrer"><meta http-equiv="Referrer-Policy" content="no-referrer">
@@ -64,8 +64,9 @@ select.arrow{
 .caseRow1>label{margin:0;white-space:nowrap}
 .caseRow2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 
-/* 一覧 */
+/* 一覧（PDFボタンと表の間に余白を追加） */
 .tableWrap{position:relative;overflow-x:hidden}
+.card > .head{ margin-bottom: 10px; }  /* ← 追加：PDFボタンと表（らせん）の距離を確保 */
 table.list{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--td)}
 table.list thead th{background:var(--th);padding:6px;font-weight:700}
 table.list tbody td{padding:6px;vertical-align:top}
@@ -75,7 +76,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 .pre{white-space:pre-wrap!important}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-/* 操作列：さらに小型化（列幅縮小に対応） */
+/* 操作列：小型縦ボタン */
 .list td:last-child{padding:3px;text-align:center}
 .actions{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}
 .actions .btn{
@@ -123,7 +124,7 @@ table.list th,table.list td{font-size:10.5px;line-height:1.26;word-break:break-w
 
   <!-- ▼ 時系列メモ -->
   <div class="card">
-    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-02</span></h1>
+    <h1>相談準備用・時系列メモ（送信されません） <span class="ver">V10 r54 fix-03</span></h1>
     <div class="checkRow">
       <input id="autoSave" type="checkbox"><label for="autoSave">変更のたびに自動保存</label>
     </div>
