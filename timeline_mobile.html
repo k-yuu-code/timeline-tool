@@ -67,12 +67,15 @@ select.arrow{
 .btn-warn{ border-color:#b11; color:#b11; }
 .btn-primary{ border-color:var(--accent); color:var(--accent); font-weight:700; }
 
-/* 案件行 */
+/* 時系列メモ内：削除ボタンは右端 */
+.rightEnd{ display:flex; justify-content:flex-end; margin-top:8px; }
+
+/* 案件行：ラベル横並び→次行に4ボタン */
 .caseRow1{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; }
 .caseRow1 > label{ margin:0; white-space:nowrap; }
-.caseRow2{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.caseRow2{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; } /* ← 間隔を広めに復元 */
 
-/* 一覧テーブル */
+/* 一覧テーブル（前回確定レイアウト） */
 .tableWrap{ position:relative; overflow-x:hidden; }
 table.list{ width:100%; border-collapse:collapse; table-layout:fixed; background:var(--td); }
 table.list thead th{ background:var(--th); padding:6px; font-weight:700; }
@@ -83,7 +86,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
 .pre{ white-space:pre-wrap !important; }
 .clamp2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-/* 操作列（小型縦ボタン） */
+/* 操作列（細めの縦ボタンに復元） */
 .list td:last-child{ padding:3px; text-align:center; }
 .actions{ display:flex; flex-direction:column; gap:4px; align-items:center; }
 .actions .btn{ writing-mode:vertical-rl; text-orientation:upright; min-width:14px; min-height:40px; padding:2px 1px; font-size:8px; letter-spacing:.06em; }
@@ -91,7 +94,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
 /* PDFボタン行 */
 .head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
 
-/* 追加フォーム：2列 */
+/* 追加フォーム：既定の並び（復元） */
 .grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--gap); }
 .grid .span2{ grid-column:1 / -1; }
 
@@ -102,10 +105,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
 .gridlayer{ position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none; }
 .gridlayer svg{ width:100%; height:100%; display:block; shape-rendering:crispEdges; }
 
-/* メモ枠：削除ボタン右寄せ */
-.rightEnd{ display:flex; justify-content:flex-end; margin-top:8px; }
-
-/* ====== 自前モーダル（dialog代替・全端末動作） ====== */
+/* ====== 自前モーダル（dialog代替） ====== */
 .modal{ position:fixed; inset:0; display:none; z-index:10000; }
 .modal.open{ display:block; }
 .modal .backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
@@ -147,7 +147,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     </div>
   </div>
 
-  <!-- ▼ 案件 -->
+  <!-- ▼ 案件（ラベル横並び→次行に4ボタン） -->
   <div class="card">
     <div class="caseRow1">
       <label for="caseSelect">案件：</label>
@@ -174,9 +174,9 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
       <div class="gridlayer"><svg></svg></div>
       <table class="list" id="listTable">
         <colgroup>
-          <!-- #5 / 日付17 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容20 / 証拠8 / 操作8 -->
-          <col style="width:5%"><col style="width:17%"><col style="width:9%"><col style="width:11%">
-          <col style="width:11%"><col style="width:11%"><col style="width:20%"><col style="width:8%"><col style="width:8%">
+          <!-- 列幅：#5 / 日付16 / 時刻9 / 種別11 / 関与者11 / 場所11 / 内容22 / 証拠7 / 操作8（確定仕様へ復元） -->
+          <col style="width:5%"><col style="width:16%"><col style="width:9%"><col style="width:11%">
+          <col style="width:11%"><col style="width:11%"><col style="width:22%"><col style="width:7%"><col style="width:8%">
         </colgroup>
         <thead><tr>
           <th data-field="index">#</th>
@@ -194,12 +194,13 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     </div>
   </div>
 
-  <!-- ▼ 追加フォーム -->
+  <!-- ▼ 追加フォーム（既定の順序に復元） -->
   <div class="card">
     <h2>出来事の追加</h2>
     <div class="grid">
       <div><label class="wrap-date">発生日（開始）<input id="evDate" type="date" placeholder="yyyy/mm/dd"></label></div>
       <div><label class="wrap-time">発生時刻（任意）<input id="evTime" type="time"></label></div>
+
       <div><label>種別
         <select id="evType" class="arrow">
           <option>連絡</option><option>支払い</option><option>通知</option><option>契約</option>
@@ -207,12 +208,16 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
         </select>
       </label></div>
       <div><label>関与者（誰が）<input id="evActor" type="text" placeholder="例：相手方／自分／子"></label></div>
-      <div><label>場所（任意）<input id="evPlace" type="text" placeholder="例：自宅／職場／LINE"></label></div>
-      <div><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" type="text" placeholder="例：スクショ（2025-05-10）"></label></div>
+
+      <div class="span2"><label>場所（任意）<input id="evPlace" type="text" placeholder="例：自宅／職場／LINE"></label></div>
+
       <div class="span2">
         <label>内容（事実ベース・140字まで）<textarea id="evFact" maxlength="140"></textarea></label>
         <small id="counter" class="counter">0/140</small>
       </div>
+
+      <div class="span2"><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" type="text" placeholder="例：スクショ（2025-05-10）"></label></div>
+
       <div class="span2" style="display:flex;gap:8px;justify-content:flex-end">
         <button id="addBtn" class="btn btn-primary">＋ この内容を追加</button>
       </div>
@@ -255,7 +260,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   </div>
 </div>
 
-<!-- 印刷レイヤ（PDF生成の内部利用。画面には表示しません） -->
+<!-- 印刷レイヤ（PDF生成の内部利用） -->
 <div id="PRINT_SHEET" style="visibility:hidden;pointer-events:none;"></div>
 
 <script>
@@ -409,8 +414,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
     setTimeout(()=>{ try{$("edDate").focus();}catch(_){ } }, 0);
   }
   window.openEdit=openEdit;
-
-  function closeEdit(){ modal.classList.remove("open"); document.body.classList.remove("noscroll"); }
+  const closeEdit=()=>{ modal.classList.remove("open"); document.body.classList.remove("noscroll"); };
   $("editCancel").addEventListener("click",closeEdit);
   modal.querySelector(".backdrop").addEventListener("click",closeEdit);
   document.addEventListener("keydown",e=>{ if(e.key==="Escape" && modal.classList.contains("open")) closeEdit(); });
@@ -431,7 +435,7 @@ table.list th, table.list td{ font-size:11px; line-height:1.28; word-break:break
   $("saveNow").addEventListener("click",()=>{ persist(); mark(); alert("この端末のブラウザに保存しました。"); });
   addEventListener("beforeunload",e=>{ if(!$("autoSave").checked && DIRTY){ e.preventDefault(); e.returnValue=""; } });
 
-  /* ====== PDF（従来ロジック） ====== */
+  /* ====== PDF ====== */
   const PDF_W_PT=595.28, PDF_H_PT=841.89, PDF_MARGIN_PT=24, PX2PT=72/96;
   const mctx=(()=>{ const c=document.createElement("canvas"); c.width=2; c.height=2; return c.getContext("2d"); })();
   const wrapLine=(ctx,t,maxW,font)=>{ ctx.save(); ctx.font=font; const out=[]; let line=""; for(const ch of String(t||"")){ const test=line+ch; if(ctx.measureText(test).width<=maxW || line===""){ line=test; } else { out.push(line); line=ch; } } if(line!=="") out.push(line); ctx.restore(); return out.length?out:[""]; };
