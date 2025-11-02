@@ -43,13 +43,12 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
-/* 関与者／場所／証拠（フォーム＆編集） */
-#evActor,#evPlace,#evEvidence,
-#edActor,#edPlace,#edEvidence{ font-size:16px; min-height:38px; height:38px; }
+/* フォーム側：関与者／場所／証拠 */
+#evActor,#evPlace,#evEvidence{ font-size:16px; min-height:44px; height:44px; }
 
 /* カレンダー/時計アイコン（線画） */
 .ktl-dateWrap,.ktl-timeWrap{ position:relative; }
-.ktl-dateWrap input,.ktl-timeWrap input{ padding-right:38px; height:38px; min-height:38px; }
+.ktl-dateWrap input,.ktl-timeWrap input{ padding-right:38px; }
 .ktl-dateWrap::after,.ktl-timeWrap::after{
   content:""; position:absolute; right:10px; top:52%; transform:translateY(-50%);
   width:16px; height:16px; pointer-events:none; opacity:.9; background-repeat:no-repeat; background-position:center; background-size:16px 16px;
@@ -63,7 +62,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
-/* ▼ 案件（ラベル＋セレクト横並び & 矢印保険） */
+/* ▼ 案件（ラベル＋セレクト横並び） */
 .ktl-caseRow1{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; }
 .ktl-caseRow1 > label{ margin:0; font-weight:700; white-space:nowrap; }
 .ktl-combo{ position:relative; width:100%; max-width:100%; }
@@ -77,17 +76,11 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   background-position:right 10px center !important;
   background-size:16px 16px !important;
 }
-.ktl-combo::after{
-  content:""; position:absolute; right:10px; top:50%; transform:translateY(-50%);
-  width:16px; height:16px; pointer-events:none; opacity:.95;
-  background: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat center/16px 16px;
-}
 
 /* ▼ 2行目（案件ボタン群） */
 .ktl-caseRow2{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
 
-/* ▼ 種別セレクトの矢印（フォーム＆編集ダイアログ） */
+/* ▼ 種別セレクト矢印（フォーム＆編集） */
 .ktl-selectWrap select{
   -webkit-appearance:none !important; appearance:none !important;
   padding-right:36px !important;
@@ -130,11 +123,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（さらに小型化） */
+/* 操作ボタン（小型） */
 .ktl-list td:last-child{ padding:3px; overflow:hidden; text-align:center; }
-.ktl-actions{
-  display:flex; flex-direction:column; gap:3px; align-items:center; justify-content:center; min-width:0;
-}
+.ktl-actions{ display:flex; flex-direction:column; gap:3px; align-items:center; justify-content:center; min-width:0; }
 .ktl-actions .ktl-btn{
   writing-mode: vertical-rl; text-orientation: upright;
   display:inline-flex; align-items:center; justify-content:center;
@@ -163,44 +154,36 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 /* ▼ メモ枠：削除ボタンを右寄せ */
 #memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:10px; }
 
-/* ===== 編集ダイアログ：超コンパクト（常時2列・無スクロール） ===== */
+/* ===== 編集ダイアログ：無スクロール・枠線強調 ===== */
 #editDlg{
   padding:0; border:0; border-radius:14px;
   width:min(520px, 92vw); max-width:92vw;
-  /* スクロールを発生させないため max-height をゆとりを持って設定 */
   max-height:86vh; overflow:hidden;
 }
 #editDlg::backdrop{ background:rgba(0,0,0,.35); }
-#editDlg .ktl-dlgHead{
-  padding:8px 12px; border-bottom:1px solid #eee;
-  font-weight:700; font-size:16px;
-}
-#editDlg .ktl-dlgBody{
-  padding:10px 10px 8px;
-  /* 無スクロールにするため、本文は高さ制限なし（内容が収まるよう各パーツを圧縮） */
-}
-#editDlg .ktl-dlgBody .ktl-grid{
-  /* スマホでも 2 列固定 */
-  grid-template-columns: 1fr 1fr;
-  gap:8px;
-}
+#editDlg .ktl-dlgHead{ padding:8px 12px; border-bottom:1px solid #eee; font-weight:700; font-size:16px; }
+#editDlg .ktl-dlgBody{ padding:8px 10px; }
+#editDlg .ktl-dlgBody .ktl-grid{ grid-template-columns:1fr 1fr; gap:8px; }
 #editDlg label{ display:block; margin:2px 0 2px; font-weight:600; }
+/* ← ここで濃い枠線を指定（必須項目見やすく） */
 #editDlg input[type="text"],
 #editDlg input[type="date"],
 #editDlg input[type="time"],
 #editDlg select{
   width:100%; font-size:16px; line-height:1.2;
-  padding:8px 10px; border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
-  min-height:38px; height:38px; -webkit-appearance:none; appearance:none;
+  padding:8px 10px; background:#fff; color:#111;
+  border:1.5px solid #9aa4c8; border-radius:10px;
+  min-height:36px; height:36px; -webkit-appearance:none; appearance:none;
 }
 #editDlg textarea{
   width:100%; font-size:16px; line-height:1.35;
-  padding:8px 10px; border:1px solid var(--field); border-radius:10px;
+  padding:8px 10px; background:#fff;
+  border:1.5px solid #9aa4c8; border-radius:10px;
   min-height:68px; max-height:84px; resize:vertical;
 }
-#editDlg .ktl-dlgFoot{
-  padding:8px 10px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;
-}
+#editDlg .ktl-dlgFoot{ padding:8px 10px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
+/* ダイアログ本文を必要に応じて縮小して1画面に収める */
+#editDlg .ktl-dlgBody{ transform-origin: top center; will-change: transform; }
 </style>
 </head>
 
@@ -304,7 +287,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 <div id="PRINT_SHEET"></div>
 
-<!-- ▼ 編集ダイアログ（超コンパクト 2列固定） -->
+<!-- ▼ 編集ダイアログ（2列・自動スケール） -->
 <dialog id="editDlg">
   <div class="ktl-dlgHead">編集</div>
   <div class="ktl-dlgBody">
@@ -513,6 +496,24 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   }
 
   var editingIndex=-1; var dlg=$("editDlg");
+  function fitEditDialog(){
+    if(!dlg || !dlg.open) return;
+    var head = dlg.querySelector('.ktl-dlgHead');
+    var body = dlg.querySelector('.ktl-dlgBody');
+    var foot = dlg.querySelector('.ktl-dlgFoot');
+    if(!body) return;
+    body.style.transform='none';
+    var maxH = Math.floor(window.innerHeight * 0.86);
+    var chromeH = (head?head.offsetHeight:0) + (foot?foot.offsetHeight:0) + 12;
+    var avail = Math.max(100, maxH - chromeH);
+    var need = body.scrollHeight;
+    var scale = (need>avail) ? (avail/need) : 1;
+    if(scale < 1){
+      body.style.transform='scale('+scale.toFixed(3)+')';
+    }else{
+      body.style.transform='none';
+    }
+  }
   function openEdit(i){
     editingIndex=i; var ev=events()[i]; if(!ev) return;
     if(!(dlg && dlg.showModal)){  /* 旧ブラウザ簡易フォールバック */
@@ -530,6 +531,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     $("edDate").value=ev.date||""; $("edTime").value=ev.time||""; $("edType").value=ev.type||"その他";
     $("edActor").value=ev.actor||""; $("edPlace").value=ev.place||""; $("edFact").value=ev.fact||""; $("edEvidence").value=ev.evidence||"";
     dlg.showModal();
+    setTimeout(fitEditDialog, 0);
   }
   window.openEdit=openEdit;
 
@@ -544,6 +546,8 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
       if(!nv.date||!nv.fact){ alert("日付 と 内容 は必須です"); return; }
       events()[i]=nv; saveMaybe(); render(); dlg.close();
     };
+    window.addEventListener('resize', fitEditDialog);
+    window.addEventListener('orientationchange', function(){ setTimeout(fitEditDialog, 250); });
   }
 
   /* ====== 保存UI ====== */
@@ -734,8 +738,8 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     var kids=[], i; for(i=0;i<N;i++){ kids.push(pagObj(i)+" 0 R"); }
     obj(2,"<< /Type /Pages /Count "+N+" /Kids [ "+kids.join(" ")+" ] >>");
     obj(1,"<< /Type /Catalog /Pages 2 0 R >>");
-    var maxId=(N>0)?pagObj(N-1):2; var start=off; var xS="xref\n0 "+(maxId+1)+"\n0000000000 65535 f \n"; for(i=1;i<=maxId;i++){ var pos=(typeof xref[i]==="number")?xref[i]:0; xS+=String(pos).padStart(10,"0")+" 00000 "+(pos? "n":"f")+" \n"; } xS+="trailer << /Size "+(maxId+1)+" /Root 1 0 R >>\nstartxref\n"+start+"\n%%EOF"; addS(xS);
-    return new Blob(parts,{type:"application/pdf"});
+    var maxId=(N>0)?pagObj(N-1):2; var start=off; var xS="xref\n0 "+(maxId+1)+"\n0000000000 65535 f \n"; for(i=1;i<=maxId;i++){ var pos=(typeof xref[i]==="number")?xref[i]:0; xS+=String(pos).padStart(10,"0")+" 00000 "+(pos? "n":"f")+" \n"; } xS+="trailer << /Size "+(maxId+1)+" /Root 1 0 R >>\nstartxref\n"+start+"\n%%EOF";
+    addS(xS); return new Blob(parts,{type:"application/pdf"});
   }
   function makePDF(){
     var thCols=getPdfColumnsFromDom(); var list=collectRowsFromDom(thCols);
