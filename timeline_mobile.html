@@ -34,7 +34,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 #ktl-app input[type="date"],
 #ktl-app input[type="time"],
 #ktl-app select{
-  width:100%; max-width:100%; font-size:16px; line-height:1.3;
+  width:100%; max-width:100%; font-size:16px; line-height:1.25;
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
   min-height:44px; height:44px; -webkit-appearance:none; appearance:none;
 }
@@ -43,47 +43,45 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
   padding:12px; border:1px solid var(--field); border-radius:10px; background:#fff;
   min-height:120px; resize:vertical;
 }
-/* 関与者／場所／証拠は16px（フォーム＆編集） */
+/* 関与者／場所／証拠（フォーム＆編集） */
 #evActor,#evPlace,#evEvidence,
-#edActor,#edPlace,#edEvidence{ font-size:16px; min-height:44px; height:44px; }
+#edActor,#edPlace,#edEvidence{ font-size:16px; min-height:38px; height:38px; }
 
-/* カレンダー/時計アイコン（黒塗りではない） */
+/* カレンダー/時計アイコン（線画） */
 .ktl-dateWrap,.ktl-timeWrap{ position:relative; }
-.ktl-dateWrap input,.ktl-timeWrap input{ padding-right:44px; }
+.ktl-dateWrap input,.ktl-timeWrap input{ padding-right:38px; height:38px; min-height:38px; }
 .ktl-dateWrap::after,.ktl-timeWrap::after{
-  content:""; position:absolute; right:12px; top:52%; transform:translateY(-50%);
-  width:18px; height:18px; pointer-events:none; opacity:.9; background-repeat:no-repeat; background-position:center; background-size:18px 18px;
+  content:""; position:absolute; right:10px; top:52%; transform:translateY(-50%);
+  width:16px; height:16px; pointer-events:none; opacity:.9; background-repeat:no-repeat; background-position:center; background-size:16px 16px;
 }
 .ktl-dateWrap::after{
   background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>");
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='5' width='18' height='16' rx='2' ry='2'/><path d='M16 3v4M8 3v4M3 10h18'/></svg>");
 }
 .ktl-timeWrap::after{
   background-image:url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v6l4 2'/></svg>");
 }
 
 /* ▼ 案件（ラベル＋セレクト横並び & 矢印保険） */
-.ktl-caseRow1{
-  display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center;
-}
+.ktl-caseRow1{ display:grid; grid-template-columns:auto 1fr; column-gap:12px; align-items:center; }
 .ktl-caseRow1 > label{ margin:0; font-weight:700; white-space:nowrap; }
 .ktl-combo{ position:relative; width:100%; max-width:100%; }
 #caseSelect{
-  width:100%; padding-right:46px !important;
+  width:100%; padding-right:40px !important;
   -webkit-appearance:none !important; appearance:none !important;
   background-color:#fff !important;
   background-image:url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") !important;
   background-repeat:no-repeat !important;
-  background-position:right 12px center !important;
-  background-size:18px 18px !important;
+  background-position:right 10px center !important;
+  background-size:16px 16px !important;
 }
 .ktl-combo::after{
-  content:""; position:absolute; right:12px; top:50%; transform:translateY(-50%);
-  width:18px; height:18px; pointer-events:none; opacity:.95;
+  content:""; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  width:16px; height:16px; pointer-events:none; opacity:.95;
   background: url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat center/18px 18px;
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat center/16px 16px;
 }
 
 /* ▼ 2行目（案件ボタン群） */
@@ -92,17 +90,17 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--b);
 /* ▼ 種別セレクトの矢印（フォーム＆編集ダイアログ） */
 .ktl-selectWrap select{
   -webkit-appearance:none !important; appearance:none !important;
-  padding-right:42px !important;
+  padding-right:36px !important;
   background-color:#fff !important;
   background-image:url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M7 10l5 5 5-5z'/></svg>") !important;
   background-repeat:no-repeat !important;
-  background-position:right 12px center !important;
-  background-size:18px 18px !important;
+  background-position:right 10px center !important;
+  background-size:16px 16px !important;
 }
 
 /* ボタン */
-.ktl-btn{padding:10px 14px;border:1px solid #333;border-radius:10px;background:#fff;cursor:pointer;font-size:15px;white-space:nowrap}
+.ktl-btn{padding:9px 12px;border:1px solid #333;border-radius:10px;background:#fff;cursor:pointer;font-size:15px;white-space:nowrap}
 .ktl-btn-plain{border:1px solid #999}
 .ktl-btn-warn{border-color:#b11;color:#b11}
 .ktl-btn-primary{border-color:var(--acc);color:var(--acc);font-weight:700}
@@ -117,7 +115,7 @@ table.ktl-list tbody td{padding:6px 6px;vertical-align:top;border:0}
   white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;
   line-height:1.28 !important; font-size:11px !important; min-width:0;max-width:100%;
 }
-/* 日付セル：2行クランプ */
+/* 日付2行クランプ */
 .ktl-2lines{
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
   overflow:hidden; white-space:normal !important; line-height:1.28 !important;
@@ -132,15 +130,15 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 .ktl-gridlayer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .ktl-gridlayer svg{width:100%;height:100%;display:block;shape-rendering:crispEdges}
 
-/* 操作ボタン（極小化） */
-.ktl-list td:last-child{ padding:4px; overflow:hidden; text-align:center; }
+/* 操作ボタン（さらに小型化） */
+.ktl-list td:last-child{ padding:3px; overflow:hidden; text-align:center; }
 .ktl-actions{
-  display:flex; flex-direction:column; gap:4px; align-items:center; justify-content:center; min-width:0;
+  display:flex; flex-direction:column; gap:3px; align-items:center; justify-content:center; min-width:0;
 }
 .ktl-actions .ktl-btn{
   writing-mode: vertical-rl; text-orientation: upright;
   display:inline-flex; align-items:center; justify-content:center;
-  min-height:46px; min-width:18px; padding:3px 1px;
+  min-height:42px; min-width:16px; padding:2px 1px;
   font-size:8px; line-height:1; letter-spacing:.06em;
   border-radius:10px; white-space:nowrap; overflow:hidden; text-overflow:clip; transform:translateZ(0);
 }
@@ -148,10 +146,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 /* 見出しとPDFボタン */
 .ktl-cardHead{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:8px}
 
-/* 2列グリッド */
+/* 2列グリッド（フォーム） */
 .ktl-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .ktl-grid .ktl-col2{grid-column:1 / -1}
-@media (max-width:480px){ .ktl-grid{grid-template-columns:1fr;} }
 
 /* カウンタ（内容の直下） */
 .ktl-counter{display:block;margin:6px 0 0 2px;font-size:13px;color:#666}
@@ -163,43 +160,46 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 /* 印刷レイヤ（iOS対策） */
 #PRINT_SHEET{ position:fixed; left:0; top:0; width:100vw; max-width:960px; visibility:hidden; pointer-events:none; z-index:9990; }
 
-/* ▼ メモ枠：削除ボタンを右下に分離（距離を確保） */
+/* ▼ メモ枠：削除ボタンを右寄せ */
 #memoCard .ktl-bottomRight{ display:flex; justify-content:flex-end; margin-top:10px; }
 
-/* ===== 編集ダイアログ（コンパクト＆画面内スクロール） ===== */
+/* ===== 編集ダイアログ：超コンパクト（常時2列・無スクロール） ===== */
 #editDlg{
   padding:0; border:0; border-radius:14px;
-  width:min(560px, 92vw); max-width:92vw;
-  max-height:90vh; overflow:hidden;   /* 画面内に収める */
+  width:min(520px, 92vw); max-width:92vw;
+  /* スクロールを発生させないため max-height をゆとりを持って設定 */
+  max-height:86vh; overflow:hidden;
 }
 #editDlg::backdrop{ background:rgba(0,0,0,.35); }
 #editDlg .ktl-dlgHead{
-  padding:10px 14px; border-bottom:1px solid #eee;
-  font-weight:700; font-size:17px;
+  padding:8px 12px; border-bottom:1px solid #eee;
+  font-weight:700; font-size:16px;
 }
 #editDlg .ktl-dlgBody{
-  padding:12px;
-  max-height:calc(90vh - 110px);   /* ヘッダー＋フッターを差し引いて本文のみスクロール */
-  overflow:auto;
+  padding:10px 10px 8px;
+  /* 無スクロールにするため、本文は高さ制限なし（内容が収まるよう各パーツを圧縮） */
 }
-#editDlg .ktl-dlgBody .ktl-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-#editDlg .ktl-dlgBody .ktl-col2{ grid-column:1 / -1; }
-#editDlg label{ display:block; margin:4px 0 2px; font-weight:600; }
+#editDlg .ktl-dlgBody .ktl-grid{
+  /* スマホでも 2 列固定 */
+  grid-template-columns: 1fr 1fr;
+  gap:8px;
+}
+#editDlg label{ display:block; margin:2px 0 2px; font-weight:600; }
 #editDlg input[type="text"],
 #editDlg input[type="date"],
 #editDlg input[type="time"],
 #editDlg select{
-  width:100%; font-size:16px; line-height:1.25;
-  padding:10px; border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
-  min-height:42px; height:42px; -webkit-appearance:none; appearance:none;
+  width:100%; font-size:16px; line-height:1.2;
+  padding:8px 10px; border:1px solid var(--field); border-radius:10px; background:#fff; color:#111;
+  min-height:38px; height:38px; -webkit-appearance:none; appearance:none;
 }
 #editDlg textarea{
-  width:100%; font-size:16px; line-height:1.4;
-  padding:10px; border:1px solid var(--field); border-radius:10px; min-height:110px; resize:vertical;
+  width:100%; font-size:16px; line-height:1.35;
+  padding:8px 10px; border:1px solid var(--field); border-radius:10px;
+  min-height:68px; max-height:84px; resize:vertical;
 }
-#editDlg .ktl-dlgFoot{ padding:8px 12px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
-@media (max-width:520px){
-  #editDlg .ktl-dlgBody .ktl-grid{ grid-template-columns:1fr; }
+#editDlg .ktl-dlgFoot{
+  padding:8px 10px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;
 }
 </style>
 </head>
@@ -284,12 +284,12 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
         </select>
       </label></div>
       <div><label>関与者（誰が）<input id="evActor" placeholder="例：相手方／自分／子"></label></div>
-      <div class="ktl-col2"><label>場所（任意）<input id="evPlace" placeholder="例：自宅／職場／LINE"></label></div>
+      <div><label>場所（任意）<input id="evPlace" placeholder="例：自宅／職場／LINE"></label></div>
+      <div><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" placeholder="例：スクショ（2025-05-10）"></label></div>
       <div class="ktl-col2">
         <label>内容（事実ベース・140字まで）<textarea id="evFact" maxlength="140"></textarea></label>
         <small id="counter" class="ktl-counter">0/140</small>
       </div>
-      <div class="ktl-col2"><label>裏付け証拠（タイトルのみでも可）<input id="evEvidence" placeholder="例：スクショ（2025-05-10）"></label></div>
       <div class="ktl-col2" style="margin-top:6px; display:flex; gap:8px; align-items:center; justify-content:flex-end;">
         <button id="addBtn" class="ktl-btn ktl-btn-primary">＋ この内容を追加</button>
       </div>
@@ -304,7 +304,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
 
 <div id="PRINT_SHEET"></div>
 
-<!-- ▼ 編集ダイアログ（コンパクト） -->
+<!-- ▼ 編集ダイアログ（超コンパクト 2列固定） -->
 <dialog id="editDlg">
   <div class="ktl-dlgHead">編集</div>
   <div class="ktl-dlgBody">
@@ -318,9 +318,9 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
         </select>
       </label></div>
       <div><label>関与者<input id="edActor"></label></div>
-      <div class="ktl-col2"><label>場所<input id="edPlace"></label></div>
+      <div><label>場所<input id="edPlace"></label></div>
+      <div><label>証拠<input id="edEvidence"></label></div>
       <div class="ktl-col2"><label>内容<textarea id="edFact" maxlength="140"></textarea></label></div>
-      <div class="ktl-col2"><label>証拠<input id="edEvidence"></label></div>
     </div>
   </div>
   <div class="ktl-dlgFoot">
@@ -515,7 +515,7 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
   var editingIndex=-1; var dlg=$("editDlg");
   function openEdit(i){
     editingIndex=i; var ev=events()[i]; if(!ev) return;
-    if(!(dlg && dlg.showModal)){  /* 旧ブラウザの簡易フォールバック */
+    if(!(dlg && dlg.showModal)){  /* 旧ブラウザ簡易フォールバック */
       var nd=prompt("発生日 (YYYY-MM-DD)", ev.date||""); if(nd===null) return;
       var nt=prompt("時刻 (HH:MM)", ev.time||""); if(nt===null) return;
       var ty=prompt("種別", ev.type||""); if(ty===null) return;
@@ -759,18 +759,10 @@ table.ktl-list td.ktl-pre{white-space:pre-wrap !important;}
     var savedAuto=(localStorage.getItem("__autosave__")==="1");
     var as=$("autoSave"); if(as){ as.checked=!!savedAuto; as.addEventListener("change", function(){ localStorage.setItem("__autosave__", as.checked?"1":"0"); }); }
 
-    bindAddEdit();
-    bindEditDialog();
-    bindSave();
-    bindCaseButtons();
-
+    bindAddEdit(); bindEditDialog(); bindSave(); bindCaseButtons();
     var pb=$("pdfBtn"); if(pb) pb.addEventListener("click", makePDF);
   }
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded", initAfterDom);
-  }else{
-    initAfterDom();
-  }
+  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", initAfterDom); } else { initAfterDom(); }
 
   /* ====== 全削除 ====== */
   function wipeAllHandler(){
